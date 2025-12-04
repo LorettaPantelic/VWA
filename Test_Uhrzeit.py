@@ -5,7 +5,7 @@ from datetime import datetime
 pygame.init()
 
 WIDTH, HEIGHT = 800, 480
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Scoreboard Uhr")
 
 font = pygame.font.SysFont("Arial", 100)
