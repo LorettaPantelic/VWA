@@ -4,6 +4,7 @@ from datetime import datetime
 
 pygame.init()
 
+# Bildschirmgröße (später anpassen, z.B. Full HD 1920x1080)
 WIDTH, HEIGHT = 800, 480
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Scoreboard Uhr")
