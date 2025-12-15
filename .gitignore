@@ -1,0 +1,12 @@
+# Virtuelle Umgebung
+venv/
+
+# Python-Cache-Dateien
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Betriebssystem-Dateien (optional)
+.DS_Store
+Thumbs.db
