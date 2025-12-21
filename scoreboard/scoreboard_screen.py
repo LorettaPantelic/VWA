@@ -33,6 +33,7 @@ def save_state(state):
 
 def load_state():
     if not os.path.exists(STATE_FILE):
+        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)  # Ordner sicherstellen
         save_state({"clock_running": False})
     try:
         with open(STATE_FILE, "r") as f:
