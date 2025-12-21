@@ -10,5 +10,3 @@ __pycache__/
 # Betriebssystem-Dateien (optional)
 .DS_Store
 Thumbs.db
-
-start_scoreboard.sh
