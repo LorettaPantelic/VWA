@@ -12,8 +12,9 @@ locale.setlocale(locale.LC_TIME, "")
 pygame.init()
 
 # --- Bildschirmgröße ---
-WIDTH, HEIGHT = 800, 480
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+info = pygame.display.Info()
+WIDTH, HEIGHT = info.current_w, info.current_h
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Scoreboard Uhr")
 
 # --- Schriftarten ---
