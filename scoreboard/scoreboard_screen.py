@@ -84,31 +84,31 @@ while running:
     # --- Anzeige ---
     screen.fill((0, 0, 0))
 
-if mode == "index":
-    # Nur Uhrzeit zentriert
-    now = datetime.datetime.now()
-    now_time = now.strftime("%H:%M:%S")
-    time_surface = font.render(now_time, True, (255, 255, 255))
-    screen.blit(time_surface, ((WIDTH - time_surface.get_width()) / 2,
-                               (HEIGHT - time_surface.get_height()) / 2))
-elif mode == "stopwatch":
-    # Stoppuhr zentriert
-    text_surface = font.render(time_text, True, (255, 255, 255))
-    screen.blit(text_surface, ((WIDTH - text_surface.get_width()) / 2,
-                               (HEIGHT - text_surface.get_height()) / 2))
+    if mode == "index":
+        # Nur Uhrzeit zentriert
+        now = datetime.datetime.now()
+        now_time = now.strftime("%H:%M:%S")
+        time_surface = font.render(now_time, True, (255, 255, 255))
+        screen.blit(time_surface, ((WIDTH - time_surface.get_width()) / 2,
+                                (HEIGHT - time_surface.get_height()) / 2))
+    elif mode == "stopwatch":
+        # Stoppuhr zentriert
+        text_surface = font.render(time_text, True, (255, 255, 255))
+        screen.blit(text_surface, ((WIDTH - text_surface.get_width()) / 2,
+                                (HEIGHT - text_surface.get_height()) / 2))
 
-    # Uhrzeit oben links
-    clock_surface = clock_font.render(now_time, True, (255, 255, 255))
-    screen.blit(clock_surface, (10, 10))
+        # Uhrzeit oben links
+        clock_surface = clock_font.render(now_time, True, (255, 255, 255))
+        screen.blit(clock_surface, (10, 10))
 
-    # Datum oben rechts
-    date_surface = date_font.render(date_text, True, (255, 255, 255))
-    screen.blit(date_surface, (WIDTH - date_surface.get_width() - 10, 10))
-elif mode == "message":
-    # Nachricht zentriert
-    msg_surface = font.render(message_text, True, (255, 255, 255))
-    screen.blit(msg_surface, ((WIDTH - msg_surface.get_width()) / 2,
-                              (HEIGHT - msg_surface.get_height()) / 2))
+        # Datum oben rechts
+        date_surface = date_font.render(date_text, True, (255, 255, 255))
+        screen.blit(date_surface, (WIDTH - date_surface.get_width() - 10, 10))
+    elif mode == "message":
+        # Nachricht zentriert
+        msg_surface = font.render(message_text, True, (255, 255, 255))
+        screen.blit(msg_surface, ((WIDTH - msg_surface.get_width()) / 2,
+                                (HEIGHT - msg_surface.get_height()) / 2))
 
     pygame.display.flip()
     clock.tick(60)
