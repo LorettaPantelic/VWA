@@ -1,17 +1,26 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, render_template
 import json
 import os
 
-app = Flask(__name__)
+# Absolute base directory of this file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-STATE_FILE = "state.json"
+# Explicitly define template and static directories
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static")
+)
 
-# Hilfsfunktion: Zustand speichern
+# Absolute path to the state file
+STATE_FILE = os.path.join(BASE_DIR, "state.json")
+
+# Helper function: save application state to disk
 def save_state(state):
     with open(STATE_FILE, "w") as f:
         json.dump(state, f)
 
-# Hilfsfunktion: Zustand laden
+# Helper function: load application state from disk
 def load_state():
     if not os.path.exists(STATE_FILE):
         save_state({"clock_running": False})
@@ -28,11 +37,11 @@ def toggle_clock():
 @app.route("/get_state")
 def get_state():
     return jsonify(load_state())
-    
+
+# HTML is loaded from the templates directory using Flask's standard mechanism
 @app.route("/")
 def index_page():
-    return send_from_directory(".", "index.html")
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-    
