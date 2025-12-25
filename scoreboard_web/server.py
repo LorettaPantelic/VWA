@@ -43,5 +43,9 @@ def get_state():
 def index_page():
     return render_template("index.html")
 
+@app.route("/stopwatch")
+def stopwatch_page():
+    return render_template("stopwatch.html")
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
