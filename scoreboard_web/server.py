@@ -20,6 +20,13 @@ def save_state(state):
     with open(STATE_FILE, "w") as f:
         json.dump(state, f)
 
+def set_mode(mode, message=None):
+    state = load_state()
+    state["mode"] = mode
+    if message is not None:
+        state["message"] = message
+    save_state(state)
+
 # Helper function: load application state from disk
 def load_state():
     if not os.path.exists(STATE_FILE):
@@ -41,14 +48,24 @@ def get_state():
 # HTML is loaded from the templates directory using Flask's standard mechanism
 @app.route("/")
 def index_page():
+    set_mode("index")
     return render_template("index.html")
 
 @app.route("/stopwatch")
 def stopwatch_page():
+    set_mode("stopwatch")
     return render_template("stopwatch.html")
 
-@app.route("/message")
+@app.route("/message", methods=["GET", "POST"])
 def message_page():
+    if request.method == "POST":
+        msg = request.form.get("message", "").strip()
+        if not msg:
+            msg = "Nachricht"
+        set_mode("message", msg)
+    else:
+        # Wenn GET-Aufruf, setze nur den Modus
+        set_mode("message")
     return render_template("message.html")
 
 @app.route("/scores_and_teams")

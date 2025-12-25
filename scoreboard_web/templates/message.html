@@ -1,9 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-    <title>Scoreboard Steuerung</title>
+    <meta charset="UTF-8">
+    <title>Scoreboard Nachricht</title>
 </head>
 <body>
-    <h1>Nachricht</h1>
+
+    <h1>Nachricht anzeigen</h1>
+
+    <!-- Formular sendet Text an Flask -->
+    <form method="POST" action="/message">
+        <label for="message">Nachricht:</label><br><br>
+
+        <input 
+            type="text" 
+            id="message" 
+            name="message" 
+            placeholder="Nachricht eingeben"
+            style="width: 300px; font-size: 18px;"
+        >
+        <br><br>
+
+        <button type="submit" style="font-size: 18px;">
+            Anzeigen
+        </button>
+    </form>
+
 </body>
 </html>
