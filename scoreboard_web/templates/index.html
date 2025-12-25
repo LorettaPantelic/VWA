@@ -5,14 +5,5 @@
 </head>
 <body>
     <h1>Uhr Steuerung</h1>
-    <button onclick="toggleClock()">Start/Stop</button>
-
-    <script>
-    function toggleClock() {
-        fetch("/toggle_clock", { method: "POST" })
-            .then(r => r.json())
-            .then(data => console.log(data));
-    }
-    </script>
 </body>
 </html>
