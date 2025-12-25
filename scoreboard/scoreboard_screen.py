@@ -34,17 +34,18 @@ def save_state(state):
 
 def load_state():
     if not os.path.exists(STATE_FILE):
-        save_state({"clock_running": False})
+        save_state({"clock_running": False, "elapsed_ms": 0})
     try:
         with open(STATE_FILE, "r") as f:
             data = json.load(f)
     except (json.JSONDecodeError, FileNotFoundError):
-        data = {"clock_running": False}
+        data = {"clock_running": False, "elapsed_ms": 0}
         save_state(data)
     return data
 
 # --- Zeitvariablen ---
-total_elapsed = 0
+state = load_state()
+total_elapsed = state.get("elapsed_ms", 0) / 1000  # ms → Sekunden
 last_tick = time.time()
 
 running = True
@@ -61,12 +62,14 @@ while running:
 
     current_time = time.time()
 
-    if clock_running:
-        total_elapsed += current_time - last_tick
+    # --- Stoppuhr berechnen ---
+    if clock_running and state.get("last_start_ts"):
+        # total_elapsed = gespeicherte Zeit + seit Start vergangene Zeit
+        total_elapsed = state.get("elapsed_ms", 0) / 1000 + (current_time - state["last_start_ts"] / 1000)
+    elif not clock_running:
+        # Wenn Uhr gestoppt oder reset, total_elapsed nur aus saved state
+        total_elapsed = state.get("elapsed_ms", 0) / 1000
 
-    last_tick = current_time
-
-    # Stoppuhr berechnen
     hours = int(total_elapsed // 3600)
     minutes = int((total_elapsed % 3600) // 60)
     seconds = int(total_elapsed % 60)
@@ -85,27 +88,20 @@ while running:
     screen.fill((0, 0, 0))
 
     if mode == "index":
-        # Nur Uhrzeit zentriert
-        now = datetime.datetime.now()
-        now_time = now.strftime("%H:%M:%S")
         time_surface = font.render(now_time, True, (255, 255, 255))
         screen.blit(time_surface, ((WIDTH - time_surface.get_width()) / 2,
                                 (HEIGHT - time_surface.get_height()) / 2))
     elif mode == "stopwatch":
-        # Stoppuhr zentriert
         text_surface = font.render(time_text, True, (255, 255, 255))
         screen.blit(text_surface, ((WIDTH - text_surface.get_width()) / 2,
                                 (HEIGHT - text_surface.get_height()) / 2))
 
-        # Uhrzeit oben links
         clock_surface = clock_font.render(now_time, True, (255, 255, 255))
         screen.blit(clock_surface, (10, 10))
 
-        # Datum oben rechts
         date_surface = date_font.render(date_text, True, (255, 255, 255))
         screen.blit(date_surface, (WIDTH - date_surface.get_width() - 10, 10))
     elif mode == "message":
-        # Nachricht zentriert
         msg_surface = font.render(message_text, True, (255, 255, 255))
         screen.blit(msg_surface, ((WIDTH - msg_surface.get_width()) / 2,
                                 (HEIGHT - msg_surface.get_height()) / 2))
