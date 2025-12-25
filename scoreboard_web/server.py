@@ -1,21 +1,33 @@
 from flask import Flask, jsonify, request, render_template
 import json
 import os
+import time
 
 # Absolute base directory of this file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Explicitly define template and static directories
 app = Flask(
     __name__,
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static")
 )
 
-# Absolute path to the state file
 STATE_FILE = os.path.join(BASE_DIR, "state.json")
 
-# Helper function: save application state to disk
+# State Helpers
+
+def load_state():
+    if not os.path.exists(STATE_FILE):
+        save_state({
+            "clock_running": False,
+            "elapsed_ms": 0,
+            "mode": "index",
+            "message": "Nachricht",
+            "last_start_ts": None
+        })
+    with open(STATE_FILE, "r") as f:
+        return json.load(f)
+
 def save_state(state):
     with open(STATE_FILE, "w") as f:
         json.dump(state, f)
@@ -27,25 +39,53 @@ def set_mode(mode, message=None):
         state["message"] = message
     save_state(state)
 
-# Helper function: load application state from disk
-def load_state():
-    if not os.path.exists(STATE_FILE):
-        save_state({"clock_running": False})
-    with open(STATE_FILE, "r") as f:
-        return json.load(f)
+# Clock Endpoints
 
 @app.route("/toggle_clock", methods=["POST"])
 def toggle_clock():
     state = load_state()
-    state["clock_running"] = not state["clock_running"]
+    now = int(time.time() * 1000)
+
+    if not state["clock_running"]:
+        # ▶ Start
+        state["clock_running"] = True
+        state["last_start_ts"] = now
+    else:
+        # ■ Stop
+        state["clock_running"] = False
+        if state.get("last_start_ts"):
+            state["elapsed_ms"] += now - state["last_start_ts"]
+        state["last_start_ts"] = None
+
+    save_state(state)
+    return jsonify(state)
+
+@app.route("/reset_clock", methods=["POST"])
+def reset_clock():
+    state = load_state()
+    state["clock_running"] = False
+    state["elapsed_ms"] = 0
+    state["last_start_ts"] = None
     save_state(state)
     return jsonify(state)
 
 @app.route("/get_state")
 def get_state():
-    return jsonify(load_state())
+    state = load_state()
 
-# HTML is loaded from the templates directory using Flask's standard mechanism
+    # Wenn Uhr läuft → aktuelle Zeit berechnen
+    if state["clock_running"] and state.get("last_start_ts"):
+        now = int(time.time() * 1000)
+        state["current_elapsed_ms"] = (
+            state["elapsed_ms"] + (now - state["last_start_ts"])
+        )
+    else:
+        state["current_elapsed_ms"] = state["elapsed_ms"]
+
+    return jsonify(state)
+
+# Pages
+
 @app.route("/")
 def index_page():
     set_mode("index")
@@ -64,7 +104,6 @@ def message_page():
             msg = "Nachricht"
         set_mode("message", msg)
     else:
-        # Wenn GET-Aufruf, setze nur den Modus
         set_mode("message")
     return render_template("message.html")
 
