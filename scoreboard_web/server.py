@@ -47,5 +47,17 @@ def index_page():
 def stopwatch_page():
     return render_template("stopwatch.html")
 
+@app.route("/message")
+def message_page():
+    return render_template("message.html")
+
+@app.route("/scores_and_teams")
+def scores_and_teams_page():
+    return render_template("scores_and_teams.html")
+
+@app.route("/timer")
+def timer_page():
+    return render_template("timer.html")
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
