@@ -2,5 +2,18 @@
   "clock_running": false,
   "elapsed_ms": 0,
   "mode": "index",
-  "message": "Nachricht"
+  "message": "Nachricht",
+
+  "teams": [
+    {
+      "name": "Team Hamburg",
+      "score": 45,
+      "color": [91, 124, 255]
+    },
+    {
+      "name": "Team München",
+      "score": 38,
+      "color": [214, 76, 76]
+    }
+  ]
 }

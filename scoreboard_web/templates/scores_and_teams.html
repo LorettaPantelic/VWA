@@ -1,9 +1,190 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
+    <meta charset="UTF-8">
     <title>Scoreboard Steuerung</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            width: 520px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .team {
+            margin-bottom: 28px;
+        }
+
+        .team-name-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .team-name-row input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+        }
+
+        .team-name-row input[type="color"] {
+            width: 56px;
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .score-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .score-display {
+            flex: 1;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 44px;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        button {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            border: none;
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .minus {
+            background: #dc2626;
+            color: white;
+        }
+
+        .plus {
+            background: #4ca34f;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>Teams & Punkte</h1>
+
+<div class="container">
+    <h1>Teams & Punktestände</h1>
+
+    <!-- Team 1 -->
+    <div class="team">
+        <div class="team-name-row">
+            <input id="team1Name" type="text" value="Team Hamburg" oninput="updateTeam(1)">
+            <input id="team1Color" type="color" value="#5b7cff" onchange="updateTeam(1)">
+        </div>
+
+        <div class="score-row">
+            <button class="minus" onclick="changeScore(1, -1)">−</button>
+            <div class="score-display" id="team1Score">45</div>
+            <button class="plus" onclick="changeScore(1, 1)">+</button>
+        </div>
+    </div>
+
+    <!-- Team 2 -->
+    <div class="team">
+        <div class="team-name-row">
+            <input id="team2Name" type="text" value="Team München" oninput="updateTeam(2)">
+            <input id="team2Color" type="color" value="#d64c4c" onchange="updateTeam(2)">
+        </div>
+
+        <div class="score-row">
+            <button class="minus" onclick="changeScore(2, -1)">−</button>
+            <div class="score-display" id="team2Score">38</div>
+            <button class="plus" onclick="changeScore(2, 1)">+</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function hexToRgb(hex) {
+        const bigint = parseInt(hex.slice(1), 16);
+        return [
+            (bigint >> 16) & 255,
+            (bigint >> 8) & 255,
+            bigint & 255
+        ];
+    }
+
+    const scoreboard = {
+        team1: {
+            name: "Team Hamburg",
+            score: 45,
+            color: "#5b7cff"
+        },
+        team2: {
+            name: "Team München",
+            score: 38,
+            color: "#d64c4c"
+        }
+    };
+
+    function changeScore(team, delta) {
+        const t = scoreboard["team" + team];
+        t.score = Math.max(0, t.score + delta);
+
+        document.getElementById("team" + team + "Score").textContent = t.score;
+        sendToServer();
+    }
+
+    function updateTeam(team) {
+        const t = scoreboard["team" + team];
+        t.name = document.getElementById("team" + team + "Name").value;
+        t.color = document.getElementById("team" + team + "Color").value;
+
+        sendToServer();
+    }
+
+    function sendToServer() {
+    fetch("/update_scoreboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            mode: "scoreboard",
+            teams: [
+                {
+                    name: scoreboard.team1.name,
+                    score: scoreboard.team1.score,
+                    color: hexToRgb(scoreboard.team1.color)
+                },
+                {
+                    name: scoreboard.team2.name,
+                    score: scoreboard.team2.score,
+                    color: hexToRgb(scoreboard.team2.color)
+                }
+            ]
+        })
+    }).catch(() => {});
+}
+
+</script>
+
 </body>
 </html>

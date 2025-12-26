@@ -21,6 +21,8 @@ pygame.display.set_caption("Scoreboard Uhr")
 font = pygame.font.SysFont("Arial", 80)          # Stoppuhr
 clock_font = pygame.font.SysFont("Arial", 40)    # Uhrzeit oben links
 date_font = pygame.font.SysFont("Arial", 40)     # Datum oben rechts
+team_font = pygame.font.SysFont("Arial", 64)
+score_font = pygame.font.SysFont("Arial", 180)
 
 clock = pygame.time.Clock()
 
@@ -105,6 +107,40 @@ while running:
         msg_surface = font.render(message_text, True, (255, 255, 255))
         screen.blit(msg_surface, ((WIDTH - msg_surface.get_width()) / 2,
                                 (HEIGHT - msg_surface.get_height()) / 2))
+    elif mode == "scoreboard":
+        teams = state.get("teams", [])
+
+        screen.fill((20, 25, 40))  # dunkler Hintergrund wie Foto
+
+        card_width = WIDTH // 2 - 80
+        card_height = HEIGHT - 200
+        y = 120
+
+        for i, team in enumerate(teams[:2]):
+            x = 60 + i * (card_width + 40)
+
+            color = team.get("color", [80, 80, 80])
+            name = team.get("name", "Team")
+            score = str(team.get("score", 0))
+
+            # Karte
+            rect = pygame.Rect(x, y, card_width, card_height)
+            pygame.draw.rect(screen, color, rect, border_radius=40)
+
+            # Teamname
+            name_surf = team_font.render(name, True, (255, 255, 255))
+            screen.blit(
+                name_surf,
+                (x + (card_width - name_surf.get_width()) // 2, y + 40)
+            )
+
+            # Punktestand
+            score_surf = score_font.render(score, True, (255, 255, 255))
+            screen.blit(
+                score_surf,
+                (x + (card_width - score_surf.get_width()) // 2,
+                y + (card_height - score_surf.get_height()) // 2)
+            )
 
     pygame.display.flip()
     clock.tick(60)
