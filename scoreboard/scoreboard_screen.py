@@ -27,7 +27,7 @@ score_font = pygame.font.SysFont("Arial", 180)
 clock = pygame.time.Clock()
 
 # --- Pfad zur state.json ---
-STATE_FILE = "../scoreboard_web/state.json"
+STATE_FILE = "/home/lori/VWA/scoreboard_web/state.json"
 
 # --- Statusfunktionen ---
 def save_state(state):
@@ -107,7 +107,7 @@ while running:
         msg_surface = font.render(message_text, True, (255, 255, 255))
         screen.blit(msg_surface, ((WIDTH - msg_surface.get_width()) / 2,
                                 (HEIGHT - msg_surface.get_height()) / 2))
-    elif mode == "scoreboard":
+    elif mode == "scores_and_teams":
         teams = state.get("teams", [])
 
         screen.fill((20, 25, 40))  # dunkler Hintergrund wie Foto
