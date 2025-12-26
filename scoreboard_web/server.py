@@ -109,6 +109,7 @@ def message_page():
 
 @app.route("/scores_and_teams")
 def scores_and_teams_page():
+    set_mode("scores_and_teams")
     return render_template("scores_and_teams.html")
 
 @app.route("/timer")
