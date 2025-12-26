@@ -97,13 +97,13 @@
     <!-- Team 1 -->
     <div class="team">
         <div class="team-name-row">
-            <input id="team1Name" type="text" value="Team Hamburg" oninput="updateTeam(1)">
-            <input id="team1Color" type="color" value="#5b7cff" onchange="updateTeam(1)">
+            <input id="team1Name" type="text" value="{{ team1.name }}" oninput="updateTeam(1)">
+            <input id="team1Color" type="color" value="{{ '#%02x%02x%02x'|format(team1.color[0], team1.color[1], team1.color[2]) }}" onchange="updateTeam(1)">
         </div>
 
         <div class="score-row">
             <button class="minus" onclick="changeScore(1, -1)">−</button>
-            <div class="score-display" id="team1Score">45</div>
+            <div class="score-display" id="team1Score">{{ team1.score }}</div>
             <button class="plus" onclick="changeScore(1, 1)">+</button>
         </div>
     </div>
@@ -111,13 +111,13 @@
     <!-- Team 2 -->
     <div class="team">
         <div class="team-name-row">
-            <input id="team2Name" type="text" value="Team München" oninput="updateTeam(2)">
-            <input id="team2Color" type="color" value="#d64c4c" onchange="updateTeam(2)">
+            <input id="team2Name" type="text" value="{{ team2.name }}" oninput="updateTeam(2)">
+            <input id="team2Color" type="color" value="{{ '#%02x%02x%02x'|format(team2.color[0], team2.color[1], team2.color[2]) }}" onchange="updateTeam(2)">
         </div>
 
         <div class="score-row">
             <button class="minus" onclick="changeScore(2, -1)">−</button>
-            <div class="score-display" id="team2Score">38</div>
+            <div class="score-display" id="team2Score">{{ team2.score }}</div>
             <button class="plus" onclick="changeScore(2, 1)">+</button>
         </div>
     </div>
@@ -135,14 +135,14 @@
 
     const scoreboard = {
         team1: {
-            name: "Team 1",
-            score: 0,
-            color: "#5b7cff"
+            name: "{{ team1.name }}",
+            score: parseInt("{{ team1.score }}"),
+            color: "{{ '#%02x%02x%02x'|format(team1.color[0], team1.color[1], team1.color[2]) }}"
         },
         team2: {
-            name: "Team 2",
-            score: 0,
-            color: "#d64c4c"
+            name: "{{ team2.name }}",
+            score: parseInt("{{ team2.score }}"),
+            color: "{{ '#%02x%02x%02x'|format(team2.color[0], team2.color[1], team2.color[2]) }}"
         }
     };
 
@@ -163,27 +163,26 @@
     }
 
     function sendToServer() {
-    fetch("/update_scoreboard", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            mode: "scoreboard",
-            teams: [
-                {
-                    name: scoreboard.team1.name,
-                    score: scoreboard.team1.score,
-                    color: hexToRgb(scoreboard.team1.color)
-                },
-                {
-                    name: scoreboard.team2.name,
-                    score: scoreboard.team2.score,
-                    color: hexToRgb(scoreboard.team2.color)
-                }
-            ]
-        })
-    }).catch(() => {});
-}
-
+        fetch("/update_scoreboard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                mode: "scores_and_teams",
+                teams: [
+                    {
+                        name: scoreboard.team1.name,
+                        score: scoreboard.team1.score,
+                        color: hexToRgb(scoreboard.team1.color)
+                    },
+                    {
+                        name: scoreboard.team2.name,
+                        score: scoreboard.team2.score,
+                        color: hexToRgb(scoreboard.team2.color)
+                    }
+                ]
+            })
+        }).catch(() => {});
+    }
 </script>
 
 </body>

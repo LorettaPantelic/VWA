@@ -38,14 +38,35 @@ def save_state(state):
 
 def load_state():
     if not os.path.exists(STATE_FILE):
-        save_state({"clock_running": False, "elapsed_ms": 0})
+        save_state({
+            "clock_running": False,
+            "elapsed_ms": 0,
+            "mode": "index",
+            "message": "Nachricht",
+            "teams": [
+                {"name": "Team 1", "score": 0, "color": [91, 124, 255]},
+                {"name": "Team 2", "score": 0, "color": [214, 76, 76]}
+            ],
+            "last_start_ts": None
+        })
     try:
         with open(STATE_FILE, "r") as f:
             data = json.load(f)
     except (json.JSONDecodeError, FileNotFoundError):
-        data = {"clock_running": False, "elapsed_ms": 0}
+        data = {
+            "clock_running": False,
+            "elapsed_ms": 0,
+            "mode": "index",
+            "message": "Nachricht",
+            "teams": [
+                {"name": "Team 1", "score": 0, "color": [91, 124, 255]},
+                {"name": "Team 2", "score": 0, "color": [214, 76, 76]}
+            ],
+            "last_start_ts": None
+        }
         save_state(data)
     return data
+
 
 # --- Zeitvariablen ---
 state = load_state()

@@ -109,8 +109,26 @@ def message_page():
 
 @app.route("/scores_and_teams")
 def scores_and_teams_page():
+    state = load_state()  # lädt die aktuelle JSON
     set_mode("scores_and_teams")
-    return render_template("scores_and_teams.html")
+    return render_template(
+        "scores_and_teams.html",
+        team1=state["teams"][0],
+        team2=state["teams"][1]
+    )
+
+@app.route("/update_scoreboard", methods=["POST"])
+def update_scoreboard():
+    data = request.get_json()
+    if not data:
+        return "No data received", 400
+
+    state = load_state()
+    state["mode"] = "scores_and_teams"  # wichtig: Pygame erkennt diesen Mode
+    state["teams"] = data.get("teams", state.get("teams", []))
+    save_state(state)
+
+    return jsonify({"status": "ok"})
 
 @app.route("/timer")
 def timer_page():
