@@ -32,7 +32,9 @@ STATE_FILE = "/home/lori/VWA/scoreboard_web/state.json"
 # --- Statusfunktionen ---
 def save_state(state):
     with open(STATE_FILE, "w") as f:
-        json.dump(state, f)
+        json.dump(state, f, indent=4)
+        f.flush()
+        os.fsync(f.fileno())
 
 def load_state():
     if not os.path.exists(STATE_FILE):
