@@ -97,6 +97,7 @@
     let running = false;
     let remainingSeconds = 600.0; // float für präzise Millisekunden
     let lastSetSeconds = 600.0;
+    let initialSeconds = 600.0;
     let intervalId = null;
     let startTimestamp = null;
     let editing = false;
@@ -191,8 +192,8 @@
 
     function resetTimer() {
         stopTimer();
-
-        remainingSeconds = lastSetSeconds;
+        remainingSeconds = initialSeconds;
+        lastSetSeconds = initialSeconds;
         updateDisplay();
 
         fetch("/update_timer", {
@@ -209,6 +210,7 @@
         stopTimer(); // Timer sicher stoppen
         remainingSeconds = min * 60;
         lastSetSeconds = remainingSeconds;
+        initialSeconds = remainingSeconds;
         updateDisplay();
 
         fetch("/update_timer", {
@@ -231,6 +233,7 @@
         if (!isNaN(newSeconds) && newSeconds > 0) {
             remainingSeconds = newSeconds;
             lastSetSeconds = newSeconds;
+            initialSeconds = newSeconds;
 
             fetch("/update_timer", {
                 method: "POST",
