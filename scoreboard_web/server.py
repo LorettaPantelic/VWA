@@ -158,35 +158,43 @@ def update_timer():
     data = request.json
 
     try:
-        with open("state.json", "r") as f:
+        with open(STATE_FILE, "r") as f:
             state = json.load(f)
     except:
         state = {}
 
-    # Falls ein neuer Timer gesetzt wird (Preset oder manuell)
-    if "duration" in data:
-        # Wenn Timer gerade läuft, berücksichtige die bereits verstrichene Zeit
-        if state.get("timer_running") and state.get("timer_start_ts"):
-            elapsed = time.time() - state["timer_start_ts"]
-            state["timer_duration"] = max(0, state.get("timer_duration", 0) - elapsed)
-        else:
-            state["timer_duration"] = data["duration"]
+    now = time.time()
 
     # Timer starten
     if data.get("running") is True:
-        state["timer_start_ts"] = time.time()
-        state["timer_running"] = True
+        # Wenn Timer schon läuft, nichts ändern
+        if not state.get("timer_running", False):
+            state["timer_start_ts"] = now
+            # Wenn duration gesendet wird, neue Dauer setzen
+            if "duration" in data:
+                state["timer_duration"] = data["duration"]
+            state["timer_running"] = True
+
     # Timer stoppen
     elif data.get("running") is False:
         if state.get("timer_running") and state.get("timer_start_ts"):
-            elapsed = time.time() - state["timer_start_ts"]
+            elapsed = now - state["timer_start_ts"]
             state["timer_duration"] = max(0, state.get("timer_duration", 0) - elapsed)
         state["timer_start_ts"] = None
         state["timer_running"] = False
+        # Falls duration gesendet wird (Preset oder manuelle Eingabe)
+        if "duration" in data:
+            state["timer_duration"] = data["duration"]
+
+    # Nur Duration setzen (Preset oder manuell), Timer läuft nicht
+    elif "duration" in data:
+        state["timer_duration"] = data["duration"]
+        state["timer_running"] = False
+        state["timer_start_ts"] = None
 
     state["mode"] = "timer"
 
-    with open("state.json", "w") as f:
+    with open(STATE_FILE, "w") as f:
         json.dump(state, f)
 
     return "", 204

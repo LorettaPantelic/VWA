@@ -182,26 +182,39 @@
     }
 
     function setPreset(min) {
-        stopTimer();
+        stopTimer(); // Timer sicher stoppen
         remainingSeconds = min * 60;
         lastSetSeconds = remainingSeconds;
         updateDisplay();
-    }
 
-    timeField.addEventListener("blur", () => {
-        remainingSeconds = parseAndFormat(timeField.value);
-        lastSetSeconds = remainingSeconds;
-        updateDisplay();
-
-        // --- Server informieren ---
         fetch("/update_timer", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 duration: remainingSeconds,
-                running: running // true/false je nachdem
+                running: false
             })
         });
+    }
+
+    timeField.addEventListener("blur", () => {
+        if (!running) { // nur senden, wenn Timer gestoppt ist
+            remainingSeconds = parseAndFormat(timeField.value);
+            lastSetSeconds = remainingSeconds;
+            updateDisplay();
+
+            fetch("/update_timer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    duration: remainingSeconds,
+                    running: false
+                })
+            });
+        } else {
+            // Timer läuft → nur lokale Anzeige aktualisieren, nicht Server überschreiben
+            updateDisplay();
+        }
     });
 
     // --- Server-Synchronisation ---
