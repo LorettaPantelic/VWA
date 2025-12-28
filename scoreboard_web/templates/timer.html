@@ -96,7 +96,7 @@
 <script>
     let running = false;
     let remainingSeconds = 600;
-    let lastSetSeconds = 600;
+    let lastSetSeconds = 600; // float für präzise Millisekunden
     let intervalId = null;
     let startTimestamp = null;
 
@@ -105,17 +105,13 @@
 
     function parseAndFormat(input) {
         input = input.trim();
-
-        let minutes = 0;
-        let seconds = 0;
-
+        let minutes = 0, seconds = 0;
         if (/^\d+$/.test(input)) {
             minutes = parseInt(input);
             seconds = 0;
         } else if (/^\d+:\d+$/.test(input)) {
             [minutes, seconds] = input.split(":").map(Number);
         }
-
         seconds = Math.min(seconds, 59);
         return minutes * 60 + seconds;
     }
@@ -123,12 +119,12 @@
     function formatTime(totalSeconds, ms = 0) {
         const m = Math.floor(totalSeconds / 60);
         const s = totalSeconds % 60;
-        const cs = Math.floor(ms / 10); // centiseconds
-        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
+        const cs = Math.floor(ms / 10);
+        return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}.${String(cs).padStart(2,"0")}`;
     }
 
     function updateDisplay() {
-        timeField.value = formatTime(remainingSeconds);
+        timeField.value = formatTime(Math.floor(remainingSeconds), (remainingSeconds - Math.floor(remainingSeconds)) * 1000);
     }
 
     function startTimer() {
@@ -153,15 +149,10 @@
             running = true;
 
             intervalId = setInterval(() => {
-                const elapsed = performance.now() - startTimestamp;
-                const totalElapsed = elapsed / 1000;
-
-                const left = Math.max(0, lastSetSeconds - totalElapsed);
-                remainingSeconds = Math.floor(left);
-                const ms = (left - remainingSeconds) * 1000;
-
-                timeField.value = formatTime(remainingSeconds, ms);
-
+                const elapsed = (performance.now() - startTimestamp) / 1000;
+                let left = Math.max(0, lastSetSeconds - elapsed);
+                remainingSeconds = left;
+                updateDisplay();
                 if (left <= 0) stopTimer();
             }, 50);
         } else {
@@ -170,17 +161,15 @@
     }
 
     function stopTimer() {
+        if (!running) return;
         clearInterval(intervalId);
         running = false;
-
+        lastSetSeconds = remainingSeconds; // **restzeit merken**
         fetch("/update_timer", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                running: false
-            })
+            body: JSON.stringify({ running: false })
         });
-
         startBtn.textContent = "▶ Start";
         startBtn.style.background = "#4ca34f";
     }
@@ -198,9 +187,9 @@
         updateDisplay();
     }
 
-
     timeField.addEventListener("blur", () => {
         remainingSeconds = parseAndFormat(timeField.value);
+        lastSetSeconds = remainingSeconds;
         updateDisplay();
     });
 
