@@ -28,15 +28,14 @@
         }
 
         .time-input {
-            width: 100%;
-            height: 120px;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            padding: 20px;
-            font-size: 56px;
-            text-align: center;
-            margin-bottom: 20px;
-            font-variant-numeric: tabular-nums;
+        width: 100%;
+        border: 2px solid #ddd;
+        border-radius: 12px;
+        padding: 20px;
+        font-size: 48px;
+        text-align: center;
+        margin-bottom: 16px;
+        font-variant-numeric: tabular-nums;
         }
 
         .controls {
@@ -97,7 +96,9 @@
 <script>
     let running = false;
     let remainingSeconds = 600;
+    let lastSetSeconds = 600;
     let intervalId = null;
+    let startTimestamp = null;
 
     const timeField = document.getElementById("timeField");
     const startBtn = document.querySelector(".start");
@@ -120,10 +121,11 @@
         return minutes * 60 + seconds;
     }
 
-    function formatTime(totalSeconds) {
+    function formatTime(totalSeconds, ms = 0) {
         const m = Math.floor(totalSeconds / 60);
         const s = totalSeconds % 60;
-        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        const cs = Math.floor(ms / 10); // centiseconds
+        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
     }
 
     function updateDisplay() {
@@ -133,6 +135,8 @@
     function startTimer() {
         if (!running) {
             remainingSeconds = parseAndFormat(timeField.value);
+            lastSetSeconds = remainingSeconds;
+            startTimestamp = performance.now();
             updateDisplay();
 
             fetch("/update_timer", {
@@ -150,11 +154,17 @@
             running = true;
 
             intervalId = setInterval(() => {
-                if (remainingSeconds > 0) {
-                    remainingSeconds--;
-                    updateDisplay();
-                }
-            }, 1000);
+                const elapsed = performance.now() - startTimestamp;
+                const totalElapsed = elapsed / 1000;
+
+                const left = Math.max(0, lastSetSeconds - totalElapsed);
+                remainingSeconds = Math.floor(left);
+                const ms = (left - remainingSeconds) * 1000;
+
+                timeField.value = formatTime(remainingSeconds, ms);
+
+                if (left <= 0) stopTimer();
+            }, 50);
         } else {
             stopTimer();
         }
@@ -178,7 +188,7 @@
 
     function resetTimer() {
         stopTimer();
-        remainingSeconds = 600;
+        remainingSeconds = lastSetSeconds;
         updateDisplay();
     }
 

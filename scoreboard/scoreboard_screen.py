@@ -170,18 +170,31 @@ while running:
         timer_start_ts = state.get("timer_start_ts", 0)
         timer_running = state.get("timer_running", False)
 
-        remaining = timer_duration
+        remaining = float(timer_duration)
 
         if timer_running and timer_start_ts > 0:
             elapsed = time.time() - timer_start_ts
-            remaining = max(0, timer_duration - int(elapsed))
+            remaining = max(0.0, timer_duration - elapsed)
 
-        minutes = remaining // 60
-        seconds = remaining % 60
-        time_text = f"{minutes:02}:{seconds:02}"
+        minutes = int(remaining // 60)
+        seconds = int(remaining % 60)
+        centiseconds = int((remaining - int(remaining)) * 100)
 
-        screen.fill((20, 25, 40))
+        time_text = f"{minutes:02}:{seconds:02}.{centiseconds:02}"
 
+        # Hintergrund weiß
+        screen.fill((255, 255, 255))
+
+        # Blaue Box
+        box_width = WIDTH * 0.7
+        box_height = HEIGHT * 0.4
+        box_x = (WIDTH - box_width) / 2
+        box_y = (HEIGHT - box_height) / 2
+
+        rect = pygame.Rect(box_x, box_y, box_width, box_height)
+        pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+
+        # Zeit (weiß)
         timer_surface = timer_font.render(time_text, True, (255, 255, 255))
         screen.blit(
             timer_surface,
