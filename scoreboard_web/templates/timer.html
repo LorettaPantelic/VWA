@@ -1,9 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-    <title>Scoreboard Steuerung</title>
+    <meta charset="UTF-8">
+    <title>Timer</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            width: 520px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-bottom: 16px;
+        }
+
+        .time-input {
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 16px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        button {
+            padding: 16px;
+            font-size: 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .start {
+            flex: 1;
+            background: #4ca34f;
+            color: white;
+        }
+
+        .reset {
+            background: #e5e7eb;
+            width: 60px;
+        }
+
+        .presets {
+            display: flex;
+            gap: 12px;
+        }
+
+        .preset {
+            flex: 1;
+            background: #e5e7eb;
+        }
+    </style>
 </head>
 <body>
-    <h1>Timer</h1>
+
+<div class="container">
+    <h1>Countdown Timer</h1>
+
+    <input id="timeField" class="time-input" value="10:00" onclick="this.select()">
+
+    <div class="controls">
+        <button class="start" onclick="startTimer()">▶ Start</button>
+        <button class="reset" onclick="resetTimer()">↺</button>
+    </div>
+
+    <div class="presets">
+        <button class="preset" onclick="setPreset(5)">5 Min</button>
+        <button class="preset" onclick="setPreset(10)">10 Min</button>
+        <button class="preset" onclick="setPreset(15)">15 Min</button>
+    </div>
+</div>
+
+<script>
+    function parseTime(input) {
+        input = input.trim();
+
+        if (/^\d+$/.test(input)) {
+            return parseInt(input) * 60;
+        }
+
+        if (/^\d+:\d+$/.test(input)) {
+            let [m, s] = input.split(":").map(Number);
+            if (s < 10) s *= 10;
+            return m * 60 + s;
+        }
+
+        return 600;
+    }
+
+    function startTimer() {
+        const raw = document.getElementById("timeField").value;
+        const seconds = parseTime(raw);
+
+        fetch("/update_timer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                mode: "timer",
+                duration: seconds,
+                running: true
+            })
+        });
+    }
+
+    function resetTimer() {
+        fetch("/update_timer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                running: false
+            })
+        });
+    }
+
+    function setPreset(min) {
+        document.getElementById("timeField").value =
+            String(min).padStart(2, "0") + ":00";
+    }
+</script>
+
 </body>
 </html>

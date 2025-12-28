@@ -18,11 +18,12 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Scoreboard Uhr")
 
 # --- Schriftarten ---
-font = pygame.font.SysFont("Arial", 80)          # Stoppuhr
-clock_font = pygame.font.SysFont("Arial", 40)    # Uhrzeit oben links
-date_font = pygame.font.SysFont("Arial", 40)     # Datum oben rechts
+font = pygame.font.SysFont("Arial", 80)
+clock_font = pygame.font.SysFont("Arial", 40)
+date_font = pygame.font.SysFont("Arial", 40)
 team_font = pygame.font.SysFont("Arial", 64)
 score_font = pygame.font.SysFont("Arial", 180)
+timer_font = pygame.font.SysFont("Arial", 160)
 
 clock = pygame.time.Clock()
 
@@ -164,6 +165,29 @@ while running:
                 (x + (card_width - score_surf.get_width()) // 2,
                 y + (card_height - score_surf.get_height()) // 2)
             )
+    elif mode == "timer":
+        timer_duration = state.get("timer_duration", 0)
+        timer_start_ts = state.get("timer_start_ts", 0)
+        timer_running = state.get("timer_running", False)
+
+        remaining = timer_duration
+
+        if timer_running and timer_start_ts > 0:
+            elapsed = time.time() - timer_start_ts
+            remaining = max(0, timer_duration - int(elapsed))
+
+        minutes = remaining // 60
+        seconds = remaining % 60
+        time_text = f"{minutes:02}:{seconds:02}"
+
+        screen.fill((20, 25, 40))
+
+        timer_surface = timer_font.render(time_text, True, (255, 255, 255))
+        screen.blit(
+            timer_surface,
+            ((WIDTH - timer_surface.get_width()) // 2,
+            (HEIGHT - timer_surface.get_height()) // 2)
+        )
 
     pygame.display.flip()
     clock.tick(60)

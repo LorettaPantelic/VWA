@@ -132,7 +132,44 @@ def update_scoreboard():
 
 @app.route("/timer")
 def timer_page():
+    try:
+        with open("state.json", "r") as f:
+            state = json.load(f)
+    except:
+        state = {}
+
+    state["mode"] = "timer"
+
+    with open("state.json", "w") as f:
+        json.dump(state, f)
+
     return render_template("timer.html")
+
+@app.route("/update_timer", methods=["POST"])
+def update_timer():
+    data = request.json
+
+    try:
+        with open("state.json", "r") as f:
+            state = json.load(f)
+    except:
+        state = {}
+
+    if "duration" in data:
+        state["timer_duration"] = data["duration"]
+        state["timer_start_ts"] = int(time.time())
+        state["timer_running"] = True
+
+    if data.get("running") is False:
+        state["timer_running"] = False
+
+    state["mode"] = "timer"
+
+    with open("state.json", "w") as f:
+        json.dump(state, f)
+
+    return "", 204
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

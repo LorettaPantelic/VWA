@@ -15,5 +15,9 @@
       "score": 0,
       "color": [214, 76, 76]
     }
-  ]
+  ],
+
+  "timer_duration": 600,
+  "timer_start_ts": 0,
+  "timer_running": false
 }
