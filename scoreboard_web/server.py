@@ -163,17 +163,25 @@ def update_timer():
     except:
         state = {}
 
+    # Falls ein neuer Timer gesetzt wird (Preset oder manuell)
     if "duration" in data:
-        state["timer_duration"] = data["duration"]
-        # nur starten, wenn running = True
-        if data.get("running"):
-            state["timer_start_ts"] = time.time()
-            state["timer_running"] = True
+        # Wenn Timer gerade läuft, berücksichtige die bereits verstrichene Zeit
+        if state.get("timer_running") and state.get("timer_start_ts"):
+            elapsed = time.time() - state["timer_start_ts"]
+            state["timer_duration"] = max(0, state.get("timer_duration", 0) - elapsed)
         else:
-            state["timer_start_ts"] = None
-            state["timer_running"] = False
+            state["timer_duration"] = data["duration"]
 
-    if data.get("running") is False:
+    # Timer starten
+    if data.get("running") is True:
+        state["timer_start_ts"] = time.time()
+        state["timer_running"] = True
+    # Timer stoppen
+    elif data.get("running") is False:
+        if state.get("timer_running") and state.get("timer_start_ts"):
+            elapsed = time.time() - state["timer_start_ts"]
+            state["timer_duration"] = max(0, state.get("timer_duration", 0) - elapsed)
+        state["timer_start_ts"] = None
         state["timer_running"] = False
 
     state["mode"] = "timer"
