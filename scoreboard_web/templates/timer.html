@@ -136,7 +136,6 @@
 
     function startTimer() {
         if (!running) {
-            remainingSeconds = parseAndFormat(timeField.value);
             lastSetSeconds = remainingSeconds;
             startTimestamp = performance.now();
             updateDisplay();
