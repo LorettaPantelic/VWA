@@ -114,7 +114,6 @@
             seconds = 0;
         } else if (/^\d+:\d+$/.test(input)) {
             [minutes, seconds] = input.split(":").map(Number);
-            if (seconds < 10) seconds *= 10;
         }
 
         seconds = Math.min(seconds, 59);
@@ -193,9 +192,12 @@
     }
 
     function setPreset(min) {
+        stopTimer();
         remainingSeconds = min * 60;
+        lastSetSeconds = remainingSeconds;
         updateDisplay();
     }
+
 
     timeField.addEventListener("blur", () => {
         remainingSeconds = parseAndFormat(timeField.value);
