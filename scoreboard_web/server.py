@@ -82,6 +82,14 @@ def get_state():
     else:
         state["current_elapsed_ms"] = state["elapsed_ms"]
 
+    # Timer-Status für Clients
+    if state.get("timer_running") and state.get("timer_start_ts"):
+        now_s = time.time()
+        elapsed = now_s - state["timer_start_ts"]
+        state["remaining_seconds"] = max(0, state.get("timer_duration", 0) - elapsed)
+    else:
+        state["remaining_seconds"] = state.get("timer_duration", 0)
+
     return jsonify(state)
 
 # Pages
