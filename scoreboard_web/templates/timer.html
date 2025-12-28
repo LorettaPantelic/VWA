@@ -192,6 +192,16 @@
         remainingSeconds = parseAndFormat(timeField.value);
         lastSetSeconds = remainingSeconds;
         updateDisplay();
+
+        // --- Server informieren ---
+        fetch("/update_timer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                duration: remainingSeconds,
+                running: running // true/false je nachdem
+            })
+        });
     });
 
     // --- Server-Synchronisation ---

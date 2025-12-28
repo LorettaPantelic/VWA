@@ -165,8 +165,13 @@ def update_timer():
 
     if "duration" in data:
         state["timer_duration"] = data["duration"]
-        state["timer_start_ts"] = int(time.time())
-        state["timer_running"] = True
+        # nur starten, wenn running = True
+        if data.get("running"):
+            state["timer_start_ts"] = time.time()
+            state["timer_running"] = True
+        else:
+            state["timer_start_ts"] = None
+            state["timer_running"] = False
 
     if data.get("running") is False:
         state["timer_running"] = False
