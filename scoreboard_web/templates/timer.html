@@ -99,9 +99,17 @@
     let lastSetSeconds = 600.0;
     let intervalId = null;
     let startTimestamp = null;
+    let editing = false;
 
     const timeField = document.getElementById("timeField");
     const startBtn = document.querySelector(".start");
+    timeField.addEventListener("focus", () => {
+        editing = true;
+    });
+
+    timeField.addEventListener("input", () => {
+        editing = true;
+    });
 
     function parseAndFormat(input) {
         input = input.trim();
@@ -123,14 +131,21 @@
     }
 
     function updateDisplay() {
-        timeField.value = formatTime(Math.floor(remainingSeconds), (remainingSeconds - Math.floor(remainingSeconds)) * 1000);
+        if (editing) return; // ← wichtig!
+        timeField.value = formatTime(
+            Math.floor(remainingSeconds),
+            (remainingSeconds - Math.floor(remainingSeconds)) * 1000
+        );
     }
 
     function updateTimerDisplay() {
+        if (editing) return;
+
         const elapsed = (performance.now() - startTimestamp) / 1000;
         const left = Math.max(0, lastSetSeconds - elapsed);
         remainingSeconds = left;
         updateDisplay();
+
         if (left <= 0) stopTimer();
     }
 
@@ -176,8 +191,18 @@
 
     function resetTimer() {
         stopTimer();
+
         remainingSeconds = lastSetSeconds;
         updateDisplay();
+
+        fetch("/update_timer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                duration: remainingSeconds,
+                running: false
+            })
+        });
     }
 
     function setPreset(min) {
@@ -197,10 +222,15 @@
     }
 
     timeField.addEventListener("blur", () => {
-        if (!running) { // nur senden, wenn Timer gestoppt ist
-            remainingSeconds = parseAndFormat(timeField.value);
-            lastSetSeconds = remainingSeconds;
-            updateDisplay();
+        editing = false;
+
+        // Nur MM:SS auswerten (Millisekunden ignorieren)
+        const raw = timeField.value.split(".")[0];
+        const newSeconds = parseAndFormat(raw);
+
+        if (!isNaN(newSeconds) && newSeconds > 0) {
+            remainingSeconds = newSeconds;
+            lastSetSeconds = newSeconds;
 
             fetch("/update_timer", {
                 method: "POST",
@@ -210,10 +240,9 @@
                     running: false
                 })
             });
-        } else {
-            // Timer läuft → nur lokale Anzeige aktualisieren, nicht Server überschreiben
-            updateDisplay();
         }
+
+        updateDisplay();
     });
 
     // --- Server-Synchronisation ---
