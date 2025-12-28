@@ -29,12 +29,13 @@
 
         .time-input {
             width: 100%;
+            height: 120px;
             border: 2px solid #ddd;
             border-radius: 12px;
             padding: 20px;
-            font-size: 48px;
+            font-size: 56px;
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             font-variant-numeric: tabular-nums;
         }
 
@@ -94,38 +95,75 @@
 </div>
 
 <script>
-    function parseTime(input) {
+    let running = false;
+    let remainingSeconds = 600;
+    let intervalId = null;
+
+    const timeField = document.getElementById("timeField");
+    const startBtn = document.querySelector(".start");
+
+    function parseAndFormat(input) {
         input = input.trim();
 
+        let minutes = 0;
+        let seconds = 0;
+
         if (/^\d+$/.test(input)) {
-            return parseInt(input) * 60;
+            minutes = parseInt(input);
+            seconds = 0;
+        } else if (/^\d+:\d+$/.test(input)) {
+            [minutes, seconds] = input.split(":").map(Number);
+            if (seconds < 10) seconds *= 10;
         }
 
-        if (/^\d+:\d+$/.test(input)) {
-            let [m, s] = input.split(":").map(Number);
-            if (s < 10) s *= 10;
-            return m * 60 + s;
-        }
+        seconds = Math.min(seconds, 59);
+        return minutes * 60 + seconds;
+    }
 
-        return 600;
+    function formatTime(totalSeconds) {
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function updateDisplay() {
+        timeField.value = formatTime(remainingSeconds);
     }
 
     function startTimer() {
-        const raw = document.getElementById("timeField").value;
-        const seconds = parseTime(raw);
+        if (!running) {
+            remainingSeconds = parseAndFormat(timeField.value);
+            updateDisplay();
 
-        fetch("/update_timer", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                mode: "timer",
-                duration: seconds,
-                running: true
-            })
-        });
+            fetch("/update_timer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    mode: "timer",
+                    duration: remainingSeconds,
+                    running: true
+                })
+            });
+
+            startBtn.textContent = "■ Stop";
+            startBtn.style.background = "#dc2626";
+            running = true;
+
+            intervalId = setInterval(() => {
+                if (remainingSeconds > 0) {
+                    remainingSeconds--;
+                    updateDisplay();
+                }
+            }, 1000);
+        } else {
+            stopTimer();
+        }
     }
 
-    function resetTimer() {
+    function stopTimer() {
+        clearInterval(intervalId);
+        running = false;
+
         fetch("/update_timer", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -133,12 +171,28 @@
                 running: false
             })
         });
+
+        startBtn.textContent = "▶ Start";
+        startBtn.style.background = "#4ca34f";
+    }
+
+    function resetTimer() {
+        stopTimer();
+        remainingSeconds = 600;
+        updateDisplay();
     }
 
     function setPreset(min) {
-        document.getElementById("timeField").value =
-            String(min).padStart(2, "0") + ":00";
+        remainingSeconds = min * 60;
+        updateDisplay();
     }
+
+    timeField.addEventListener("blur", () => {
+        remainingSeconds = parseAndFormat(timeField.value);
+        updateDisplay();
+    });
+
+    updateDisplay();
 </script>
 
 </body>
