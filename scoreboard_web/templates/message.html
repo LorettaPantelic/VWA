@@ -3,28 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <title>Scoreboard Nachricht</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            width: 420px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-bottom: 16px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background: #4ca34f;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
-    <h1>Nachricht anzeigen</h1>
+    <div class="container">
+        <h1>Nachricht anzeigen</h1>
 
-    <!-- Formular sendet Text an Flask -->
-    <form method="POST" action="/message">
-        <label for="message">Nachricht:</label><br><br>
+        <!-- Formular sendet Text an Flask -->
+        <form method="POST" action="/message">
+            <input 
+                type="text" 
+                id="message" 
+                name="message" 
+                placeholder="Nachricht eingeben"
+            >
 
-        <input 
-            type="text" 
-            id="message" 
-            name="message" 
-            placeholder="Nachricht eingeben"
-            style="width: 300px; font-size: 18px;"
-        >
-        <br><br>
-
-        <button type="submit" style="font-size: 18px;">
-            Anzeigen
-        </button>
-    </form>
+            <button type="submit">
+                Anzeigen
+            </button>
+        </form>
+    </div>
 
 </body>
 </html>

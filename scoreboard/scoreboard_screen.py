@@ -128,9 +128,25 @@ while running:
         date_surface = date_font.render(date_text, True, (255, 255, 255))
         screen.blit(date_surface, (WIDTH - date_surface.get_width() - 10, 10))
     elif mode == "message":
+        # Hintergrund weiß
+        screen.fill((255, 255, 255))
+
+        # Blaue Box (gleiche Proportionen wie beim Timer)
+        box_width = WIDTH * 0.7
+        box_height = HEIGHT * 0.4
+        box_x = (WIDTH - box_width) / 2
+        box_y = (HEIGHT - box_height) / 2
+
+        rect = pygame.Rect(box_x, box_y, box_width, box_height)
+        pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+
+        # Nachricht (weiß, zentriert)
         msg_surface = font.render(message_text, True, (255, 255, 255))
-        screen.blit(msg_surface, ((WIDTH - msg_surface.get_width()) / 2,
-                                (HEIGHT - msg_surface.get_height()) / 2))
+        screen.blit(
+            msg_surface,
+            ((WIDTH - msg_surface.get_width()) // 2,
+            (HEIGHT - msg_surface.get_height()) // 2)
+    )
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
 
