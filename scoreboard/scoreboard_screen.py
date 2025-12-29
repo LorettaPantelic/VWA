@@ -118,15 +118,36 @@ while running:
         screen.blit(time_surface, ((WIDTH - time_surface.get_width()) / 2,
                                 (HEIGHT - time_surface.get_height()) / 2))
     elif mode == "stopwatch":
-        text_surface = font.render(time_text, True, (255, 255, 255))
-        screen.blit(text_surface, ((WIDTH - text_surface.get_width()) / 2,
-                                (HEIGHT - text_surface.get_height()) / 2))
+        # Hintergrund weiß
+        screen.fill((255, 255, 255))
 
-        clock_surface = clock_font.render(now_time, True, (255, 255, 255))
+        # Blaue Box (gleich wie Message/Timer)
+        box_width = WIDTH * 0.7
+        box_height = HEIGHT * 0.4
+        box_x = (WIDTH - box_width) / 2
+        box_y = (HEIGHT - box_height) / 2
+
+        rect = pygame.Rect(box_x, box_y, box_width, box_height)
+        pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+
+        # Stopwatch-Zeit (weiß, zentriert)
+        text_surface = font.render(time_text, True, (255, 255, 255))
+        screen.blit(
+            text_surface,
+            ((WIDTH - text_surface.get_width()) // 2,
+            (HEIGHT - text_surface.get_height()) // 2)
+        )
+
+        # Uhrzeit oben links
+        clock_surface = clock_font.render(now_time, True, (0, 0, 0))
         screen.blit(clock_surface, (10, 10))
 
-        date_surface = date_font.render(date_text, True, (255, 255, 255))
-        screen.blit(date_surface, (WIDTH - date_surface.get_width() - 10, 10))
+        # Datum oben rechts
+        date_surface = date_font.render(date_text, True, (0, 0, 0))
+        screen.blit(
+            date_surface,
+            (WIDTH - date_surface.get_width() - 10, 10)
+        )
     elif mode == "message":
         # Hintergrund weiß
         screen.fill((255, 255, 255))
