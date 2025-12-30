@@ -1,67 +1,58 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+<style>
 
-        .container {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            width: 420px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
+    .container {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        width: 420px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
 
-        h1 {
-            margin-bottom: 16px;
-        }
+    h1 {
+        margin-bottom: 16px;
+    }
 
-        .display {
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            padding: 20px;
-            font-size: 44px;
-            text-align: center;
-            margin-bottom: 16px;
-            font-variant-numeric: tabular-nums;
-        }
+    .display {
+        border: 2px solid #ddd;
+        border-radius: 12px;
+        padding: 20px;
+        font-size: 44px;
+        text-align: center;
+        margin-bottom: 16px;
+        font-variant-numeric: tabular-nums;
+    }
 
-        .controls {
-            display: flex;
-            gap: 12px;
-        }
+    .controls {
+        display: flex;
+        gap: 12px;
+    }
 
-        button {
-            flex: 1;
-            padding: 14px;
-            font-size: 18px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-        }
+    button {
+        flex: 1;
+        padding: 14px;
+        font-size: 18px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+    }
 
-        .start {
-            background: #4ca34f;
-            color: white;
-        }
+    .start {
+        background: #4ca34f;
+        color: white;
+    }
 
-        .stop {
-            background: #dc2626;
-            color: white;
-        }
+    .stop {
+        background: #dc2626;
+        color: white;
+    }
 
-        .reset {
-            background: #e5e7eb;
-        }
-    </style>
+    .reset {
+        background: #e5e7eb;
+    }
+</style>
 
 <div class="container">
     <h1>Stoppuhr</h1>
