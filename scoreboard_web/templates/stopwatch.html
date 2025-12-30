@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Scoreboard Steuerung</title>
+{% extends "base.html" %}
+{% block content %}
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -64,8 +62,6 @@
             background: #e5e7eb;
         }
     </style>
-</head>
-<body>
 
 <div class="container">
     <h1>Stoppuhr</h1>
@@ -137,5 +133,4 @@
     }
 </script>
 
-</body>
-</html>
+{% endblock %}

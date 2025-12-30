@@ -12,7 +12,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.nav-btn {
+.navbar .nav-btn {
     text-decoration: none;
     background-color: rgb(11, 173, 254);
     color: white;
@@ -22,7 +22,7 @@ body {
     transition: transform 0.1s ease, background-color 0.1s ease;
 }
 
-.nav-btn:hover {
+.navbar .nav-btn:hover {
     transform: scale(1.05);
     background-color: rgb(0, 150, 230);
 }
