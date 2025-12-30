@@ -73,7 +73,8 @@ def reset_clock():
 def get_state():
     state = load_state()
 
-    # Wenn Uhr läuft → aktuelle Zeit berechnen
+    # If the clock is running → calculate current time
+
     if state["clock_running"] and state.get("last_start_ts"):
         now = int(time.time() * 1000)
         state["current_elapsed_ms"] = (
@@ -82,7 +83,7 @@ def get_state():
     else:
         state["current_elapsed_ms"] = state["elapsed_ms"]
 
-    # Timer-Status für Clients
+    # Timer state for clients
     if state.get("timer_running") and state.get("timer_start_ts"):
         now_s = time.time()
         elapsed = now_s - state["timer_start_ts"]
@@ -117,7 +118,7 @@ def message_page():
 
 @app.route("/scores_and_teams")
 def scores_and_teams_page():
-    state = load_state()  # lädt die aktuelle JSON
+    state = load_state()
     set_mode("scores_and_teams")
     return render_template(
         "scores_and_teams.html",
@@ -132,7 +133,7 @@ def update_scoreboard():
         return "No data received", 400
 
     state = load_state()
-    state["mode"] = "scores_and_teams"  # wichtig: Pygame erkennt diesen Mode
+    state["mode"] = "scores_and_teams"
     state["teams"] = data.get("teams", state.get("teams", []))
     save_state(state)
 
@@ -165,28 +166,28 @@ def update_timer():
 
     now = time.time()
 
-    # Timer starten
+    # Start timer
     if data.get("running") is True:
-        # Wenn Timer schon läuft, nichts ändern
+        # If the timer is already running, do nothing
         if not state.get("timer_running", False):
             state["timer_start_ts"] = now
-            # Wenn duration gesendet wird, neue Dauer setzen
+            # If a duration is provided, set a new duration
             if "duration" in data:
                 state["timer_duration"] = data["duration"]
             state["timer_running"] = True
 
-    # Timer stoppen
+    # Stop timer
     elif data.get("running") is False:
         if state.get("timer_running") and state.get("timer_start_ts"):
             elapsed = now - state["timer_start_ts"]
             state["timer_duration"] = max(0, state.get("timer_duration", 0) - elapsed)
         state["timer_start_ts"] = None
         state["timer_running"] = False
-        # Falls duration gesendet wird (Preset oder manuelle Eingabe)
+        # If a duration is provided (preset or manual input)
         if "duration" in data:
             state["timer_duration"] = data["duration"]
 
-    # Nur Duration setzen (Preset oder manuell), Timer läuft nicht
+    # Only set duration (preset or manual), timer is not running
     elif "duration" in data:
         state["timer_duration"] = data["duration"]
         state["timer_running"] = False

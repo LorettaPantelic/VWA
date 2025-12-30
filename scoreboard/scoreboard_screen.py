@@ -6,31 +6,34 @@ import os
 import datetime
 import locale
 
-# --- Deutsche Datums- und Zeitformate aktivieren ---
-locale.setlocale(locale.LC_TIME, "")
+# --- German date and time locale ---
+try:
+    locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "de_DE")
 
 pygame.init()
 
-# --- Bildschirmgröße ---
+# --- Screensize ---
 info = pygame.display.Info()
 WIDTH, HEIGHT = info.current_w, info.current_h
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Scoreboard Uhr")
 
-# --- Schriftarten ---
-font = pygame.font.SysFont("Arial", 160)
-team_font = pygame.font.SysFont("Arial", 80)
-score_font = pygame.font.SysFont("Arial", 250)
-timer_font = pygame.font.SysFont("Arial", 160)
+# --- Fonts ---
+font = pygame.font.SysFont("Arial", 180)
+team_font = pygame.font.SysFont("Arial", 110)
+score_font = pygame.font.SysFont("Arial", 300)
 clock_font_small = pygame.font.SysFont("Arial", 100)
 clock_font_large = pygame.font.SysFont("Arial", 300)
 date_font_small   = pygame.font.SysFont("Arial", 100)
+
 clock = pygame.time.Clock()
 
-# --- Pfad zur state.json ---
+# --- Path to state.json ---
 STATE_FILE = "/home/lori/VWA/scoreboard_web/state.json"
 
-# --- Statusfunktionen ---
+# --- State handling functions ---
 def save_state(state):
     with open(STATE_FILE, "w") as f:
         json.dump(state, f, indent=4)
@@ -69,9 +72,9 @@ def load_state():
     return data
 
 
-# --- Zeitvariablen ---
+# --- Time variables ---
 state = load_state()
-total_elapsed = state.get("elapsed_ms", 0) / 1000  # ms → Sekunden
+total_elapsed = state.get("elapsed_ms", 0) / 1000
 last_tick = time.time()
 
 running = True
@@ -80,7 +83,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Status aus Datei
+# Load state from file
     state = load_state()
     mode = state.get("mode", "index")
     message_text = state.get("message", "Nachricht")
@@ -88,12 +91,12 @@ while running:
 
     current_time = time.time()
 
-    # --- Stoppuhr berechnen ---
+    # --- Calculate stopwatch time ---
     if clock_running and state.get("last_start_ts"):
-        # total_elapsed = gespeicherte Zeit + seit Start vergangene Zeit
+        # total_elapsed = stored time + time elapsed since last start
         total_elapsed = state.get("elapsed_ms", 0) / 1000 + (current_time - state["last_start_ts"] / 1000)
     elif not clock_running:
-        # Wenn Uhr gestoppt oder reset, total_elapsed nur aus saved state
+        # If stopwatch is stopped or reset, use stored state only
         total_elapsed = state.get("elapsed_ms", 0) / 1000
 
     hours = int(total_elapsed // 3600)
@@ -103,20 +106,20 @@ while running:
 
     time_text = f"{hours:02}:{minutes:02}:{seconds:02}.{milliseconds:02}"
 
-    # --- Hintergrund immer weiß ---
+    # --- Always use white background ---
     screen.fill((255, 255, 255))
 
-    # --- Aktuelle Zeit und Datum ---
+    # --- Current time and date ---
     now = datetime.datetime.now()
     now_time = now.strftime("%H:%M:%S")
     date_text = now.strftime("%A, %d.%m.%Y")
 
-    # Datum immer oben rechts
+    # Always display date at the top-right
     date_surface = date_font_small.render(date_text, True, (0, 0, 0))
     screen.blit(date_surface, (WIDTH - date_surface.get_width() - 10, 10))
 
     if mode == "index":
-        # Uhrzeit groß, zentriert
+        # Large centered time display
         time_surface = clock_font_large.render(now_time, True, (0, 0, 0))
         screen.blit(
             time_surface,
@@ -124,12 +127,12 @@ while running:
             (HEIGHT - time_surface.get_height()) // 2)
         )
     else:
-        # Uhrzeit klein, oben links
+        # Small time display at the top-left
         clock_surface = clock_font_small.render(now_time, True, (0, 0, 0))
         screen.blit(clock_surface, (10, 10))
 
     if mode == "stopwatch":
-        # Blaue Box (gleich wie Message/Timer)
+        # Blue box (same style as message/timer)
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4
         box_x = (WIDTH - box_width) / 2
@@ -138,7 +141,7 @@ while running:
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
         pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
 
-        # Stopwatch-Zeit (weiß, zentriert)
+        # Stopwatch time (white, centered)
         text_surface = font.render(time_text, True, (255, 255, 255))
         screen.blit(
             text_surface,
@@ -147,7 +150,7 @@ while running:
         )
 
     elif mode == "message":
-        # Blaue Box (gleiche Proportionen wie beim Timer)
+        # Blue box (same proportions as timer)
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4
         box_x = (WIDTH - box_width) / 2
@@ -156,7 +159,7 @@ while running:
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
         pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
 
-        # Nachricht (weiß, zentriert)
+        # Message text (white, centered)
         msg_surface = font.render(message_text, True, (255, 255, 255))
         screen.blit(
             msg_surface,
@@ -177,18 +180,18 @@ while running:
             name = team.get("name", "Team")
             score = str(team.get("score", 0))
 
-            # Karte
+            # Team card
             rect = pygame.Rect(x, y, card_width, card_height)
             pygame.draw.rect(screen, color, rect, border_radius=40)
 
-            # Teamname
+            # Team name
             name_surf = team_font.render(name, True, (255, 255, 255))
             screen.blit(
                 name_surf,
                 (x + (card_width - name_surf.get_width()) // 2, y + 40)
             )
 
-            # Punktestand
+            # Score
             score_surf = score_font.render(score, True, (255, 255, 255))
             screen.blit(
                 score_surf,
@@ -212,7 +215,7 @@ while running:
 
         time_text = f"{minutes:02}:{seconds:02}.{centiseconds:02}"
 
-        # Blaue Box
+        # Blue Box
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4
         box_x = (WIDTH - box_width) / 2
@@ -221,7 +224,7 @@ while running:
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
         pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
 
-        # Zeit (weiß)
+        # Time (white)
         timer_surface = font.render(time_text, True, (255, 255, 255))
         screen.blit(
             timer_surface,

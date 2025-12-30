@@ -82,7 +82,7 @@
 
 <script>
     let running = false;
-    let remainingSeconds = 600.0; // float für präzise Millisekunden
+    let remainingSeconds = 600.0; // Use float for precise milliseconds
     let lastSetSeconds = 600.0;
     let initialSeconds = 600.0;
     let intervalId = null;
@@ -119,7 +119,7 @@
     }
 
     function updateDisplay() {
-        if (editing) return; // ← wichtig!
+        if (editing) return;
         timeField.value = formatTime(
             Math.floor(remainingSeconds),
             (remainingSeconds - Math.floor(remainingSeconds)) * 1000
@@ -194,7 +194,7 @@
     }
 
     function setPreset(min) {
-        stopTimer(); // Timer sicher stoppen
+        stopTimer();
         remainingSeconds = min * 60;
         lastSetSeconds = remainingSeconds;
         initialSeconds = remainingSeconds;
@@ -213,7 +213,7 @@
     timeField.addEventListener("blur", () => {
         editing = false;
 
-        // Nur MM:SS auswerten (Millisekunden ignorieren)
+        // Evaluate MM:SS only (ignore milliseconds)
         const raw = timeField.value.split(".")[0];
         const newSeconds = parseAndFormat(raw);
 
@@ -235,7 +235,7 @@
         updateDisplay();
     });
 
-    // --- Server-Synchronisation ---
+    // --- Server synchronization ---
     async function syncFromServer() {
         try {
             const res = await fetch("/get_state");
@@ -261,7 +261,7 @@
     }
     syncFromServer();
 
-    // Polling für Web <-> Pi Synchronisation
+    // Polling for web <-> Pi synchronization
     setInterval(async () => {
         if (!running) {
             try {
