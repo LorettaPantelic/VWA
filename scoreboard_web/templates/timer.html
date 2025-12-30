@@ -1,81 +1,67 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Timer</title>
+{% extends "base.html" %}
+{% block content %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+<style>
 
-        .container {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            width: 520px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
+    .container {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        width: 520px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
 
-        h1 {
-            margin-bottom: 16px;
-        }
-
-        .time-input {
-        width: 100%;
-        box-sizing: border-box;
-        border: 2px solid #ddd;
-        border-radius: 12px;
-        padding: 20px;
-        font-size: 48px;
-        text-align: center;
+    h1 {
         margin-bottom: 16px;
-        font-variant-numeric: tabular-nums;
-        }
+    }
 
-        .controls {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
+    .time-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 16px;
+    font-variant-numeric: tabular-nums;
+    }
 
-        button {
-            padding: 16px;
-            font-size: 20px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-        }
+    .controls {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
 
-        .start {
-            flex: 1;
-            background: #4ca34f;
-            color: white;
-        }
+    button {
+        padding: 16px;
+        font-size: 20px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+    }
 
-        .reset {
-            background: #e5e7eb;
-            width: 60px;
-        }
+    .start {
+        flex: 1;
+        background: #4ca34f;
+        color: white;
+    }
 
-        .presets {
-            display: flex;
-            gap: 12px;
-        }
+    .reset {
+        background: #e5e7eb;
+        width: 60px;
+    }
 
-        .preset {
-            flex: 1;
-            background: #e5e7eb;
-        }
-    </style>
-</head>
-<body>
+    .presets {
+        display: flex;
+        gap: 12px;
+    }
+
+    .preset {
+        flex: 1;
+        background: #e5e7eb;
+    }
+</style>
 
 <div class="container">
     <h1>Timer</h1>
@@ -290,5 +276,4 @@
 
 </script>
 
-</body>
-</html>
+{% endblock %}

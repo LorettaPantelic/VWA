@@ -1,95 +1,81 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Scoreboard Steuerung</title>
+{% extends "base.html" %}
+{% block content %}
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+<style>
 
-        .container {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            width: 520px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
+    .container {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        width: 520px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
 
-        h1 {
-            margin-bottom: 20px;
-        }
+    h1 {
+        margin-bottom: 20px;
+    }
 
-        .team {
-            margin-bottom: 28px;
-        }
+    .team {
+        margin-bottom: 28px;
+    }
 
-        .team-name-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
+    .team-name-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
 
-        .team-name-row input[type="text"] {
-            flex: 1;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 12px;
-            border: 2px solid #ddd;
-        }
+    .team-name-row input[type="text"] {
+        flex: 1;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 12px;
+        border: 2px solid #ddd;
+    }
 
-        .team-name-row input[type="color"] {
-            width: 56px;
-            height: 48px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-        }
+    .team-name-row input[type="color"] {
+        width: 56px;
+        height: 48px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+    }
 
-        .score-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
+    .score-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
 
-        .score-display {
-            flex: 1;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            padding: 20px;
-            font-size: 44px;
-            text-align: center;
-            font-variant-numeric: tabular-nums;
-        }
+    .score-display {
+        flex: 1;
+        border: 2px solid #ddd;
+        border-radius: 12px;
+        padding: 20px;
+        font-size: 44px;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+    }
 
-        button {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            border: none;
-            font-size: 26px;
-            cursor: pointer;
-        }
+    button {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        border: none;
+        font-size: 26px;
+        cursor: pointer;
+    }
 
-        .minus {
-            background: #dc2626;
-            color: white;
-        }
+    .minus {
+        background: #dc2626;
+        color: white;
+    }
 
-        .plus {
-            background: #4ca34f;
-            color: white;
-        }
-    </style>
-</head>
-<body>
+    .plus {
+        background: #4ca34f;
+        color: white;
+    }
+</style>
 
 <div class="container">
     <h1>Teams & Punktestände</h1>
@@ -185,5 +171,4 @@
     }
 </script>
 
-</body>
-</html>
+{% endblock %}
