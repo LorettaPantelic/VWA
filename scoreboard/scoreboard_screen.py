@@ -111,11 +111,9 @@ while running:
     date_text = now.strftime("%A, %d.%m.%Y")
 
     # Fonts für Zeit und Datum
-    clock_font_small = pygame.font.SysFont("Arial", 50)
-    date_font_small  = pygame.font.SysFont("Arial", 40)
-
-    clock_font_large = pygame.font.SysFont("Arial", 150)
-    date_font_small   = pygame.font.SysFont("Arial", 40)
+    clock_font_small = pygame.font.SysFont("Arial", 80)
+    clock_font_large = pygame.font.SysFont("Arial", 300)
+    date_font_small   = pygame.font.SysFont("Arial", 80)
 
     # Datum immer oben rechts
     date_surface = date_font_small.render(date_text, True, (0, 0, 0))
