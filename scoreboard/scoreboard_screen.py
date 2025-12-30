@@ -171,7 +171,7 @@ while running:
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
 
-        screen.fill((20, 25, 40))  # dunkler Hintergrund wie Foto
+        screen.fill((255, 255, 255))
 
         card_width = WIDTH // 2 - 80
         card_height = HEIGHT - 200
