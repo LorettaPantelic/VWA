@@ -1,16 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<style>
-    .page-center {
-        font-family: Arial, sans-serif;
-        background: #f5f6f8;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
 
+<style>
     .container {
         background: white;
         padding: 24px;
@@ -40,7 +31,7 @@
         border: none;
         border-radius: 12px;
         cursor: pointer;
-        background: #4ca34f;
+        background: rgb(11, 173, 254);
         color: white;
     }
 </style>
@@ -48,12 +39,10 @@
 <div class="container">
     <h1>Nachricht anzeigen</h1>
 
-    <!-- Formular sendet Text an Flask -->
     <form method="POST" action="/message">
-        <input 
-            type="text" 
-            id="message" 
-            name="message" 
+        <input
+            type="text"
+            name="message"
             placeholder="Nachricht eingeben"
         >
 
@@ -62,4 +51,5 @@
         </button>
     </form>
 </div>
+
 {% endblock %}
