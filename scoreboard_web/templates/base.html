@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Scoreboard Steuerung</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a class="nav-btn" href="/">Start</a>
+        <a class="nav-btn" href="/scores_and_teams">Teams und Punkte</a>
+        <a class="nav-btn" href="/stopwatch">Stoppuhr</a>
+        <a class="nav-btn" href="/timer">Timer</a>
+        <a class="nav-btn" href="/message">Nachrichten</a>
+    </nav>
+
+    <!-- Seiteninhalt -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>
