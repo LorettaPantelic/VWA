@@ -108,23 +108,30 @@ while running:
     # --- Aktuelle Zeit und Datum ---
     now = datetime.datetime.now()
     now_time = now.strftime("%H:%M:%S")
-    date_text = now.strftime("%A, %d.%m.%Y")  # Dienstag, 30.12.2025
+    date_text = now.strftime("%A, %d.%m.%Y")
 
-    # --- Datum immer oben rechts ---
-    date_surface = date_font.render(date_text, True, (0, 0, 0))
+    # Fonts für Zeit und Datum
+    clock_font_small = pygame.font.SysFont("Arial", 50)
+    date_font_small  = pygame.font.SysFont("Arial", 40)
+
+    clock_font_large = pygame.font.SysFont("Arial", 150)
+    date_font_small   = pygame.font.SysFont("Arial", 40)
+
+    # Datum immer oben rechts
+    date_surface = date_font_small.render(date_text, True, (0, 0, 0))
     screen.blit(date_surface, (WIDTH - date_surface.get_width() - 10, 10))
 
     if mode == "index":
         # Uhrzeit groß, zentriert
-        time_surface = font.render(now_time, True, (0, 0, 0))
+        time_surface = clock_font_large.render(now_time, True, (0, 0, 0))
         screen.blit(
             time_surface,
             ((WIDTH - time_surface.get_width()) // 2,
             (HEIGHT - time_surface.get_height()) // 2)
         )
     else:
-        # Uhrzeit oben links
-        clock_surface = clock_font.render(now_time, True, (0, 0, 0))
+        # Uhrzeit klein, oben links
+        clock_surface = clock_font_small.render(now_time, True, (0, 0, 0))
         screen.blit(clock_surface, (10, 10))
 
     if mode == "stopwatch":
