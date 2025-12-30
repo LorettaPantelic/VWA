@@ -18,12 +18,13 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Scoreboard Uhr")
 
 # --- Schriftarten ---
-font = pygame.font.SysFont("Arial", 80)
-clock_font = pygame.font.SysFont("Arial", 40)
-date_font = pygame.font.SysFont("Arial", 40)
-team_font = pygame.font.SysFont("Arial", 64)
-score_font = pygame.font.SysFont("Arial", 180)
+font = pygame.font.SysFont("Arial", 160)
+team_font = pygame.font.SysFont("Arial", 80)
+score_font = pygame.font.SysFont("Arial", 250)
 timer_font = pygame.font.SysFont("Arial", 160)
+clock_font_small = pygame.font.SysFont("Arial", 100)
+clock_font_large = pygame.font.SysFont("Arial", 300)
+date_font_small   = pygame.font.SysFont("Arial", 100)
 clock = pygame.time.Clock()
 
 # --- Pfad zur state.json ---
@@ -109,11 +110,6 @@ while running:
     now = datetime.datetime.now()
     now_time = now.strftime("%H:%M:%S")
     date_text = now.strftime("%A, %d.%m.%Y")
-
-    # Fonts für Zeit und Datum
-    clock_font_small = pygame.font.SysFont("Arial", 80)
-    clock_font_large = pygame.font.SysFont("Arial", 300)
-    date_font_small   = pygame.font.SysFont("Arial", 80)
 
     # Datum immer oben rechts
     date_surface = date_font_small.render(date_text, True, (0, 0, 0))
@@ -226,7 +222,7 @@ while running:
         pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
 
         # Zeit (weiß)
-        timer_surface = timer_font.render(time_text, True, (255, 255, 255))
+        timer_surface = font.render(time_text, True, (255, 255, 255))
         screen.blit(
             timer_surface,
             ((WIDTH - timer_surface.get_width()) // 2,
