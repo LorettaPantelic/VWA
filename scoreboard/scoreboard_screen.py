@@ -4,6 +4,7 @@ import time
 import json
 import os
 import datetime
+from zoneinfo import ZoneInfo
 
 GERMAN_WEEKDAYS = {
     0: "Montag",
@@ -113,7 +114,7 @@ while running:
     screen.fill((255, 255, 255))
 
     # --- Current time and date ---
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(ZoneInfo("Europe/Vienna"))
 
     weekday = GERMAN_WEEKDAYS[now.weekday()]
     now_time = f"{now.hour:02}:{now.minute:02}:{now.second:02}"
