@@ -24,7 +24,6 @@ date_font = pygame.font.SysFont("Arial", 40)
 team_font = pygame.font.SysFont("Arial", 64)
 score_font = pygame.font.SysFont("Arial", 180)
 timer_font = pygame.font.SysFont("Arial", 160)
-
 clock = pygame.time.Clock()
 
 # --- Pfad zur state.json ---
@@ -103,24 +102,32 @@ while running:
 
     time_text = f"{hours:02}:{minutes:02}:{seconds:02}.{milliseconds:02}"
 
-    # Uhrzeit oben links
+    # --- Hintergrund immer weiß ---
+    screen.fill((255, 255, 255))
+
+    # --- Aktuelle Zeit und Datum ---
     now = datetime.datetime.now()
     now_time = now.strftime("%H:%M:%S")
+    date_text = now.strftime("%A, %d.%m.%Y")  # Dienstag, 30.12.2025
 
-    # Datum oben rechts – deutscher Stil
-    date_text = now.strftime("%A, %d.%m.%Y")
-
-    # --- Anzeige ---
-    screen.fill((0, 0, 0))
+    # --- Datum immer oben rechts ---
+    date_surface = date_font.render(date_text, True, (0, 0, 0))
+    screen.blit(date_surface, (WIDTH - date_surface.get_width() - 10, 10))
 
     if mode == "index":
-        time_surface = font.render(now_time, True, (255, 255, 255))
-        screen.blit(time_surface, ((WIDTH - time_surface.get_width()) / 2,
-                                (HEIGHT - time_surface.get_height()) / 2))
-    elif mode == "stopwatch":
-        # Hintergrund weiß
-        screen.fill((255, 255, 255))
+        # Uhrzeit groß, zentriert
+        time_surface = font.render(now_time, True, (0, 0, 0))
+        screen.blit(
+            time_surface,
+            ((WIDTH - time_surface.get_width()) // 2,
+            (HEIGHT - time_surface.get_height()) // 2)
+        )
+    else:
+        # Uhrzeit oben links
+        clock_surface = clock_font.render(now_time, True, (0, 0, 0))
+        screen.blit(clock_surface, (10, 10))
 
+    if mode == "stopwatch":
         # Blaue Box (gleich wie Message/Timer)
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4
@@ -138,20 +145,7 @@ while running:
             (HEIGHT - text_surface.get_height()) // 2)
         )
 
-        # Uhrzeit oben links
-        clock_surface = clock_font.render(now_time, True, (0, 0, 0))
-        screen.blit(clock_surface, (10, 10))
-
-        # Datum oben rechts
-        date_surface = date_font.render(date_text, True, (0, 0, 0))
-        screen.blit(
-            date_surface,
-            (WIDTH - date_surface.get_width() - 10, 10)
-        )
     elif mode == "message":
-        # Hintergrund weiß
-        screen.fill((255, 255, 255))
-
         # Blaue Box (gleiche Proportionen wie beim Timer)
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4
@@ -170,8 +164,6 @@ while running:
     )
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
-
-        screen.fill((255, 255, 255))
 
         card_width = WIDTH // 2 - 80
         card_height = HEIGHT - 200
@@ -218,9 +210,6 @@ while running:
         centiseconds = int((remaining - int(remaining)) * 100)
 
         time_text = f"{minutes:02}:{seconds:02}.{centiseconds:02}"
-
-        # Hintergrund weiß
-        screen.fill((255, 255, 255))
 
         # Blaue Box
         box_width = WIDTH * 0.7
