@@ -4,13 +4,16 @@ import time
 import json
 import os
 import datetime
-import locale
 
-# --- German date and time locale ---
-try:
-    locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
-except locale.Error:
-    locale.setlocale(locale.LC_TIME, "de_DE")
+GERMAN_WEEKDAYS = {
+    0: "Montag",
+    1: "Dienstag",
+    2: "Mittwoch",
+    3: "Donnerstag",
+    4: "Freitag",
+    5: "Samstag",
+    6: "Sonntag",
+}
 
 pygame.init()
 
@@ -111,8 +114,10 @@ while running:
 
     # --- Current time and date ---
     now = datetime.datetime.now()
-    now_time = now.strftime("%H:%M:%S")
-    date_text = now.strftime("%A, %d.%m.%Y")
+
+    weekday = GERMAN_WEEKDAYS[now.weekday()]
+    now_time = f"{now.hour:02}:{now.minute:02}:{now.second:02}"
+    date_text = f"{weekday}, {now.day:02}.{now.month:02}.{now.year}"
 
     # Always display date at the top-right
     date_surface = date_font_small.render(date_text, True, (0, 0, 0))
