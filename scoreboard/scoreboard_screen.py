@@ -183,32 +183,36 @@ while running:
     elif mode == "message":
         padding = 40
 
-        # Default box size (original size)
+        # Original (minimum) box size
         base_box_width = int(WIDTH * 0.7)
         base_box_height = int(HEIGHT * 0.4)
 
-        # Limits (do not overlap clock/date or screen edges)
+        # Maximum allowed size (safe area)
         top_margin = 160
-        max_box_width = int(WIDTH * 0.8)
-        max_box_height = int(HEIGHT * 0.6)
+        max_box_width = int(WIDTH * 0.9)
+        max_box_height = int(HEIGHT * 0.65)
 
-        # Wrap text based on the BASE width
-        lines = wrap_text(message_text, font, base_box_width - 2 * padding)
+        # Wrap text using the MAX width (important!)
+        lines = wrap_text(message_text, font, max_box_width - 2 * padding)
 
-        # Calculate text size
+        # Text dimensions
         line_height = font.get_height()
         text_height = line_height * len(lines)
         text_width = max(font.size(line)[0] for line in lines)
 
-        # Box width: at least base size, grow if needed
-        box_width = max(base_box_width, text_width + 2 * padding)
-        box_width = min(box_width, max_box_width)
+        # Decide box width
+        if text_width + 2 * padding > base_box_width:
+            box_width = min(text_width + 2 * padding, max_box_width)
+        else:
+            box_width = base_box_width
 
-        # Box height: at least base size, grow if needed
-        box_height = max(base_box_height, text_height + 2 * padding)
-        box_height = min(box_height, max_box_height)
+        # Decide box height
+        if text_height + 2 * padding > base_box_height:
+            box_height = max_box_height
+        else:
+            box_height = base_box_height
 
-        # Center box on screen (below clock/date)
+        # Center box in safe area
         box_x = (WIDTH - box_width) // 2
         box_y = top_margin + (max_box_height - box_height) // 2
 
@@ -216,14 +220,15 @@ while running:
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
         pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
 
-        # If text is taller than the box, align to top padding
-        if text_height + 2 * padding > box_height:
+        # Text vertical positioning
+        if text_height + 2 * padding >= box_height:
+            # Use full height → start at top padding
             y_offset = box_y + padding
         else:
-            # Otherwise, center text vertically
+            # Center vertically
             y_offset = box_y + (box_height - text_height) // 2
 
-        # Draw text lines
+        # Draw text
         for line in lines:
             line_surface = font.render(line, True, (255, 255, 255))
             x = box_x + (box_width - line_surface.get_width()) // 2
