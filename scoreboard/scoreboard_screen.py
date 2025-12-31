@@ -208,9 +208,11 @@ while running:
     elif mode == "message":
         padding = 40
 
-        # Original (minimum) box size
+        # Original box size
         base_box_width = int(WIDTH * 0.7)
         base_box_height = int(HEIGHT * 0.4)
+        box_width = base_box_width
+        box_height = base_box_height
 
         # Maximum allowed size (safe area)
         top_margin = 160
@@ -236,21 +238,17 @@ while running:
         text_height = line_height * len(lines)
         text_width = max(font.size(line)[0] for line in lines)
 
-        # Decide box width
+        # Adjust box width if text is wider than base
         if text_width + 2 * padding > base_box_width:
             box_width = min(text_width + 2 * padding, max_box_width)
-        else:
-            box_width = base_box_width
 
-        # Decide box height
+        # Adjust box height **only if text is taller than base**
         if text_height + 2 * padding > base_box_height:
-            box_height = max_box_height
-        else:
-            box_height = base_box_height
+            box_height = min(text_height + 2 * padding, max_box_height)
 
-        # Center box in safe area
+        # Center box horizontally and vertically like stopwatch
         box_x = (WIDTH - box_width) // 2
-        box_y = top_margin + (max_box_height - box_height) // 2
+        box_y = (HEIGHT - box_height) // 2
 
         # Draw box
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
@@ -258,7 +256,7 @@ while running:
 
         # Text vertical positioning
         if text_height + 2 * padding >= box_height:
-            y_offset = box_y + padding  # start at top padding
+            y_offset = box_y + padding  # start at top padding if text is too tall
         else:
             y_offset = box_y + (box_height - text_height) // 2  # center vertically
 
