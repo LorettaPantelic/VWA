@@ -190,7 +190,8 @@ while running:
         # Maximum allowed size (safe area)
         top_margin = 160
         max_box_width = int(WIDTH * 0.9)
-        max_box_height = int(HEIGHT * 0.65)
+        bottom_margin = 60  # distance to bottom screen edge
+        max_box_height = HEIGHT - top_margin - bottom_margin
 
         # Wrap text using the MAX width (important!)
         lines = wrap_text(message_text, font, max_box_width - 2 * padding)
@@ -213,6 +214,8 @@ while running:
             box_height = base_box_height
 
         # Center box in safe area
+        box_x = (WIDTH - box_width) // 2
+        # Place box centered horizontally, but free to grow downward
         box_x = (WIDTH - box_width) // 2
         box_y = top_margin + (max_box_height - box_height) // 2
 
