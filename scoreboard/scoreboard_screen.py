@@ -75,6 +75,31 @@ def load_state():
         save_state(data)
     return data
 
+def wrap_text(text, font, max_width):
+    
+    #Splits text into multiple lines so that each line
+    #fits within max_width. Line breaks occur only at whole words.
+    
+    words = text.split(" ")
+    lines = []
+    current_line = ""
+
+    for word in words:
+        # Test if adding the next word exceeds the max width
+        test_line = current_line + (" " if current_line else "") + word
+        if font.size(test_line)[0] <= max_width:
+            current_line = test_line
+        else:
+            # Start a new line
+            if current_line:
+                lines.append(current_line)
+            current_line = word
+
+    # Add the last line
+    if current_line:
+        lines.append(current_line)
+
+    return lines
 
 # --- Time variables ---
 state = load_state()
@@ -156,22 +181,42 @@ while running:
         )
 
     elif mode == "message":
-        # Blue box (same proportions as timer)
-        box_width = WIDTH * 0.7
-        box_height = HEIGHT * 0.4
-        box_x = (WIDTH - box_width) / 2
-        box_y = (HEIGHT - box_height) / 2
+        padding = 40
 
+        # Free vertical space (do not overlap clock & date)
+        top_margin = 160
+        max_box_width = int(WIDTH * 0.8)
+        max_box_height = int(HEIGHT * 0.6)
+
+        # Wrap the message text into multiple lines
+        lines = wrap_text(message_text, font, max_box_width - 2 * padding)
+
+        # Calculate text dimensions
+        line_height = font.get_height()
+        text_height = line_height * len(lines)
+        text_width = max(font.size(line)[0] for line in lines)
+
+        # Adjust box size to fit the text
+        box_width = min(text_width + 2 * padding, max_box_width)
+        box_height = min(text_height + 2 * padding, max_box_height)
+
+        # Center the box on screen (below the top UI)
+        box_x = (WIDTH - box_width) // 2
+        box_y = top_margin + (max_box_height - box_height) // 2
+
+        # Draw the background box
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
         pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
 
-        # Message text (white, centered)
-        msg_surface = font.render(message_text, True, (255, 255, 255))
-        screen.blit(
-            msg_surface,
-            ((WIDTH - msg_surface.get_width()) // 2,
-            (HEIGHT - msg_surface.get_height()) // 2)
-    )
+        # Vertically center the text inside the box
+        y_offset = box_y + (box_height - text_height) // 2
+
+        # Render each line centered horizontally
+        for line in lines:
+            line_surface = font.render(line, True, (255, 255, 255))
+            x = box_x + (box_width - line_surface.get_width()) // 2
+            screen.blit(line_surface, (x, y_offset))
+            y_offset += line_height
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
 
