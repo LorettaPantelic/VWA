@@ -101,6 +101,31 @@ def wrap_text(text, font, max_width):
 
     return lines
 
+def get_fitting_font(text, base_font_name, max_width, max_height, max_size, min_size):
+   
+    #Returns a pygame Font object with the largest possible size
+    #that allows 'text' to fit within max_width and max_height.
+    
+    font_size = max_size
+
+    while font_size >= min_size:
+        font = pygame.font.SysFont(base_font_name, font_size)
+        # Wrap text based on current font size
+        lines = wrap_text(text, font, max_width)
+        line_height = font.get_height()
+        text_height = line_height * len(lines)
+        text_width = max(font.size(line)[0] for line in lines)
+
+        if text_width <= max_width and text_height <= max_height:
+            return font, lines  # fits perfectly
+
+        font_size -= 2  # try smaller font
+
+    # If nothing fits, return min size
+    font = pygame.font.SysFont(base_font_name, min_size)
+    lines = wrap_text(text, font, max_width)
+    return font, lines
+
 # --- Time variables ---
 state = load_state()
 total_elapsed = state.get("elapsed_ms", 0) / 1000
@@ -189,12 +214,22 @@ while running:
 
         # Maximum allowed size (safe area)
         top_margin = 160
-        max_box_width = int(WIDTH * 0.9)
         bottom_margin = 60  # distance to bottom screen edge
+        max_box_width = int(WIDTH * 0.9)
         max_box_height = HEIGHT - top_margin - bottom_margin
 
-        # Wrap text using the MAX width (important!)
-        lines = wrap_text(message_text, font, max_box_width - 2 * padding)
+        # Max & Min font sizes
+        MAX_FONT_SIZE = 180
+        MIN_FONT_SIZE = 50
+
+        # Get optimal font and wrapped lines
+        font, lines = get_fitting_font(
+            message_text, "Arial",
+            max_box_width - 2 * padding,
+            max_box_height - 2 * padding,
+            MAX_FONT_SIZE,
+            MIN_FONT_SIZE
+        )
 
         # Text dimensions
         line_height = font.get_height()
@@ -215,8 +250,6 @@ while running:
 
         # Center box in safe area
         box_x = (WIDTH - box_width) // 2
-        # Place box centered horizontally, but free to grow downward
-        box_x = (WIDTH - box_width) // 2
         box_y = top_margin + (max_box_height - box_height) // 2
 
         # Draw box
@@ -225,13 +258,11 @@ while running:
 
         # Text vertical positioning
         if text_height + 2 * padding >= box_height:
-            # Use full height → start at top padding
-            y_offset = box_y + padding
+            y_offset = box_y + padding  # start at top padding
         else:
-            # Center vertically
-            y_offset = box_y + (box_height - text_height) // 2
+            y_offset = box_y + (box_height - text_height) // 2  # center vertically
 
-        # Draw text
+        # Draw text lines
         for line in lines:
             line_surface = font.render(line, True, (255, 255, 255))
             x = box_x + (box_width - line_surface.get_width()) // 2
