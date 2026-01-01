@@ -107,6 +107,15 @@
             <button class="plus" onclick="changeScore(2, 1)">+</button>
         </div>
     </div>
+
+    <div class="game-time">
+        <div class="time-display" id="gameTime">00:00:00</div>
+
+        <div class="controls">
+            <button id="gameToggle" class="start" onclick="toggleGameClock()">▶ Start</button>
+            <button class="reset" onclick="resetGameClock()">↺ Reset</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -168,6 +177,54 @@
                 ]
             })
         }).catch(() => {});
+    }
+    let gameRunning = false;
+    let gameStart = 0;
+    let gameElapsed = 0;
+    let raf = null;
+
+    const timeEl = document.getElementById("gameTime");
+    const toggleBtn = document.getElementById("gameToggle");
+
+    function format(ms) {
+        const t = Math.floor(ms / 1000);
+        const h = Math.floor(t / 3600);
+        const m = Math.floor((t % 3600) / 60);
+        const s = t % 60;
+        return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+    }
+
+    function update() {
+        gameElapsed = Date.now() - gameStart;
+        timeEl.textContent = format(gameElapsed);
+        raf = requestAnimationFrame(update);
+    }
+
+    function toggleGameClock() {
+        fetch("/toggle_game_clock", { method: "POST" }).catch(()=>{});
+
+        if (!gameRunning) {
+            gameStart = Date.now() - gameElapsed;
+            raf = requestAnimationFrame(update);
+            toggleBtn.textContent = "■ Stopp";
+            toggleBtn.className = "stop";
+            gameRunning = true;
+        } else {
+            cancelAnimationFrame(raf);
+            toggleBtn.textContent = "▶ Start";
+            toggleBtn.className = "start";
+            gameRunning = false;
+        }
+    }
+
+    function resetGameClock() {
+        fetch("/reset_game_clock", { method: "POST" }).catch(()=>{});
+        cancelAnimationFrame(raf);
+        gameElapsed = 0;
+        timeEl.textContent = "00:00:00";
+        toggleBtn.textContent = "▶ Start";
+        toggleBtn.className = "start";
+        gameRunning = false;
     }
 </script>
 

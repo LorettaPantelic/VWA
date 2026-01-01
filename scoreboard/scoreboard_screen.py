@@ -126,6 +126,13 @@ def get_fitting_font(text, base_font_name, max_width, max_height, max_size, min_
     lines = wrap_text(text, font, max_width)
     return font, lines
 
+def format_hms(ms):
+    total = ms // 1000
+    h = total // 3600
+    m = (total % 3600) // 60
+    s = total % 60
+    return f"{h:02}:{m:02}:{s:02}"
+
 # --- Time variables ---
 state = load_state()
 total_elapsed = state.get("elapsed_ms", 0) / 1000
@@ -137,7 +144,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-# Load state from file
+    # Load state from file
     state = load_state()
     mode = state.get("mode", "index")
     message_text = state.get("message", "Nachricht")
@@ -298,6 +305,18 @@ while running:
                 (x + (card_width - score_surf.get_width()) // 2,
                 y + (card_height - score_surf.get_height()) // 2)
             )
+        elapsed = state.get("game_elapsed_ms", 0)
+
+        if state.get("game_clock_running") and state.get("game_last_start_ts"):
+            elapsed += int(time.time() * 1000 - state["game_last_start_ts"])
+
+        time_text = format_hms(elapsed)
+
+        time_surf = small_font.render(time_text, True, (255, 255, 255))
+        screen.blit(
+            time_surf,
+            ((WIDTH - time_surf.get_width()) // 2, HEIGHT - 80)
+        )
     elif mode == "timer":
         timer_duration = state.get("timer_duration", 0)
         timer_start_ts = state.get("timer_start_ts", 0)

@@ -21,9 +21,14 @@ def load_state():
         save_state({
             "clock_running": False,
             "elapsed_ms": 0,
+            "last_start_ts": None,
+
+            "game_clock_running": False,
+            "game_elapsed_ms": 0,
+            "game_last_start_ts": None,
+
             "mode": "index",
-            "message": "Nachricht",
-            "last_start_ts": None
+            "message": "Nachricht"
         })
     with open(STATE_FILE, "r") as f:
         return json.load(f)
@@ -69,6 +74,36 @@ def reset_clock():
     save_state(state)
     return jsonify(state)
 
+@app.route("/toggle_game_clock", methods=["POST"])
+def toggle_game_clock():
+    state = load_state()
+    now = int(time.time() * 1000)
+
+    if not state.get("game_clock_running", False):
+        # ▶ Start
+        state["game_clock_running"] = True
+        state["game_last_start_ts"] = now
+    else:
+        # ■ Stop
+        state["game_clock_running"] = False
+        if state.get("game_last_start_ts"):
+            state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (
+                now - state["game_last_start_ts"]
+            )
+        state["game_last_start_ts"] = None
+
+    save_state(state)
+    return "", 204
+
+@app.route("/reset_game_clock", methods=["POST"])
+def reset_game_clock():
+    state = load_state()
+    state["game_clock_running"] = False
+    state["game_elapsed_ms"] = 0
+    state["game_last_start_ts"] = None
+    save_state(state)
+    return "", 204
+
 @app.route("/get_state")
 def get_state():
     state = load_state()
@@ -90,6 +125,16 @@ def get_state():
         state["remaining_seconds"] = max(0, state.get("timer_duration", 0) - elapsed)
     else:
         state["remaining_seconds"] = state.get("timer_duration", 0)
+
+    # Game clock
+    if state.get("game_clock_running") and state.get("game_last_start_ts"):
+        now = int(time.time() * 1000)
+        state["game_current_elapsed_ms"] = (
+            state.get("game_elapsed_ms", 0)
+            + (now - state["game_last_start_ts"])
+        )
+    else:
+        state["game_current_elapsed_ms"] = state.get("game_elapsed_ms", 0)
 
     return jsonify(state)
 
