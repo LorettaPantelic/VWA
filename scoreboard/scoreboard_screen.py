@@ -26,11 +26,12 @@ pygame.display.set_caption("Scoreboard Uhr")
 
 # --- Fonts ---
 font = pygame.font.SysFont("Arial", 180)
-team_font = pygame.font.SysFont("Arial", 110)
-score_font = pygame.font.SysFont("Arial", 300)
+team_font = pygame.font.SysFont("Arial", 160)
+score_font = pygame.font.SysFont("Arial", 350)
 clock_font_small = pygame.font.SysFont("Arial", 100)
 clock_font_large = pygame.font.SysFont("Arial", 300)
 date_font_small   = pygame.font.SysFont("Arial", 100)
+game_time_font = pygame.font.SysFont("Arial", 140)
 
 clock = pygame.time.Clock()
 
@@ -312,7 +313,7 @@ while running:
 
         time_text = format_hms(elapsed)
 
-        time_surf = small_font.render(time_text, True, (255, 255, 255))
+        time_surf = game_time_font.render(time_text, True, (255, 255, 255))
         screen.blit(
             time_surf,
             ((WIDTH - time_surf.get_width()) // 2, HEIGHT - 80)
