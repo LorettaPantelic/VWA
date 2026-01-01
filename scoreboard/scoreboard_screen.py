@@ -26,7 +26,7 @@ pygame.display.set_caption("Scoreboard Uhr")
 
 # --- Fonts ---
 font = pygame.font.SysFont("Arial", 180)
-team_font = pygame.font.SysFont("Arial", 160)
+team_font = pygame.font.SysFont("Arial", 140)
 score_font = pygame.font.SysFont("Arial", 350)
 clock_font_small = pygame.font.SysFont("Arial", 100)
 clock_font_large = pygame.font.SysFont("Arial", 300)

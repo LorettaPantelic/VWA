@@ -79,17 +79,14 @@ def toggle_game_clock():
     state = load_state()
     now = int(time.time() * 1000)
 
-    if not state.get("game_clock_running", False):
-        # ▶ Start
+    if not state.get("game_clock_running"):
+        # START
         state["game_clock_running"] = True
         state["game_last_start_ts"] = now
     else:
-        # ■ Stop
+        # STOP
+        state["game_elapsed_ms"] += now - state["game_last_start_ts"]
         state["game_clock_running"] = False
-        if state.get("game_last_start_ts"):
-            state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (
-                now - state["game_last_start_ts"]
-            )
         state["game_last_start_ts"] = None
 
     save_state(state)
@@ -98,9 +95,11 @@ def toggle_game_clock():
 @app.route("/reset_game_clock", methods=["POST"])
 def reset_game_clock():
     state = load_state()
-    state["game_clock_running"] = False
+
     state["game_elapsed_ms"] = 0
+    state["game_clock_running"] = False
     state["game_last_start_ts"] = None
+
     save_state(state)
     return "", 204
 

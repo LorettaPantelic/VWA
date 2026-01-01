@@ -75,6 +75,46 @@
         background: #4ca34f;
         color: white;
     }
+
+    .game-time {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .time-display {
+        font-size: 48px;
+        font-weight: bold;
+        margin-bottom: 16px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .controls button {
+        width: auto;
+        padding: 12px 20px;
+        font-size: 18px;
+        border-radius: 12px;
+    }
+
+    .start {
+        background: #2563eb;
+        color: white;
+    }
+
+    .stop {
+        background: #dc2626;
+        color: white;
+    }
+
+    .reset {
+        background: #6b7280;
+        color: white;
+    }
 </style>
 
 <div class="container">
@@ -144,7 +184,6 @@
     function changeScore(team, delta) {
         const t = scoreboard["team" + team];
         t.score = Math.max(0, t.score + delta);
-
         document.getElementById("team" + team + "Score").textContent = t.score;
         sendToServer();
     }
@@ -153,7 +192,6 @@
         const t = scoreboard["team" + team];
         t.name = document.getElementById("team" + team + "Name").value;
         t.color = document.getElementById("team" + team + "Color").value;
-
         sendToServer();
     }
 
@@ -178,54 +216,13 @@
             })
         }).catch(() => {});
     }
-    let gameRunning = false;
-    let gameStart = 0;
-    let gameElapsed = 0;
-    let raf = null;
-
-    const timeEl = document.getElementById("gameTime");
-    const toggleBtn = document.getElementById("gameToggle");
-
-    function format(ms) {
-        const t = Math.floor(ms / 1000);
-        const h = Math.floor(t / 3600);
-        const m = Math.floor((t % 3600) / 60);
-        const s = t % 60;
-        return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-    }
-
-    function update() {
-        gameElapsed = Date.now() - gameStart;
-        timeEl.textContent = format(gameElapsed);
-        raf = requestAnimationFrame(update);
-    }
 
     function toggleGameClock() {
         fetch("/toggle_game_clock", { method: "POST" }).catch(()=>{});
-
-        if (!gameRunning) {
-            gameStart = Date.now() - gameElapsed;
-            raf = requestAnimationFrame(update);
-            toggleBtn.textContent = "■ Stopp";
-            toggleBtn.className = "stop";
-            gameRunning = true;
-        } else {
-            cancelAnimationFrame(raf);
-            toggleBtn.textContent = "▶ Start";
-            toggleBtn.className = "start";
-            gameRunning = false;
-        }
     }
 
     function resetGameClock() {
         fetch("/reset_game_clock", { method: "POST" }).catch(()=>{});
-        cancelAnimationFrame(raf);
-        gameElapsed = 0;
-        timeEl.textContent = "00:00:00";
-        toggleBtn.textContent = "▶ Start";
-        toggleBtn.className = "start";
-        gameRunning = false;
     }
 </script>
-
 {% endblock %}
