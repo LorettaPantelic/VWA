@@ -277,46 +277,60 @@ while running:
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
 
-        card_width = WIDTH // 2 - 80
-        card_height = HEIGHT - 200
-        y = 120
+        # --- Spacing & layout ---
+        bottom_margin = 40  # Distance from the bottom of the screen
+        time_margin = 20    # Space between team boxes and the game time
+        num_teams = min(2, len(teams))
+        spacing = 40        # Space between the team boxes
 
+        # --- Calculate available height for team boxes ---
+        max_box_height = HEIGHT - 200 - (game_time_font.get_height() + time_margin + bottom_margin)
+        card_width = WIDTH // 2 - spacing * 1.5
+        card_height = max_box_height
+
+        # Position the boxes so that the time fits below
+        y = HEIGHT - bottom_margin - game_time_font.get_height() - time_margin - card_height
+
+        # --- Draw team boxes ---
         for i, team in enumerate(teams[:2]):
-            x = 60 + i * (card_width + 40)
+            x = spacing + i * (card_width + spacing)
 
             color = team.get("color", [80, 80, 80])
             name = team.get("name", "Team")
             score = str(team.get("score", 0))
 
-            # Team card
+            # Draw the box
             rect = pygame.Rect(x, y, card_width, card_height)
             pygame.draw.rect(screen, color, rect, border_radius=40)
 
-            # Team name
+            # Draw the team name at the top of the box
             name_surf = team_font.render(name, True, (255, 255, 255))
             screen.blit(
                 name_surf,
-                (x + (card_width - name_surf.get_width()) // 2, y + 40)
+                (x + (card_width - name_surf.get_width()) // 2, y + 20)
             )
 
-            # Score
+            # Draw the score in the middle of the box
             score_surf = score_font.render(score, True, (255, 255, 255))
             screen.blit(
                 score_surf,
                 (x + (card_width - score_surf.get_width()) // 2,
                 y + (card_height - score_surf.get_height()) // 2)
             )
-        elapsed = state.get("game_elapsed_ms", 0)
 
+        # --- Draw the game time below the boxes ---
+        elapsed = state.get("game_elapsed_ms", 0)
         if state.get("game_clock_running") and state.get("game_last_start_ts"):
             elapsed += int(time.time() * 1000 - state["game_last_start_ts"])
 
         time_text = format_hms(elapsed)
+        time_surf = game_time_font.render(time_text, True, (0, 0, 0))  # Black text for visibility
 
-        time_surf = game_time_font.render(time_text, True, (255, 255, 255))
+        # Center the time horizontally and position just above the bottom margin
         screen.blit(
             time_surf,
-            ((WIDTH - time_surf.get_width()) // 2, HEIGHT - 80)
+            ((WIDTH - time_surf.get_width()) // 2,
+            HEIGHT - bottom_margin - time_surf.get_height())
         )
     elif mode == "timer":
         timer_duration = state.get("timer_duration", 0)
