@@ -277,23 +277,25 @@ while running:
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
 
-        # --- Spacing & layout ---
-        bottom_margin = 40  # Distance from the bottom of the screen
-        time_margin = 20    # Space between team boxes and the game time
+        # --- Layout constants ---
+        top_margin = 120            # Original distance from top (same as before)
+        spacing_between_boxes = 40   # Horizontal spacing between team boxes
+        time_margin = 20             # Space between boxes and game time
+        bottom_margin = time_margin  # Make distance from time to bottom same as time_margin
+
         num_teams = min(2, len(teams))
-        spacing = 40        # Space between the team boxes
+        card_width = WIDTH // 2 - spacing_between_boxes * 1.5
 
-        # --- Calculate available height for team boxes ---
-        max_box_height = HEIGHT - 200 - (game_time_font.get_height() + time_margin + bottom_margin)
-        card_width = WIDTH // 2 - spacing * 1.5
-        card_height = max_box_height
+        # Calculate available height for boxes without changing top margin
+        available_height = HEIGHT - top_margin - game_time_font.get_height() - time_margin - bottom_margin
+        card_height = min(HEIGHT - top_margin - game_time_font.get_height() - 2 * time_margin, available_height)
 
-        # Position the boxes so that the time fits below
-        y = HEIGHT - bottom_margin - game_time_font.get_height() - time_margin - card_height
+        # Y position of the boxes (fixed top margin)
+        y = top_margin
 
         # --- Draw team boxes ---
         for i, team in enumerate(teams[:2]):
-            x = spacing + i * (card_width + spacing)
+            x = spacing_between_boxes + i * (card_width + spacing_between_boxes)
 
             color = team.get("color", [80, 80, 80])
             name = team.get("name", "Team")
@@ -303,14 +305,14 @@ while running:
             rect = pygame.Rect(x, y, card_width, card_height)
             pygame.draw.rect(screen, color, rect, border_radius=40)
 
-            # Draw the team name at the top of the box
+            # Draw team name at top of box
             name_surf = team_font.render(name, True, (255, 255, 255))
             screen.blit(
                 name_surf,
                 (x + (card_width - name_surf.get_width()) // 2, y + 20)
             )
 
-            # Draw the score in the middle of the box
+            # Draw the score centered in the box
             score_surf = score_font.render(score, True, (255, 255, 255))
             screen.blit(
                 score_surf,
@@ -324,14 +326,14 @@ while running:
             elapsed += int(time.time() * 1000 - state["game_last_start_ts"])
 
         time_text = format_hms(elapsed)
-        time_surf = game_time_font.render(time_text, True, (0, 0, 0))  # Black text for visibility
+        time_surf = game_time_font.render(time_text, True, (0, 0, 0))  # Black text
 
-        # Center the time horizontally and position just above the bottom margin
-        screen.blit(
-            time_surf,
-            ((WIDTH - time_surf.get_width()) // 2,
-            HEIGHT - bottom_margin - time_surf.get_height())
-        )
+        # Center horizontally
+        time_x = (WIDTH - time_surf.get_width()) // 2
+
+        # Position vertically: symmetric spacing
+        time_y = y + card_height + time_margin  # distance from boxes
+        screen.blit(time_surf, (time_x, time_y))
     elif mode == "timer":
         timer_duration = state.get("timer_duration", 0)
         timer_start_ts = state.get("timer_start_ts", 0)
