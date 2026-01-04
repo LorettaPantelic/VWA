@@ -43,16 +43,36 @@
         box-sizing: border-box;
 
         min-height: 58.5px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-text {
+        display: flex;
+        align-items: center;
+        line-height: 1;
     }
 
     .btn-placeholder {
         visibility: hidden;
-        display: inline-block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        pointer-events: none;
     }
 
     .start {
         flex: 1;
         background: #4ca34f;
+        color: white;
+    }
+
+    .stop {
+        flex: 1;
+        background: #dc2626;
         color: white;
     }
 
