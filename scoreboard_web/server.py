@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, render_template
 import json
 import os
 import time
+import subprocess
 
 # Absolute base directory of this file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -246,6 +247,13 @@ def update_timer():
 
     return "", 204
 
+@app.route("/tv/<action>")
+def tv_control(action):
+    if action == "on":
+        subprocess.run('echo "on 0" | cec-client -s -d 1', shell=True)
+    elif action == "off":
+        subprocess.run('echo "standby 0" | cec-client -s -d 1', shell=True)
+    return "", 204
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
