@@ -85,7 +85,9 @@ def toggle_game_clock():
         state["game_clock_running"] = True
     else:
         # Stop
-        state["game_elapsed_ms"] += now - state["game_last_start_ts"]
+        state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (
+            now - state["game_last_start_ts"]
+        )
         state["game_last_start_ts"] = None
         state["game_clock_running"] = False
 

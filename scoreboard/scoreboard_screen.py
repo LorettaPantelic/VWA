@@ -286,9 +286,14 @@ while running:
         num_teams = min(2, len(teams))
         card_width = WIDTH // 2 - spacing_between_boxes * 1.5
 
-        # Calculate available height for boxes without changing top margin
-        available_height = HEIGHT - top_margin - game_time_font.get_height() - time_margin - bottom_margin
-        card_height = min(HEIGHT - top_margin - game_time_font.get_height() - 2 * time_margin, available_height)
+        # Calculate box height (top margin stays unchanged)
+        card_height = (
+            HEIGHT
+            - top_margin
+            - game_time_font.get_height()
+            - time_margin
+            - bottom_margin
+        )
 
         # Y position of the boxes (fixed top margin)
         y = top_margin

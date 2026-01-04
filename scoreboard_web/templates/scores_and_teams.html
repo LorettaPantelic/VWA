@@ -216,12 +216,34 @@
         }).catch(() => {});
     }
 
+    let gameRunning = false;
+
     function toggleGameClock() {
-        fetch("/toggle_game_clock", { method: "POST" }).catch(()=>{});
+        fetch("/toggle_game_clock", { method: "POST" }).catch(() => {});
+
+        const btn = document.getElementById("gameToggle");
+
+        if (!gameRunning) {
+            btn.textContent = "■ Stopp";
+            btn.classList.remove("start");
+            btn.classList.add("stop");
+            gameRunning = true;
+        } else {
+            btn.textContent = "▶ Start";
+            btn.classList.remove("stop");
+            btn.classList.add("start");
+            gameRunning = false;
+        }
     }
 
     function resetGameClock() {
-        fetch("/reset_game_clock", { method: "POST" }).catch(()=>{});
+        fetch("/reset_game_clock", { method: "POST" }).catch(() => {});
+
+        const btn = document.getElementById("gameToggle");
+        btn.textContent = "▶ Start";
+        btn.classList.remove("stop");
+        btn.classList.add("start");
+        gameRunning = false;
     }
 </script>
 {% endblock %}

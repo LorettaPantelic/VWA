@@ -23,5 +23,5 @@
 
   "game_clock_running": false,
   "game_elapsed_ms": 0,
-  "game_start_ts": 0
+  "game_last_start_ts": null
 }
