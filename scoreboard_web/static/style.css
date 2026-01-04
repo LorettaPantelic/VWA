@@ -77,3 +77,9 @@ body {
         transform: none;
     }
 }
+
+@media (max-width: 360px) {
+    .container {
+        margin: 0 8px;
+    }
+}
