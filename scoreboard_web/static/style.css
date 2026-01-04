@@ -7,6 +7,7 @@ body {
 .navbar {
     display: flex;
     gap: 16px;
+    flex-wrap: nowrap;
     padding: 16px 24px;
     background-color: white;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -38,4 +39,22 @@ body {
     width: 100%;
     display: flex;
     justify-content: center;
+}
+
+@media (max-width: 700px) {
+    .navbar {
+        padding: 4px;
+    }
+
+    .nav-btn {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-btn {
+        padding: 4px 6px;
+        font-size: 0.7rem;
+    }
 }
