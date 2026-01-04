@@ -100,7 +100,7 @@
     <div class="controls">
         <button id="startBtn" class="start" onclick="startTimer()">
             <span class="btn-text">▶ Start</span>
-            <span class="btn-placeholder" aria-hidden="true">■ Stop</span>
+            <span class="btn-placeholder" aria-hidden="true">■ Stopp</span>
         </button>
         <button class="reset" onclick="resetTimer()">↺</button>
     </div>
@@ -187,7 +187,7 @@
                 })
             });
 
-            btnText.textContent = "■ Stop";
+            btnText.textContent = "■ Stopp";
             startBtn.classList.remove("start");
             startBtn.classList.add("stop");
             running = true;
@@ -289,7 +289,7 @@
                 lastSetSeconds = remainingSeconds;
                 startTimestamp = performance.now() - elapsed * 1000;
                 running = true;
-                startBtn.textContent = "■ Stop";
+                startBtn.textContent = "■ Stopp";
                 startBtn.style.background = "#dc2626";
                 intervalId = setInterval(updateTimerDisplay, 50);
             } else {
