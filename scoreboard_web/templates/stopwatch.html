@@ -39,13 +39,26 @@
         cursor: pointer;
         position: relative;
         box-sizing: border-box;
-
         min-height: 52px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
     }
 
     .btn-placeholder {
         visibility: hidden;
-        display: inline-block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
     }
 
     .start {
@@ -70,8 +83,10 @@
 
     <div class="controls">
         <button id="toggleBtn" class="start">
-            <span class="btn-text">▶ Start</span>
-            <span class="btn-placeholder" aria-hidden="true">■ Stop</span>
+            <span class="btn-inner">
+                <span class="btn-text">▶ Start</span>
+                <span class="btn-placeholder" aria-hidden="true">■ Stop</span>
+            </span>
         </button>
         <button class="reset" onclick="resetClock()">↺ Reset</button>
     </div>
