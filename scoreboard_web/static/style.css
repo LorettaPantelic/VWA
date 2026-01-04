@@ -43,6 +43,10 @@ body {
     padding: 0 clamp(12px, 4vw, 24px);
 }
 
+.container {
+    margin: 0 clamp(12px, 4vw, 24px);
+}
+
 @media (max-width: 700px) {
     .navbar {
         padding: 6px;
