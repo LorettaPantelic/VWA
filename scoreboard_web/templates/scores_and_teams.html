@@ -95,14 +95,14 @@
         border: none;
         cursor: pointer;
         position: relative;
+        box-sizing: border-box;
+
+        min-width: 120px;
     }
 
     .btn-placeholder {
         visibility: hidden;
         display: inline-block;
-        position: absolute;
-        top: 0;
-        left: 0;
     }
 
     .start {
@@ -223,8 +223,8 @@
     function toggleGameClock() {
         fetch("/toggle_game_clock", { method: "POST" }).catch(() => {});
 
-        const btnText = document.querySelector("#gameToggle .btn-text");
         const btn = document.getElementById("gameToggle");
+        const btnText = btn.querySelector(".btn-text");
 
         if (!gameRunning) {
             btnText.textContent = "■ Stopp";
@@ -243,7 +243,9 @@
         fetch("/reset_game_clock", { method: "POST" }).catch(() => {});
 
         const btn = document.getElementById("gameToggle");
-        btn.textContent = "▶ Start";
+        const btnText = btn.querySelector(".btn-text");
+
+        btnText.textContent = "▶ Start";
         btn.classList.remove("stop");
         btn.classList.add("start");
         gameRunning = false;

@@ -40,20 +40,20 @@
         border-radius: 12px;
         cursor: pointer;
         position: relative;
+        box-sizing: border-box;
+
+        min-height: 58.5px;
+    }
+
+    .btn-placeholder {
+        visibility: hidden;
+        display: inline-block;
     }
 
     .start {
         flex: 1;
         background: #4ca34f;
         color: white;
-    }
-
-    .btn-placeholder {
-        visibility: hidden;
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
     }
 
     .reset {
@@ -78,7 +78,7 @@
     <input id="timeField" class="time-input" value="10:00" onclick="this.select()">
 
     <div class="controls">
-        <button class="start" onclick="startTimer()">
+        <button id="startBtn" class="start" onclick="startTimer()">
             <span class="btn-text">▶ Start</span>
             <span class="btn-placeholder" aria-hidden="true">■ Stop</span>
         </button>
@@ -102,7 +102,9 @@
     let editing = false;
 
     const timeField = document.getElementById("timeField");
-    const startBtn = document.querySelector(".start");
+    const startBtn = document.getElementById("startBtn");
+    const btnText = startBtn.querySelector(".btn-text");
+    
     timeField.addEventListener("focus", () => {
         editing = true;
     });
@@ -165,9 +167,9 @@
                 })
             });
 
-            const btnText = document.querySelector(".btn-text");
-            startBtn.textContent = "■ Stop";
-            startBtn.style.background = "#dc2626";
+            btnText.textContent = "■ Stop";
+            startBtn.classList.remove("start");
+            startBtn.classList.add("stop");
             running = true;
 
             intervalId = setInterval(updateTimerDisplay, 50);
@@ -181,13 +183,16 @@
         clearInterval(intervalId);
         running = false;
         lastSetSeconds = remainingSeconds; 
+
+        btnText.textContent = "▶ Start";
+        startBtn.classList.remove("stop");
+        startBtn.classList.add("start");
+
         fetch("/update_timer", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ running: false })
         });
-        startBtn.textContent = "▶ Start";
-        startBtn.style.background = "#4ca34f";
     }
 
     function resetTimer() {
@@ -195,6 +200,10 @@
         remainingSeconds = initialSeconds;
         lastSetSeconds = initialSeconds;
         updateDisplay();
+
+        btnText.textContent = "▶ Start";
+        startBtn.classList.remove("stop");
+        startBtn.classList.add("start");
 
         fetch("/update_timer", {
             method: "POST",

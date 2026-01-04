@@ -38,12 +38,14 @@
         border-radius: 12px;
         cursor: pointer;
         position: relative;
+        box-sizing: border-box;
+
+        min-height: 52px;
     }
 
     .btn-placeholder {
         visibility: hidden;
-        display: block;
-        position: absolute;
+        display: inline-block;
     }
 
     .start {
@@ -67,9 +69,9 @@
     <div class="display" id="time">00:00.000</div>
 
     <div class="controls">
-        <button id="toggleBtn" class="start" onclick="toggleClock()">
+        <button id="toggleBtn" class="start">
             <span class="btn-text">▶ Start</span>
-            <span class="btn-placeholder" aria-hidden="true">■ Stopp</span>
+            <span class="btn-placeholder" aria-hidden="true">■ Stop</span>
         </button>
         <button class="reset" onclick="resetClock()">↺ Reset</button>
     </div>
@@ -83,6 +85,7 @@
 
     const timeEl = document.getElementById("time");
     const toggleBtn = document.getElementById("toggleBtn");
+    const btnText = toggleBtn.querySelector(".btn-text");
 
     function formatTime(ms) {
         const minutes = Math.floor(ms / 60000);
@@ -109,14 +112,16 @@
             startTime = Date.now() - elapsed;
             rafId = requestAnimationFrame(update);
 
-            toggleBtn.textContent = "■ Stopp";
-            toggleBtn.className = "stop";
+            btnText.textContent = "■ Stopp";
+            toggleBtn.classList.remove("start");
+            toggleBtn.classList.add("stop");
             running = true;
         } else {
             cancelAnimationFrame(rafId);
 
-            toggleBtn.textContent = "▶ Start";
-            toggleBtn.className = "start";
+            btnText.textContent = "▶ Start";
+            toggleBtn.classList.remove("stop");
+            toggleBtn.classList.add("start");
             running = false;
         }
     }
@@ -128,8 +133,9 @@
         elapsed = 0;
         timeEl.textContent = "00:00.000";
 
-        toggleBtn.textContent = "▶ Start";
-        toggleBtn.className = "start";
+        btnText.textContent = "▶ Start";
+        toggleBtn.classList.remove("stop");
+        toggleBtn.classList.add("start");
         running = false;
     }
 </script>
