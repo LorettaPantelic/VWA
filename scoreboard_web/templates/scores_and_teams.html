@@ -98,11 +98,19 @@
         box-sizing: border-box;
 
         min-width: 120px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .btn-placeholder {
         visibility: hidden;
-        display: inline-block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        pointer-events: none;
     }
 
     .start {
