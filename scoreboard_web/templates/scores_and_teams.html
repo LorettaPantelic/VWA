@@ -78,6 +78,10 @@
         color: white;
     }
 
+        .game-time {
+        text-align: center;
+    }
+
     .controls {
         display: flex;
         justify-content: center;
@@ -135,6 +139,10 @@
             <div class="score-display" id="team2Score">{{ team2.score }}</div>
             <button class="plus" onclick="changeScore(2, 1)">+</button>
         </div>
+    </div>
+    <div class="controls">
+        <button id="gameToggle" class="start" onclick="toggleGameClock()">▶ Start</button>
+        <button class="reset" onclick="resetGameClock()">↺ Reset</button>
     </div>
 </div>
 
