@@ -78,16 +78,6 @@
         color: white;
     }
 
-    .game-time {
-        text-align: center;
-    }
-
-    .time-display {
-        font-size: 48px;
-        font-family: Arial, sans-serif;
-        font-variant-numeric: tabular-nums;
-    }
-
     .controls {
         display: flex;
         justify-content: center;
@@ -144,15 +134,6 @@
             <button class="minus" onclick="changeScore(2, -1)">−</button>
             <div class="score-display" id="team2Score">{{ team2.score }}</div>
             <button class="plus" onclick="changeScore(2, 1)">+</button>
-        </div>
-    </div>
-
-    <div class="game-time">
-        <div class="time-display" id="gameTime">00:00:00</div>
-
-        <div class="controls">
-            <button id="gameToggle" class="start" onclick="toggleGameClock()">▶ Start</button>
-            <button class="reset" onclick="resetGameClock()">↺ Reset</button>
         </div>
     </div>
 </div>
