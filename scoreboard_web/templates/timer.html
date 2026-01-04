@@ -39,12 +39,21 @@
         border: none;
         border-radius: 12px;
         cursor: pointer;
+        position: relative;
     }
 
     .start {
         flex: 1;
         background: #4ca34f;
         color: white;
+    }
+
+    .btn-placeholder {
+        visibility: hidden;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 
     .reset {
@@ -69,7 +78,10 @@
     <input id="timeField" class="time-input" value="10:00" onclick="this.select()">
 
     <div class="controls">
-        <button class="start" onclick="startTimer()">▶ Start</button>
+        <button class="start" onclick="startTimer()">
+            <span class="btn-text">▶ Start</span>
+            <span class="btn-placeholder" aria-hidden="true">■ Stop</span>
+        </button>
         <button class="reset" onclick="resetTimer()">↺</button>
     </div>
 
@@ -153,6 +165,7 @@
                 })
             });
 
+            const btnText = document.querySelector(".btn-text");
             startBtn.textContent = "■ Stop";
             startBtn.style.background = "#dc2626";
             running = true;

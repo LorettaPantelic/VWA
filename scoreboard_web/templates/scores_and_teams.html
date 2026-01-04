@@ -89,10 +89,20 @@
     }
 
     .controls button {
-        width: auto;
         padding: 12px 20px;
         font-size: 18px;
         border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .btn-placeholder {
+        visibility: hidden;
+        display: inline-block;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 
     .start {
@@ -141,7 +151,10 @@
         </div>
     </div>
     <div class="controls">
-        <button id="gameToggle" class="start" onclick="toggleGameClock()">▶ Start</button>
+        <button id="gameToggle" class="start" onclick="toggleGameClock()">
+            <span class="btn-text">▶ Start</span>
+            <span class="btn-placeholder" aria-hidden="true">■ Stopp</span>
+        </button>
         <button class="reset" onclick="resetGameClock()">↺ Reset</button>
     </div>
 </div>
@@ -210,15 +223,16 @@
     function toggleGameClock() {
         fetch("/toggle_game_clock", { method: "POST" }).catch(() => {});
 
+        const btnText = document.querySelector("#gameToggle .btn-text");
         const btn = document.getElementById("gameToggle");
 
         if (!gameRunning) {
-            btn.textContent = "■ Stopp";
+            btnText.textContent = "■ Stopp";
             btn.classList.remove("start");
             btn.classList.add("stop");
             gameRunning = true;
         } else {
-            btn.textContent = "▶ Start";
+            btnText.textContent = "▶ Start";
             btn.classList.remove("stop");
             btn.classList.add("start");
             gameRunning = false;
