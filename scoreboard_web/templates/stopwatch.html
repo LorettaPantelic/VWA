@@ -40,7 +40,7 @@
         position: relative;
         box-sizing: border-box;
         min-height: 52px;
-        
+
         display: flex;
         align-items: center;
         justify-content: center;
@@ -82,11 +82,11 @@
     <div class="display" id="time">00:00.000</div>
 
     <div class="controls">
-        <button id="toggleBtn" class="start" onclick="toggleClock()">
+        <button id="toggleBtn" class="start" onclick="toggleStopwatch()">
             <span class="btn-text">▶ Start</span>
             <span class="btn-placeholder" aria-hidden="true">■ Stopp</span>
         </button>
-        <button class="reset" onclick="resetClock()">↺ Reset</button>
+        <button class="reset" onclick="resetStopwatch()">↺ Reset</button>
     </div>
 </div>
 
@@ -118,8 +118,8 @@
         rafId = requestAnimationFrame(update);
     }
 
-    function toggleClock() {
-        fetch("/toggle_clock", { method: "POST" }).catch(() => {});
+    function toggleStopwatch() {
+        fetch("/toggle_stopwatch", { method: "POST" }).catch(() => {});
 
         if (!running) {
             startTime = Date.now() - elapsed;
@@ -139,8 +139,8 @@
         }
     }
 
-    function resetClock() {
-        fetch("/reset_clock", { method: "POST" }).catch(() => {});
+    function resetStopwatch() {
+        fetch("/reset_stopwatch", { method: "POST" }).catch(() => {});
 
         cancelAnimationFrame(rafId);
         elapsed = 0;

@@ -19,7 +19,7 @@ STATE_FILE = os.path.join(BASE_DIR, "state.json")
 def load_state():
     if not os.path.exists(STATE_FILE):
         save_state({
-            "clock_running": False,
+            "stopwatch_running": False,
             "elapsed_ms": 0,
             "last_start_ts": None,
 
@@ -46,18 +46,18 @@ def set_mode(mode, message=None):
 
 # Clock Endpoints
 
-@app.route("/toggle_clock", methods=["POST"])
-def toggle_clock():
+@app.route("/toggle_stopwatch", methods=["POST"])
+def toggle_stopwatch():
     state = load_state()
     now = int(time.time() * 1000)
 
-    if not state["clock_running"]:
+    if not state["stopwatch_running"]:
         # ▶ Start
-        state["clock_running"] = True
+        state["stopwatch_running"] = True
         state["last_start_ts"] = now
     else:
         # ■ Stop
-        state["clock_running"] = False
+        state["stopwatch_running"] = False
         if state.get("last_start_ts"):
             state["elapsed_ms"] += now - state["last_start_ts"]
         state["last_start_ts"] = None
@@ -65,10 +65,10 @@ def toggle_clock():
     save_state(state)
     return jsonify(state)
 
-@app.route("/reset_clock", methods=["POST"])
-def reset_clock():
+@app.route("/reset_stopwatch", methods=["POST"])
+def reset_stopwatch():
     state = load_state()
-    state["clock_running"] = False
+    state["stopwatch_running"] = False
     state["elapsed_ms"] = 0
     state["last_start_ts"] = None
     save_state(state)
@@ -111,7 +111,7 @@ def get_state():
 
     # If the clock is running → calculate current time
 
-    if state["clock_running"] and state.get("last_start_ts"):
+    if state["stopwatch_running"] and state.get("last_start_ts"):
         now = int(time.time() * 1000)
         state["current_elapsed_ms"] = (
             state["elapsed_ms"] + (now - state["last_start_ts"])

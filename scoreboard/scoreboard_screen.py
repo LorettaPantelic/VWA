@@ -48,7 +48,7 @@ def save_state(state):
 def load_state():
     if not os.path.exists(STATE_FILE):
         save_state({
-            "clock_running": False,
+            "stopwatch_running": False,
             "elapsed_ms": 0,
             "mode": "index",
             "message": "Nachricht",
@@ -63,7 +63,7 @@ def load_state():
             data = json.load(f)
     except (json.JSONDecodeError, FileNotFoundError):
         data = {
-            "clock_running": False,
+            "stopwatch_running": False,
             "elapsed_ms": 0,
             "mode": "index",
             "message": "Nachricht",
@@ -149,15 +149,15 @@ while running:
     state = load_state()
     mode = state.get("mode", "index")
     message_text = state.get("message", "Nachricht")
-    clock_running = state.get("clock_running", False)
+    stopwatch_running = state.get("stopwatch_running", False)
 
     current_time = time.time()
 
     # --- Calculate stopwatch time ---
-    if clock_running and state.get("last_start_ts"):
+    if stopwatch_running and state.get("last_start_ts"):
         # total_elapsed = stored time + time elapsed since last start
         total_elapsed = state.get("elapsed_ms", 0) / 1000 + (current_time - state["last_start_ts"] / 1000)
-    elif not clock_running:
+    elif not stopwatch_running:
         # If stopwatch is stopped or reset, use stored state only
         total_elapsed = state.get("elapsed_ms", 0) / 1000
 
