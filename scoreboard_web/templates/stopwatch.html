@@ -46,13 +46,6 @@
         justify-content: center;
     }
 
-    .btn-inner {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-
     .btn-placeholder {
         visibility: hidden;
         position: absolute;
@@ -83,11 +76,9 @@
     <div class="display" id="time">00:00.000</div>
 
     <div class="controls">
-        <button id="toggleBtn" class="start">
-            <span class="btn-inner">
-                <span class="btn-text">▶ Start</span>
-                <span class="btn-placeholder" aria-hidden="true">■ Stop</span>
-            </span>
+        <button id="toggleBtn" class="start" onclick="toggleClock()">
+            <span class="btn-text">▶ Start</span>
+            <span class="btn-placeholder" aria-hidden="true">■ Stopp</span>
         </button>
         <button class="reset" onclick="resetClock()">↺ Reset</button>
     </div>
