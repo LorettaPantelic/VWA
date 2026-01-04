@@ -8,6 +8,7 @@ body {
     display: flex;
     gap: 16px;
     flex-wrap: nowrap;
+    align-items: center;
     padding: 16px 24px;
     background-color: white;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -43,18 +44,31 @@ body {
 
 @media (max-width: 700px) {
     .navbar {
-        padding: 4px;
+        padding: 6px;
+        gap: 8px;
     }
 
-    .nav-btn {
-        padding: 6px 8px;
+    .navbar .nav-btn {
+        padding: 6px 10px;
         font-size: 0.8rem;
+        border-radius: 10px;
     }
 }
 
 @media (max-width: 480px) {
-    .nav-btn {
-        padding: 4px 6px;
+    .navbar {
+        padding: 4px;
+        gap: 4px;
+    }
+
+    .navbar .nav-btn {
+        padding: 4px 8px;
         font-size: 0.7rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .navbar .nav-btn:hover {
+        transform: none;
     }
 }
