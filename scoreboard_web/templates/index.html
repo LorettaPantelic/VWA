@@ -3,62 +3,64 @@
 
 <style>
 .container {
-    width: 200px;
+    width: 300px;
     padding: 24px;
     border-radius: 16px;
     background: white;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 
     display: flex;
+    flex-direction: column; /* TV oben, HDMI darunter */
+    gap: 20px;
     align-items: center;
     justify-content: center;
+
     margin: 50px auto;
 }
 
 button {
-    width: 80px;
-    height: 80px;
-    font-size: 36px;
     border: none;
-    border-radius: 50%;
     cursor: pointer;
-    background: rgb(11, 173, 254);
-    color: white;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
-    transition: background 0.3s, transform 0.1s;
+    transition: background 0.2s, transform 0.1s;
 }
 
-button:active {
+#tvButton {
+    width: 80px;
+    height: 80px;
+    font-size: 36px;
+    border-radius: 50%;
+    background: rgb(11, 173, 254);
+    color: white;
+}
+
+#tvButton:active {
     transform: scale(0.95);
 }
 
-button.off {
+#tvButton.off {
     background: red;
 }
 
 .hdmi-buttons-wrapper {
     display: flex;
     gap: 20px;
-    margin-top: 20px;
 }
 
 .hdmi-button {
     width: 120px;
     height: 80px;
     font-size: 24px;
-    border: none;
     border-radius: 14px;
-    cursor: pointer;
     background: rgb(11, 173, 254);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.3s, transform 0.1s;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
 }
 
 .hdmi-button:active {
@@ -66,14 +68,14 @@ button.off {
 }
 
 .hdmi-button.active {
-    background: rgb(0, 140, 220);
+    background: rgb(0, 140, 220); /* gedrückte Optik */
     transform: scale(0.95);
 }
-
 </style>
 
 <div class="container">
     <button id="tvButton">⏻</button>
+
     <div class="hdmi-buttons-wrapper">
         <button id="hdmiOneButton" class="hdmi-button">HDMI 1</button>
         <button id="hdmiTwoButton" class="hdmi-button">HDMI 2</button>
@@ -87,11 +89,10 @@ let currentHDMI = null;
 // Power Button
 document.getElementById("tvButton").addEventListener("click", () => {
     let action = tvOn ? "off" : "on";
-    fetch(`/tv/${action}`)
-        .then(() => {
-            tvOn = !tvOn;
-            document.getElementById("tvButton").classList.toggle("off", !tvOn);
-        });
+    fetch(`/tv/${action}`).then(() => {
+        tvOn = !tvOn;
+        document.getElementById("tvButton").classList.toggle("off", !tvOn);
+    });
 });
 
 // HDMI Buttons
@@ -102,18 +103,22 @@ function setActiveHDMI(port) {
 }
 
 document.getElementById("hdmiOneButton").addEventListener("click", () => {
-    fetch(`/hdmi/1`).then(() => setActiveHDMI(1));
+    fetch(`/hdmi/1`)
+        .then(res => res.json())
+        .then(() => setActiveHDMI(1));
 });
 
 document.getElementById("hdmiTwoButton").addEventListener("click", () => {
-    fetch(`/hdmi/2`).then(() => setActiveHDMI(2));
+    fetch(`/hdmi/2`)
+        .then(res => res.json())
+        .then(() => setActiveHDMI(2));
 });
 
 window.addEventListener("DOMContentLoaded", () => {
     fetch("/hdmi/status")
         .then(res => res.json())
-        .then(data => setActiveHDMI(data.hdmi));
+        .then(data => setActiveHDMI(data.hdmi || 1));
 });
 </script>
 
-{% endblock %}  
+{% endblock %}
