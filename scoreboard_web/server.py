@@ -216,18 +216,18 @@ def switch_hdmi(port):
     state = load_state()
     state['hdmi'] = port
     save_state(state)
-    
+
     if port == 1:
-        subprocess.run(["/usr/bin/tvservice", "-p"])  # HDMI1
+        subprocess.run('echo "tx 10:44:82:10:00" | cec-client -s -d 1', shell=True)
     elif port == 2:
-        subprocess.run(["/usr/bin/tvservice", "-n"])  # HDMI2
+        subprocess.run('echo "tx 10:44:82:20:00" | cec-client -s -d 1', shell=True)
 
     return jsonify({"status": "ok", "hdmi": port})
 
 @app.route("/hdmi/status")
 def hdmi_status():
     state = load_state()
-    return jsonify({"hdmi": state.get("hdmi", 1)})  # default HDMI1
+    return jsonify({"hdmi": state.get("hdmi", 1)})
 # Pages
 
 @app.route("/")
