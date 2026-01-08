@@ -126,8 +126,8 @@ def game_clock_reset():
     return "", 204
 
 # -------- API: Stopwatch --------
-@app.route("/toggle_stopwatch", methods=["POST"])
-def toggle_stopwatch():
+@app.route("/stopwatch_toggle", methods=["POST"])
+def stopwatch_toggle():
     state = load_state()
     now = int(time.time() * 1000)
 

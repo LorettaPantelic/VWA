@@ -17,11 +17,12 @@
     }
   ],
 
-  "timer_duration": 600,
-  "timer_start_ts": 0,
-  "timer_running": false,
-
   "game_clock_running": false,
   "game_elapsed_ms": 0,
-  "game_last_start_ts": null
+  "game_last_start_ts": null,
+
+  "timer_duration": 600,
+  "timer_start_ts": 0,
+  "timer_running": false
+
 }
