@@ -45,67 +45,7 @@ def set_mode(mode, message=None):
         state["message"] = message
     save_state(state)
 
-# Clock Endpoints
-
-@app.route("/toggle_stopwatch", methods=["POST"])
-def toggle_stopwatch():
-    state = load_state()
-    now = int(time.time() * 1000)
-
-    if not state["stopwatch_running"]:
-        # ▶ Start
-        state["stopwatch_running"] = True
-        state["last_start_ts"] = now
-    else:
-        # ■ Stop
-        state["stopwatch_running"] = False
-        if state.get("last_start_ts"):
-            state["elapsed_ms"] += now - state["last_start_ts"]
-        state["last_start_ts"] = None
-
-    save_state(state)
-    return jsonify(state)
-
-@app.route("/reset_stopwatch", methods=["POST"])
-def reset_stopwatch():
-    state = load_state()
-    state["stopwatch_running"] = False
-    state["elapsed_ms"] = 0
-    state["last_start_ts"] = None
-    save_state(state)
-    return jsonify(state)
-
-@app.route("/toggle_game_clock", methods=["POST"])
-def toggle_game_clock():
-    state = load_state()
-    now = int(time.time() * 1000)
-
-    if not state.get("game_clock_running"):
-        # Start
-        state["game_last_start_ts"] = now
-        state["game_clock_running"] = True
-    else:
-        # Stop
-        state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (
-            now - state["game_last_start_ts"]
-        )
-        state["game_last_start_ts"] = None
-        state["game_clock_running"] = False
-
-    save_state(state)
-    return "", 204
-
-@app.route("/reset_game_clock", methods=["POST"])
-def reset_game_clock():
-    state = load_state()
-
-    state["game_elapsed_ms"] = 0
-    state["game_clock_running"] = False
-    state["game_last_start_ts"] = None
-
-    save_state(state)
-    return "", 204
-
+# -------- API: State --------
 @app.route("/get_state")
 def get_state():
     state = load_state()
@@ -140,41 +80,9 @@ def get_state():
 
     return jsonify(state)
 
-# Pages
-
-@app.route("/")
-def index_page():
-    set_mode("index")
-    return render_template("index.html")
-
-@app.route("/stopwatch")
-def stopwatch_page():
-    set_mode("stopwatch")
-    return render_template("stopwatch.html")
-
-@app.route("/message", methods=["GET", "POST"])
-def message_page():
-    if request.method == "POST":
-        msg = request.form.get("message", "").strip()
-        if not msg:
-            msg = "Nachricht"
-        set_mode("message", msg)
-    else:
-        set_mode("message")
-    return render_template("message.html")
-
-@app.route("/scores_and_teams")
-def scores_and_teams_page():
-    state = load_state()
-    set_mode("scores_and_teams")
-    return render_template(
-        "scores_and_teams.html",
-        team1=state["teams"][0],
-        team2=state["teams"][1]
-    )
-
-@app.route("/update_scoreboard", methods=["POST"])
-def update_scoreboard():
+# -------- API: Scores_and_teams --------
+@app.route("/scoreboard/update", methods=["POST"])
+def scoreboard_update():
     data = request.get_json()
     if not data:
         return "No data received", 400
@@ -186,23 +94,69 @@ def update_scoreboard():
 
     return jsonify({"status": "ok"})
 
-@app.route("/timer")
-def timer_page():
-    try:
-        with open("state.json", "r") as f:
-            state = json.load(f)
-    except:
-        state = {}
+@app.route("/game_clock/toggle", methods=["POST"])
+def game_clock_toggle():
+    state = load_state()
+    now = int(time.time() * 1000)
 
-    state["mode"] = "timer"
+    if not state.get("game_clock_running"):
+        # Start
+        state["game_last_start_ts"] = now
+        state["game_clock_running"] = True
+    else:
+        # Stop
+        state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (
+            now - state["game_last_start_ts"]
+        )
+        state["game_last_start_ts"] = None
+        state["game_clock_running"] = False
 
-    with open("state.json", "w") as f:
-        json.dump(state, f)
+    save_state(state)
+    return "", 204
 
-    return render_template("timer.html")
+@app.route("/game_clock/reset", methods=["POST"])
+def game_clock_reset():
+    state = load_state()
 
-@app.route("/update_timer", methods=["POST"])
-def update_timer():
+    state["game_elapsed_ms"] = 0
+    state["game_clock_running"] = False
+    state["game_last_start_ts"] = None
+
+    save_state(state)
+    return "", 204
+
+# -------- API: Stopwatch --------
+@app.route("/toggle_stopwatch", methods=["POST"])
+def toggle_stopwatch():
+    state = load_state()
+    now = int(time.time() * 1000)
+
+    if not state["stopwatch_running"]:
+        # ▶ Start
+        state["stopwatch_running"] = True
+        state["last_start_ts"] = now
+    else:
+        # ■ Stop
+        state["stopwatch_running"] = False
+        if state.get("last_start_ts"):
+            state["elapsed_ms"] += now - state["last_start_ts"]
+        state["last_start_ts"] = None
+
+    save_state(state)
+    return jsonify(state)
+
+@app.route("/reset_stopwatch", methods=["POST"])
+def reset_stopwatch():
+    state = load_state()
+    state["stopwatch_running"] = False
+    state["elapsed_ms"] = 0
+    state["last_start_ts"] = None
+    save_state(state)
+    return jsonify(state)
+
+# -------- API: Timer --------
+@app.route("/timer/update", methods=["POST"])
+def timer_update():
     data = request.json
 
     try:
@@ -247,6 +201,7 @@ def update_timer():
 
     return "", 204
 
+# -------- API: TV --------
 @app.route("/tv/<action>")
 def tv_control(action):
     if action == "on":
@@ -254,6 +209,54 @@ def tv_control(action):
     elif action == "off":
         subprocess.run('echo "standby 0" | cec-client -s -d 1', shell=True)
     return "", 204
+
+# Pages
+
+@app.route("/")
+def index_page():
+    set_mode("index")
+    return render_template("index.html")
+
+@app.route("/scores_and_teams")
+def scores_and_teams_page():
+    state = load_state()
+    set_mode("scores_and_teams")
+    return render_template(
+        "scores_and_teams.html",
+        team1=state["teams"][0],
+        team2=state["teams"][1]
+    )
+
+@app.route("/stopwatch")
+def stopwatch_page():
+    set_mode("stopwatch")
+    return render_template("stopwatch.html")
+
+@app.route("/timer")
+def timer_page():
+    try:
+        with open("state.json", "r") as f:
+            state = json.load(f)
+    except:
+        state = {}
+
+    state["mode"] = "timer"
+
+    with open("state.json", "w") as f:
+        json.dump(state, f)
+
+    return render_template("timer.html")
+
+@app.route("/message", methods=["GET", "POST"])
+def message_page():
+    if request.method == "POST":
+        msg = request.form.get("message", "").strip()
+        if not msg:
+            msg = "Nachricht"
+        set_mode("message", msg)
+    else:
+        set_mode("message")
+    return render_template("message.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

@@ -119,7 +119,7 @@
     }
 
     function toggleStopwatch() {
-        fetch("/toggle_stopwatch", { method: "POST" }).catch(() => {});
+        fetch("/stopwatch_toggle", { method: "POST" }).catch(() => {});
 
         if (!running) {
             startTime = Date.now() - elapsed;
@@ -140,7 +140,7 @@
     }
 
     function resetStopwatch() {
-        fetch("/reset_stopwatch", { method: "POST" }).catch(() => {});
+        fetch("/stopwatch_reset", { method: "POST" }).catch(() => {});
 
         cancelAnimationFrame(rafId);
         elapsed = 0;

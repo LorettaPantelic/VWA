@@ -177,7 +177,7 @@
             startTimestamp = performance.now();
             updateDisplay();
 
-            fetch("/update_timer", {
+            fetch("/timer/update", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -208,7 +208,7 @@
         startBtn.classList.remove("stop");
         startBtn.classList.add("start");
 
-        fetch("/update_timer", {
+        fetch("/timer/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ running: false })
@@ -225,7 +225,7 @@
         startBtn.classList.remove("stop");
         startBtn.classList.add("start");
 
-        fetch("/update_timer", {
+        fetch("/timer/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -242,7 +242,7 @@
         initialSeconds = remainingSeconds;
         updateDisplay();
 
-        fetch("/update_timer", {
+        fetch("/timer/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -264,7 +264,7 @@
             lastSetSeconds = newSeconds;
             initialSeconds = newSeconds;
 
-            fetch("/update_timer", {
+            fetch("/timer/update", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

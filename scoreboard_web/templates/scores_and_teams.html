@@ -211,7 +211,7 @@
     }
 
     function sendToServer() {
-        fetch("/update_scoreboard", {
+        fetch("/scoreboard/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -235,7 +235,7 @@
     let gameRunning = false;
 
     function toggleGameClock() {
-        fetch("/toggle_game_clock", { method: "POST" }).catch(() => {});
+        fetch("/game_clock/toggle", { method: "POST" }).catch(() => {});
 
         const btn = document.getElementById("gameToggle");
         const btnText = btn.querySelector(".btn-text");
@@ -254,7 +254,7 @@
     }
 
     function resetGameClock() {
-        fetch("/reset_game_clock", { method: "POST" }).catch(() => {});
+        fetch("/game_clock/reset", { method: "POST" }).catch(() => {});
 
         const btn = document.getElementById("gameToggle");
         const btnText = btn.querySelector(".btn-text");
