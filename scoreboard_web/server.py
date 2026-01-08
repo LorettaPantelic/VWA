@@ -126,7 +126,7 @@ def game_clock_reset():
     return "", 204
 
 # -------- API: Stopwatch --------
-@app.route("/stopwatch_toggle", methods=["POST"])
+@app.route("/stopwatch/toggle", methods=["POST"])
 def stopwatch_toggle():
     state = load_state()
     now = int(time.time() * 1000)
@@ -145,8 +145,8 @@ def stopwatch_toggle():
     save_state(state)
     return jsonify(state)
 
-@app.route("/reset_stopwatch", methods=["POST"])
-def reset_stopwatch():
+@app.route("/stopwatch/reset", methods=["POST"])
+def stopwatch_reset():
     state = load_state()
     state["stopwatch_running"] = False
     state["elapsed_ms"] = 0
