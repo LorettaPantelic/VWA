@@ -10,3 +10,7 @@ __pycache__/
 # Operating system files (optional)
 .DS_Store
 Thumbs.db
+
+# Local shell scripts to control the TV via HDMI-CEC (auto on/off via cron)
+tv_on.sh
+tv_off.sh
