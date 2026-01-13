@@ -201,6 +201,34 @@ def timer_update():
 
     return "", 204
 
+# -------- API: Buzzer Stopwatch --------
+@app.route("/buzzer_stopwatch/toggle", methods=["POST"])
+def buzzer_stopwatch_toggle():
+    state = load_state()
+    now = int(time.time() * 1000)
+
+    if not state.get("buzzer_running", False):
+        state["buzzer_running"] = True
+        state["buzzer_last_start_ts"] = now
+    else:
+        state["buzzer_running"] = False
+        if state.get("buzzer_last_start_ts"):
+            state["buzzer_elapsed_ms"] += now - state["buzzer_last_start_ts"]
+        state["buzzer_last_start_ts"] = None
+
+    save_state(state)
+    return "", 204
+
+
+@app.route("/buzzer_stopwatch/reset", methods=["POST"])
+def buzzer_stopwatch_reset():
+    state = load_state()
+    state["buzzer_running"] = False
+    state["buzzer_elapsed_ms"] = 0
+    state["buzzer_last_start_ts"] = None
+    save_state(state)
+    return "", 204
+
 # -------- API: TV --------
 @app.route("/tv/<action>")
 def tv_control(action):
@@ -275,6 +303,11 @@ def message_page():
     else:
         set_mode("message")
     return render_template("message.html")
+
+@app.route("/buzzer")
+def buzzer_page():
+    set_mode("buzzer")
+    return render_template("buzzer.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

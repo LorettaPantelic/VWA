@@ -24,6 +24,10 @@
 
   "timer_duration": 600,
   "timer_start_ts": 0,
-  "timer_running": false
+  "timer_running": false,
+
+    "buzzer_running": false,
+    "buzzer_elapsed_ms": 0,
+    "buzzer_last_start_ts": null
 
 }

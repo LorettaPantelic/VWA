@@ -150,6 +150,7 @@ while running:
     mode = state.get("mode", "index")
     message_text = state.get("message", "Nachricht")
     stopwatch_running = state.get("stopwatch_running", False)
+    buzzer_running = state.get("buzzer_running", False)
 
     current_time = time.time()
 
@@ -167,6 +168,22 @@ while running:
     milliseconds = int((total_elapsed - int(total_elapsed)) * 1000) // 10
 
     time_text = f"{hours:02}:{minutes:02}:{seconds:02}.{milliseconds:02}"
+
+    # --- Calculate buzzer stopwatch time ---
+    if buzzer_running and state.get("buzzer_last_start_ts"):
+        buzzer_elapsed = (
+            state.get("buzzer_elapsed_ms", 0) / 1000
+            + (current_time - state["buzzer_last_start_ts"] / 1000)
+        )
+    else:
+        buzzer_elapsed = state.get("buzzer_elapsed_ms", 0) / 1000
+
+    bh = int(buzzer_elapsed // 3600)
+    bm = int((buzzer_elapsed % 3600) // 60)
+    bs = int(buzzer_elapsed % 60)
+    bms = int((buzzer_elapsed - int(buzzer_elapsed)) * 100)
+
+    buzzer_time_text = f"{bh:02}:{bm:02}:{bs:02}.{bms:02}"
 
     # --- Always use white background ---
     screen.fill((255, 255, 255))
@@ -371,6 +388,35 @@ while running:
             timer_surface,
             ((WIDTH - timer_surface.get_width()) // 2,
             (HEIGHT - timer_surface.get_height()) // 2)
+        )
+    elif mode == "buzzer":
+        box_width = WIDTH * 0.7
+        box_height = HEIGHT * 0.4
+        box_x = (WIDTH - box_width) / 2
+        box_y = (HEIGHT - box_height) / 2
+
+        rect = pygame.Rect(box_x, box_y, box_width, box_height)
+        pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+
+        # Buzzer time
+        buzzer_surface = font.render(buzzer_time_text, True, (255, 255, 255))
+        screen.blit(
+            buzzer_surface,
+            (
+                (WIDTH - buzzer_surface.get_width()) // 2,
+                (HEIGHT - buzzer_surface.get_height()) // 2
+            )
+        )
+
+        # Label
+        label_font = pygame.font.SysFont("Arial", 70)
+        label_surface = label_font.render("BUZZER", True, (255, 255, 255))
+        screen.blit(
+            label_surface,
+            (
+                (WIDTH - label_surface.get_width()) // 2,
+                box_y + 30
+            )
         )
 
     pygame.display.flip()

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Buzzer Steuerung</h1>
+
+    <button onclick="toggle()">Start / Stopp (I / O)</button>
+    <button onclick="reset()">Reset (P)</button>
+</div>
+
+<script>
+function toggle() {
+    fetch("/buzzer_stopwatch/toggle", { method: "POST" });
+}
+
+function reset() {
+    fetch("/buzzer_stopwatch/reset", { method: "POST" });
+}
+</script>
+{% endblock %}
