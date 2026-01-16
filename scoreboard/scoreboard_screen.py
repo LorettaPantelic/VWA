@@ -53,7 +53,7 @@ def load_state():
             "mode": "index",
             "message": "Nachricht",
             "teams": [
-                {"name": "Team 1", "score": 0, "color": [91, 124, 255]},
+                {"name": "Team 1", "score": 0, "color": [11, 173, 254]},
                 {"name": "Team 2", "score": 0, "color": [214, 76, 76]}
             ],
             "last_start_ts": None
@@ -68,7 +68,7 @@ def load_state():
             "mode": "index",
             "message": "Nachricht",
             "teams": [
-                {"name": "Team 1", "score": 0, "color": [91, 124, 255]},
+                {"name": "Team 1", "score": 0, "color": [11, 173, 254]},
                 {"name": "Team 2", "score": 0, "color": [214, 76, 76]}
             ],
             "last_start_ts": None
@@ -239,7 +239,7 @@ while running:
         box_y = (HEIGHT - box_height) / 2
 
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
-        pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=40)
 
         # Stopwatch time (white, centered)
         text_surface = font.render(time_text, True, (255, 255, 255))
@@ -296,7 +296,7 @@ while running:
 
         # Draw box
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
-        pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=40)
 
         # Text vertical positioning
         if text_height + 2 * padding >= box_height:
@@ -399,7 +399,7 @@ while running:
         box_y = (HEIGHT - box_height) / 2
 
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
-        pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=40)
 
         # Time (white)
         timer_surface = font.render(time_text, True, (255, 255, 255))
@@ -414,7 +414,8 @@ while running:
         box_x = (WIDTH - box_width) / 2
         spacing = 40
 
-        start_y = (HEIGHT - (2 * box_height + spacing)) / 2
+        top_margin = 120
+        start_y = top_margin
 
         times = [buzzer1_time_text, buzzer2_time_text]
 
@@ -422,7 +423,7 @@ while running:
             box_y = start_y + i * (box_height + spacing)
 
             rect = pygame.Rect(box_x, box_y, box_width, box_height)
-            pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+            pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=40)
 
             surface = font.render(time_text, True, (255, 255, 255))
             screen.blit(
