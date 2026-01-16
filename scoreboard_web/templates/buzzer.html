@@ -84,31 +84,49 @@ let running = {
     2: false
 };
 
-function toggle(id) {
-    fetch(`/buzzer/${id}/toggle`, { method: "POST" });
+async function toggle(id) {
+    try {
+        const response = await fetch(`/buzzer/${id}/toggle`, { method: "POST" });
+        if (!response.ok) throw new Error("Fehler beim Toggle");
 
-    running[id] = !running[id];
-    const btn = document.getElementById(`toggleBtn${id}`);
+        // Status vom Server abrufen
+        const stateResp = await fetch("/get_state");
+        const state = await stateResp.json();
 
-    if (running[id]) {
-        btn.classList.remove("start");
-        btn.classList.add("stop");
-        btn.textContent = id === 1 ? "Stopp (O)" : "Stopp (K)";
-    } else {
-        btn.classList.remove("stop");
-        btn.classList.add("start");
-        btn.textContent = id === 1 ? "Start (I)" : "Start (J)";
+        // echten Status für den Buzzer lesen
+        const isRunning = state[`buzzer${id}_running`];
+
+        running[id] = isRunning;
+        const btn = document.getElementById(`toggleBtn${id}`);
+
+        if (isRunning) {
+            btn.classList.remove("start");
+            btn.classList.add("stop");
+            btn.textContent = id === 1 ? "Stopp (O)" : "Stopp (K)";
+        } else {
+            btn.classList.remove("stop");
+            btn.classList.add("start");
+            btn.textContent = id === 1 ? "Start (I)" : "Start (J)";
+        }
+
+    } catch (err) {
+        console.error(err);
     }
 }
 
-function reset(id) {
-    fetch(`/buzzer/${id}/reset`, { method: "POST" });
+async function reset(id) {
+    try {
+        const response = await fetch(`/buzzer/${id}/reset`, { method: "POST" });
+        if (!response.ok) throw new Error("Fehler beim Reset");
 
-    running[id] = false;
-    const btn = document.getElementById(`toggleBtn${id}`);
-    btn.classList.remove("stop");
-    btn.classList.add("start");
-    btn.textContent = id === 1 ? "Start (I)" : "Start (J)";
+        const btn = document.getElementById(`toggleBtn${id}`);
+        running[id] = false;
+        btn.classList.remove("stop");
+        btn.classList.add("start");
+        btn.textContent = id === 1 ? "Start (I)" : "Start (J)";
+    } catch (err) {
+        console.error(err);
+    }
 }
 </script>
 
