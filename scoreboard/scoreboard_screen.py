@@ -408,17 +408,6 @@ while running:
             )
         )
 
-        # Label
-        label_font = pygame.font.SysFont("Arial", 70)
-        label_surface = label_font.render("BUZZER", True, (255, 255, 255))
-        screen.blit(
-            label_surface,
-            (
-                (WIDTH - label_surface.get_width()) // 2,
-                box_y + 30
-            )
-        )
-
     pygame.display.flip()
     clock.tick(60)
 
