@@ -202,30 +202,39 @@ def timer_update():
     return "", 204
 
 # -------- API: Buzzer Stopwatch --------
-@app.route("/buzzer_stopwatch/toggle", methods=["POST"])
-def buzzer_stopwatch_toggle():
+@app.route("/buzzer/<int:buzzer_id>/toggle", methods=["POST"])
+def buzzer_toggle(buzzer_id):
     state = load_state()
     now = int(time.time() * 1000)
 
-    if not state.get("buzzer_running", False):
-        state["buzzer_running"] = True
-        state["buzzer_last_start_ts"] = now
+    prefix = f"buzzer{buzzer_id}_"
+
+    running_key = prefix + "running"
+    elapsed_key = prefix + "elapsed_ms"
+    last_start_key = prefix + "last_start_ts"
+
+    if not state.get(running_key, False):
+        state[running_key] = True
+        state[last_start_key] = now
     else:
-        state["buzzer_running"] = False
-        if state.get("buzzer_last_start_ts"):
-            state["buzzer_elapsed_ms"] += now - state["buzzer_last_start_ts"]
-        state["buzzer_last_start_ts"] = None
+        state[running_key] = False
+        if state.get(last_start_key):
+            state[elapsed_key] += now - state[last_start_key]
+        state[last_start_key] = None
 
     save_state(state)
     return "", 204
 
-
-@app.route("/buzzer_stopwatch/reset", methods=["POST"])
-def buzzer_stopwatch_reset():
+@app.route("/buzzer/<int:buzzer_id>/reset", methods=["POST"])
+def buzzer_reset(buzzer_id):
     state = load_state()
-    state["buzzer_running"] = False
-    state["buzzer_elapsed_ms"] = 0
-    state["buzzer_last_start_ts"] = None
+
+    prefix = f"buzzer{buzzer_id}_"
+
+    state[prefix + "running"] = False
+    state[prefix + "elapsed_ms"] = 0
+    state[prefix + "last_start_ts"] = None
+
     save_state(state)
     return "", 204
 

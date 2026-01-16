@@ -26,8 +26,16 @@
   "timer_start_ts": 0,
   "timer_running": false,
 
-    "buzzer_running": false,
-    "buzzer_elapsed_ms": 0,
-    "buzzer_last_start_ts": null
+  "buzzer1": {
+  "running": false,
+  "elapsed_ms": 0,
+  "last_start_ts": null
+},
+
+"buzzer2": {
+  "running": false,
+  "elapsed_ms": 0,
+  "last_start_ts": null
+}
 
 }

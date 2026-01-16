@@ -53,44 +53,62 @@
 <div class="container">
     <h1>Buzzer Steuerung</h1>
 
+    <!-- BUZZER 1 -->
+    <h2>Buzzer 1</h2>
     <div class="controls">
-        <button id="toggleBtn" class="start" onclick="toggle()">
+        <button id="toggleBtn1" class="start" onclick="toggle(1)">
             Start (I)
         </button>
-
-        <button class="reset" onclick="reset()">
+        <button class="reset" onclick="reset(1)">
             Reset (P)
+        </button>
+    </div>
+
+    <hr style="margin:20px 0">
+
+    <!-- BUZZER 2 -->
+    <h2>Buzzer 2</h2>
+    <div class="controls">
+        <button id="toggleBtn2" class="start" onclick="toggle(2)">
+            Start (J)
+        </button>
+        <button class="reset" onclick="reset(2)">
+            Reset (L)
         </button>
     </div>
 </div>
 
 <script>
-let running = false;
-const toggleBtn = document.getElementById("toggleBtn");
+let running = {
+    1: false,
+    2: false
+};
 
-function toggle() {
-    fetch("/buzzer_stopwatch/toggle", { method: "POST" });
+function toggle(id) {
+    fetch(`/buzzer/${id}/toggle`, { method: "POST" });
 
-    running = !running;
+    running[id] = !running[id];
+    const btn = document.getElementById(`toggleBtn${id}`);
 
-    if (running) {
-        toggleBtn.classList.remove("start");
-        toggleBtn.classList.add("stop");
-        toggleBtn.textContent = "Stopp (O)";
+    if (running[id]) {
+        btn.classList.remove("start");
+        btn.classList.add("stop");
+        btn.textContent = id === 1 ? "Stopp (O)" : "Stopp (K)";
     } else {
-        toggleBtn.classList.remove("stop");
-        toggleBtn.classList.add("start");
-        toggleBtn.textContent = "Start (I)";
+        btn.classList.remove("stop");
+        btn.classList.add("start");
+        btn.textContent = id === 1 ? "Start (I)" : "Start (J)";
     }
 }
 
-function reset() {
-    fetch("/buzzer_stopwatch/reset", { method: "POST" });
+function reset(id) {
+    fetch(`/buzzer/${id}/reset`, { method: "POST" });
 
-    running = false;
-    toggleBtn.classList.remove("stop");
-    toggleBtn.classList.add("start");
-    toggleBtn.textContent = "Start (I)";
+    running[id] = false;
+    const btn = document.getElementById(`toggleBtn${id}`);
+    btn.classList.remove("stop");
+    btn.classList.add("start");
+    btn.textContent = id === 1 ? "Start (I)" : "Start (J)";
 }
 </script>
 

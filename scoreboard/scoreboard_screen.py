@@ -150,7 +150,8 @@ while running:
     mode = state.get("mode", "index")
     message_text = state.get("message", "Nachricht")
     stopwatch_running = state.get("stopwatch_running", False)
-    buzzer_running = state.get("buzzer_running", False)
+    buzzer1_running = state.get("buzzer1_running", False)
+    buzzer2_running = state.get("buzzer2_running", False)
 
     current_time = time.time()
 
@@ -170,20 +171,38 @@ while running:
     time_text = f"{hours:02}:{minutes:02}:{seconds:02}.{milliseconds:02}"
 
     # --- Calculate buzzer stopwatch time ---
-    if buzzer_running and state.get("buzzer_last_start_ts"):
-        buzzer_elapsed = (
-            state.get("buzzer_elapsed_ms", 0) / 1000
-            + (current_time - state["buzzer_last_start_ts"] / 1000)
+    # --- Buzzer 1 ---
+    if buzzer1_running and state.get("buzzer1_last_start_ts"):
+        buzzer1_elapsed = (
+            state.get("buzzer1_elapsed_ms", 0) / 1000
+            + (current_time - state["buzzer1_last_start_ts"] / 1000)
         )
     else:
-        buzzer_elapsed = state.get("buzzer_elapsed_ms", 0) / 1000
+        buzzer1_elapsed = state.get("buzzer1_elapsed_ms", 0) / 1000
 
-    bh = int(buzzer_elapsed // 3600)
-    bm = int((buzzer_elapsed % 3600) // 60)
-    bs = int(buzzer_elapsed % 60)
-    bms = int((buzzer_elapsed - int(buzzer_elapsed)) * 100)
+    bh1 = int(buzzer1_elapsed // 3600)
+    bm1 = int((buzzer1_elapsed % 3600) // 60)
+    bs1 = int(buzzer1_elapsed % 60)
+    bms1 = int((buzzer1_elapsed - int(buzzer1_elapsed)) * 100)
 
-    buzzer_time_text = f"{bh:02}:{bm:02}:{bs:02}.{bms:02}"
+    buzzer1_time_text = f"{bh1:02}:{bm1:02}:{bs1:02}.{bms1:02}"
+
+
+    # --- Buzzer 2 ---
+    if buzzer2_running and state.get("buzzer2_last_start_ts"):
+        buzzer2_elapsed = (
+            state.get("buzzer2_elapsed_ms", 0) / 1000
+            + (current_time - state["buzzer2_last_start_ts"] / 1000)
+        )
+    else:
+        buzzer2_elapsed = state.get("buzzer2_elapsed_ms", 0) / 1000
+
+    bh2 = int(buzzer2_elapsed // 3600)
+    bm2 = int((buzzer2_elapsed % 3600) // 60)
+    bs2 = int(buzzer2_elapsed % 60)
+    bms2 = int((buzzer2_elapsed - int(buzzer2_elapsed)) * 100)
+
+    buzzer2_time_text = f"{bh2:02}:{bm2:02}:{bs2:02}.{bms2:02}"
 
     # --- Always use white background ---
     screen.fill((255, 255, 255))
@@ -393,20 +412,26 @@ while running:
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4
         box_x = (WIDTH - box_width) / 2
-        box_y = (HEIGHT - box_height) / 2
+        spacing = 40
 
-        rect = pygame.Rect(box_x, box_y, box_width, box_height)
-        pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+        start_y = (HEIGHT - (2 * box_height + spacing)) / 2
 
-        # Buzzer time
-        buzzer_surface = font.render(buzzer_time_text, True, (255, 255, 255))
-        screen.blit(
-            buzzer_surface,
-            (
-                (WIDTH - buzzer_surface.get_width()) // 2,
-                (HEIGHT - buzzer_surface.get_height()) // 2
+        times = [buzzer1_time_text, buzzer2_time_text]
+
+        for i, time_text in enumerate(times):
+            box_y = start_y + i * (box_height + spacing)
+
+            rect = pygame.Rect(box_x, box_y, box_width, box_height)
+            pygame.draw.rect(screen, (91, 124, 255), rect, border_radius=40)
+
+            surface = font.render(time_text, True, (255, 255, 255))
+            screen.blit(
+                surface,
+                (
+                    box_x + (box_width - surface.get_width()) // 2,
+                    box_y + (box_height - surface.get_height()) // 2
+                )
             )
-        )
 
     pygame.display.flip()
     clock.tick(60)

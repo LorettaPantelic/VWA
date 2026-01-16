@@ -10,12 +10,17 @@ def on_press(key):
     except:
         return
 
-    if k == "i":
-        requests.post(f"{SERVER}/buzzer_stopwatch/toggle")
-    elif k == "o":
-        requests.post(f"{SERVER}/buzzer_stopwatch/toggle")
+    # BUZZER 1
+    if k == "i" or k == "o":
+        requests.post(f"{SERVER}/buzzer/1/toggle")
     elif k == "p":
-        requests.post(f"{SERVER}/buzzer_stopwatch/reset")
+        requests.post(f"{SERVER}/buzzer/1/reset")
+
+    # BUZZER 2
+    elif k == "j" or k == "k":
+        requests.post(f"{SERVER}/buzzer/2/toggle")
+    elif k == "l":
+        requests.post(f"{SERVER}/buzzer/2/reset")
 
 def main():
     with keyboard.Listener(on_press=on_press) as listener:
