@@ -1,20 +1,97 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<style>
+    .container {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        width: 420px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        margin-bottom: 16px;
+        text-align: center;
+    }
+
+    .controls {
+        display: flex;
+        gap: 12px;
+    }
+
+    button {
+        flex: 1;
+        padding: 14px;
+        font-size: 18px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        min-height: 52px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .start {
+        background: #4ca34f;
+        color: white;
+    }
+
+    .stop {
+        background: #dc2626;
+        color: white;
+    }
+
+    .reset {
+        background: #e5e7eb;
+    }
+</style>
+
 <div class="container">
     <h1>Buzzer Steuerung</h1>
 
-    <button onclick="toggle()">Start / Stopp (I / O)</button>
-    <button onclick="reset()">Reset (P)</button>
+    <div class="controls">
+        <button id="toggleBtn" class="start" onclick="toggle()">
+            Start (I)
+        </button>
+
+        <button class="reset" onclick="reset()">
+            Reset (P)
+        </button>
+    </div>
 </div>
 
 <script>
+let running = false;
+const toggleBtn = document.getElementById("toggleBtn");
+
 function toggle() {
     fetch("/buzzer_stopwatch/toggle", { method: "POST" });
+
+    running = !running;
+
+    if (running) {
+        toggleBtn.classList.remove("start");
+        toggleBtn.classList.add("stop");
+        toggleBtn.textContent = "Stopp (O)";
+    } else {
+        toggleBtn.classList.remove("stop");
+        toggleBtn.classList.add("start");
+        toggleBtn.textContent = "Start (I)";
+    }
 }
 
 function reset() {
     fetch("/buzzer_stopwatch/reset", { method: "POST" });
+
+    running = false;
+    toggleBtn.classList.remove("stop");
+    toggleBtn.classList.add("start");
+    toggleBtn.textContent = "Start (I)";
 }
 </script>
+
 {% endblock %}
