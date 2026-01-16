@@ -28,6 +28,14 @@ def load_state():
             "game_elapsed_ms": 0,
             "game_last_start_ts": None,
 
+            "buzzer1_running": False,
+            "buzzer1_elapsed_ms": 0,
+            "buzzer1_last_start_ts": None,
+
+            "buzzer2_running": False,
+            "buzzer2_elapsed_ms": 0,
+            "buzzer2_last_start_ts": None,
+
             "mode": "index",
             "message": "Nachricht"
         })

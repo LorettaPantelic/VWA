@@ -150,17 +150,14 @@ while running:
     mode = state.get("mode", "index")
     message_text = state.get("message", "Nachricht")
     stopwatch_running = state.get("stopwatch_running", False)
-    # Buzzer 1
-    buzzer1 = state.get("buzzer1", {})
-    buzzer1_running = buzzer1.get("running", False)
-    buzzer1_elapsed_ms = buzzer1.get("elapsed_ms", 0)
-    buzzer1_last_start_ts = buzzer1.get("last_start_ts", None)
+    
+    buzzer1_running = state.get("buzzer1_running", False)
+    buzzer1_elapsed_ms = state.get("buzzer1_elapsed_ms", 0)
+    buzzer1_last_start_ts = state.get("buzzer1_last_start_ts", None)
 
-    # Buzzer 2
-    buzzer2 = state.get("buzzer2", {})
-    buzzer2_running = buzzer2.get("running", False)
-    buzzer2_elapsed_ms = buzzer2.get("elapsed_ms", 0)
-    buzzer2_last_start_ts = buzzer2.get("last_start_ts", None)
+    buzzer2_running = state.get("buzzer2_running", False)
+    buzzer2_elapsed_ms = state.get("buzzer2_elapsed_ms", 0)
+    buzzer2_last_start_ts = state.get("buzzer2_last_start_ts", None)
 
     current_time = time.time()
 
