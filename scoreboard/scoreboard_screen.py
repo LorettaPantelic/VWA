@@ -181,13 +181,16 @@ while running:
 
     # --- Calculate buzzer stopwatch time ---
     # Buzzer 1
+    now_ms = int(time.time() * 1000)
+
     if buzzer1_running and buzzer1_last_start_ts:
-        buzzer1_elapsed = (
-            buzzer1_elapsed_ms / 1000
-            + (current_time - buzzer1_last_start_ts)
+        buzzer1_elapsed_ms_current = (
+            buzzer1_elapsed_ms + (now_ms - buzzer1_last_start_ts)
         )
     else:
-        buzzer1_elapsed = buzzer1_elapsed_ms / 1000
+        buzzer1_elapsed_ms_current = buzzer1_elapsed_ms
+
+    buzzer1_elapsed = buzzer1_elapsed_ms_current / 1000
 
     bh1 = int(buzzer1_elapsed // 3600)
     bm1 = int((buzzer1_elapsed % 3600) // 60)
@@ -198,12 +201,13 @@ while running:
 
     # Buzzer 2
     if buzzer2_running and buzzer2_last_start_ts:
-        buzzer2_elapsed = (
-            buzzer2_elapsed_ms / 1000
-            + (current_time - buzzer2_last_start_ts)
+        buzzer2_elapsed_ms_current = (
+            buzzer2_elapsed_ms + (now_ms - buzzer2_last_start_ts)
         )
     else:
-        buzzer2_elapsed = buzzer2_elapsed_ms / 1000
+        buzzer2_elapsed_ms_current = buzzer2_elapsed_ms
+
+    buzzer2_elapsed = buzzer2_elapsed_ms_current / 1000
 
     bh2 = int(buzzer2_elapsed // 3600)
     bm2 = int((buzzer2_elapsed % 3600) // 60)
