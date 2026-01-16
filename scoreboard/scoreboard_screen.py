@@ -150,8 +150,17 @@ while running:
     mode = state.get("mode", "index")
     message_text = state.get("message", "Nachricht")
     stopwatch_running = state.get("stopwatch_running", False)
-    buzzer1_running = state.get("buzzer1_running", False)
-    buzzer2_running = state.get("buzzer2_running", False)
+    # Buzzer 1
+    buzzer1 = state.get("buzzer1", {})
+    buzzer1_running = buzzer1.get("running", False)
+    buzzer1_elapsed_ms = buzzer1.get("elapsed_ms", 0)
+    buzzer1_last_start_ts = buzzer1.get("last_start_ts", None)
+
+    # Buzzer 2
+    buzzer2 = state.get("buzzer2", {})
+    buzzer2_running = buzzer2.get("running", False)
+    buzzer2_elapsed_ms = buzzer2.get("elapsed_ms", 0)
+    buzzer2_last_start_ts = buzzer2.get("last_start_ts", None)
 
     current_time = time.time()
 
@@ -171,14 +180,11 @@ while running:
     time_text = f"{hours:02}:{minutes:02}:{seconds:02}.{milliseconds:02}"
 
     # --- Calculate buzzer stopwatch time ---
-    # --- Buzzer 1 ---
-    if buzzer1_running and state.get("buzzer1_last_start_ts"):
-        buzzer1_elapsed = (
-            state.get("buzzer1_elapsed_ms", 0) / 1000
-            + (current_time - state["buzzer1_last_start_ts"] / 1000)
-        )
+    # Buzzer 1
+    if buzzer1_running and buzzer1_last_start_ts:
+        buzzer1_elapsed = buzzer1_elapsed_ms / 1000 + (current_time - buzzer1_last_start_ts / 1000)
     else:
-        buzzer1_elapsed = state.get("buzzer1_elapsed_ms", 0) / 1000
+        buzzer1_elapsed = buzzer1_elapsed_ms / 1000
 
     bh1 = int(buzzer1_elapsed // 3600)
     bm1 = int((buzzer1_elapsed % 3600) // 60)
@@ -187,15 +193,11 @@ while running:
 
     buzzer1_time_text = f"{bh1:02}:{bm1:02}:{bs1:02}.{bms1:02}"
 
-
-    # --- Buzzer 2 ---
-    if buzzer2_running and state.get("buzzer2_last_start_ts"):
-        buzzer2_elapsed = (
-            state.get("buzzer2_elapsed_ms", 0) / 1000
-            + (current_time - state["buzzer2_last_start_ts"] / 1000)
-        )
+    # Buzzer 2
+    if buzzer2_running and buzzer2_last_start_ts:
+        buzzer2_elapsed = buzzer2_elapsed_ms / 1000 + (current_time - buzzer2_last_start_ts / 1000)
     else:
-        buzzer2_elapsed = state.get("buzzer2_elapsed_ms", 0) / 1000
+        buzzer2_elapsed = buzzer2_elapsed_ms / 1000
 
     bh2 = int(buzzer2_elapsed // 3600)
     bm2 = int((buzzer2_elapsed % 3600) // 60)
