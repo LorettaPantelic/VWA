@@ -182,7 +182,10 @@ while running:
     # --- Calculate buzzer stopwatch time ---
     # Buzzer 1
     if buzzer1_running and buzzer1_last_start_ts:
-        buzzer1_elapsed = buzzer1_elapsed_ms / 1000 + (current_time - buzzer1_last_start_ts / 1000)
+        buzzer1_elapsed = (
+            buzzer1_elapsed_ms / 1000
+            + (current_time - buzzer1_last_start_ts)
+        )
     else:
         buzzer1_elapsed = buzzer1_elapsed_ms / 1000
 
@@ -195,7 +198,10 @@ while running:
 
     # Buzzer 2
     if buzzer2_running and buzzer2_last_start_ts:
-        buzzer2_elapsed = buzzer2_elapsed_ms / 1000 + (current_time - buzzer2_last_start_ts / 1000)
+        buzzer2_elapsed = (
+            buzzer2_elapsed_ms / 1000
+            + (current_time - buzzer2_last_start_ts)
+        )
     else:
         buzzer2_elapsed = buzzer2_elapsed_ms / 1000
 
