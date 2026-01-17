@@ -73,7 +73,7 @@ def wrap_text(text, font, max_width):
     for word in words:
         # Test if adding the next word exceeds the max width
         test_line = current_line + (" " if current_line else "") + word
-        if message_font.size(test_line)[0] <= max_width:
+        if font.size(test_line)[0] <= max_width:  # use the passed font
             current_line = test_line
         else:
             # Start a new line
@@ -98,9 +98,9 @@ def get_fitting_font(text, base_font_name, max_width, max_height, max_size, min_
         font = pygame.font.SysFont(base_font_name, font_size)
         # Wrap text based on current font size
         lines = wrap_text(text, font, max_width)
-        line_height = message_font.get_height()  # use the font returned by get_fitting_font
+        line_height = font.get_height()   # <-- use current font
         text_height = line_height * len(lines)
-        text_width = max(message_font.size(line)[0] for line in lines)
+        text_width = max(font.size(line)[0] for line in lines)  # <-- use current font
 
         if text_width <= max_width and text_height <= max_height:
             return font, lines  # fits perfectly
