@@ -98,9 +98,9 @@ def get_fitting_font(text, base_font_name, max_width, max_height, max_size, min_
         font = pygame.font.SysFont(base_font_name, font_size)
         # Wrap text based on current font size
         lines = wrap_text(text, font, max_width)
-        line_height = font.get_height()
+        line_height = message_font.get_height()  # use the font returned by get_fitting_font
         text_height = line_height * len(lines)
-        text_width = max(font.size(line)[0] for line in lines)
+        text_width = max(message_font.size(line)[0] for line in lines)
 
         if text_width <= max_width and text_height <= max_height:
             return font, lines  # fits perfectly
