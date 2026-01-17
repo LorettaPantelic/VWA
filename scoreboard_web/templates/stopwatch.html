@@ -151,6 +151,32 @@
         toggleBtn.classList.add("start");
         running = false;
     }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        fetch("/get_state")
+            .then(res => res.json())
+            .then(state => {
+                // Read if stopwatch is running
+                running = state.stopwatch_running || false;
+                elapsed = state.current_elapsed_ms || 0;
+
+                // Update time display
+                timeEl.textContent = formatTime(elapsed);
+
+                // Update button
+                if (running) {
+                    startTime = Date.now() - elapsed;
+                    rafId = requestAnimationFrame(update);
+                    btnText.textContent = "■ Stopp";
+                    toggleBtn.classList.remove("start");
+                    toggleBtn.classList.add("stop");
+                } else {
+                    btnText.textContent = "▶ Start";
+                    toggleBtn.classList.remove("stop");
+                    toggleBtn.classList.add("start");
+                }
+            });
+    });
 </script>
 
 {% endblock %}

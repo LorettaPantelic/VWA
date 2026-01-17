@@ -79,22 +79,18 @@
 </div>
 
 <script>
-let running = {
-    1: false,
-    2: false
-};
+let running = { 1: false, 2: false };
 
 async function toggle(id) {
     try {
-        const response = await fetch(`/buzzer/${id}/toggle`, { method: "POST" });
-        if (!response.ok) throw new Error("Fehler beim Toggle");
+        await fetch(`/buzzer/${id}/toggle`, { method: "POST" });
 
-        // Status vom Server abrufen
+        // Fetch current buzzer state from server
         const stateResp = await fetch("/get_state");
         const state = await stateResp.json();
 
-        // echten Status für den Buzzer lesen
-        const isRunning = state[`buzzer${id}_running`];
+        const buzzerState = state[`buzzer${id}`] || {};
+        const isRunning = buzzerState.running || false;
 
         running[id] = isRunning;
         const btn = document.getElementById(`toggleBtn${id}`);
@@ -128,6 +124,39 @@ async function reset(id) {
         console.error(err);
     }
 }
+
+// --- Sync buzzer status on page load ---
+async function syncBuzzerState() {
+    try {
+        const res = await fetch("/get_state");
+        const state = await res.json();
+
+        [1,2].forEach(id => {
+            const buzzerState = state[`buzzer${id}`] || {};
+            const isRunning = buzzerState.running || false;
+            running[id] = isRunning;
+            const btn = document.getElementById(`toggleBtn${id}`);
+
+            if (isRunning) {
+                btn.classList.remove("start");
+                btn.classList.add("stop");
+                btn.textContent = id === 1 ? "Stopp (O)" : "Stopp (K)";
+            } else {
+                btn.classList.remove("stop");
+                btn.classList.add("start");
+                btn.textContent = id === 1 ? "Start (I)" : "Start (J)";
+            }
+        });
+    } catch (err) {
+        console.error("Error syncing buzzer state:", err);
+    }
+}
+
+// --- Poll server every 500ms to stay in sync ---
+setInterval(syncBuzzerState, 500);
+
+// Run sync once on page load
+window.addEventListener("DOMContentLoaded", syncBuzzerState);
 </script>
 
 {% endblock %}

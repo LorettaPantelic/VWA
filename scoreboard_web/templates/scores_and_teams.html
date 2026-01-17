@@ -264,5 +264,30 @@
         btn.classList.add("start");
         gameRunning = false;
     }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        fetch("/get_state")
+            .then(res => res.json())
+            .then(state => {
+                gameRunning = state.game_clock_running || false;
+                const btn = document.getElementById("gameToggle");
+                const btnText = btn.querySelector(".btn-text");
+
+                if (gameRunning) {
+                    btnText.textContent = "■ Stopp";
+                    btn.classList.remove("start");
+                    btn.classList.add("stop");
+                } else {
+                    btnText.textContent = "▶ Start";
+                    btn.classList.remove("stop");
+                    btn.classList.add("start");
+                }
+
+                document.getElementById("team1Name").value = state.teams[0].name;
+                document.getElementById("team2Name").value = state.teams[1].name;
+                document.getElementById("team1Score").textContent = state.teams[0].score;
+                document.getElementById("team2Score").textContent = state.teams[1].score;
+            });
+    });
 </script>
 {% endblock %}

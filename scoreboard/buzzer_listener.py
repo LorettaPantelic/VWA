@@ -10,17 +10,20 @@ def on_press(key):
     except:
         return
 
-    # BUZZER 1
-    if k == "i" or k == "o":
-        requests.post(f"{SERVER}/buzzer/1/toggle")
-    elif k == "p":
-        requests.post(f"{SERVER}/buzzer/1/reset")
+    try:
+        # BUZZER 1
+        if k in ("i", "o"):
+            requests.post(f"{SERVER}/buzzer/1/toggle").raise_for_status()
+        elif k == "p":
+            requests.post(f"{SERVER}/buzzer/1/reset").raise_for_status()
 
-    # BUZZER 2
-    elif k == "j" or k == "k":
-        requests.post(f"{SERVER}/buzzer/2/toggle")
-    elif k == "l":
-        requests.post(f"{SERVER}/buzzer/2/reset")
+        # BUZZER 2
+        elif k in ("j", "k"):
+            requests.post(f"{SERVER}/buzzer/2/toggle").raise_for_status()
+        elif k == "l":
+            requests.post(f"{SERVER}/buzzer/2/reset").raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending request: {e}")
 
 def main():
     with keyboard.Listener(on_press=on_press) as listener:

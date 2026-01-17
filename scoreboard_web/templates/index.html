@@ -10,7 +10,7 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 
     display: flex;
-    flex-direction: column; /* TV oben, HDMI darunter */
+    flex-direction: column; /* TV above, HDMI below */
     gap: 20px;
     align-items: center;
     justify-content: center;
@@ -68,7 +68,7 @@ button {
 }
 
 .hdmi-button.active {
-    background: rgb(0, 140, 220); /* gedrückte Optik */
+    background: rgb(0, 140, 220); /* pressed style */
     transform: scale(0.95);
 }
 </style>
@@ -86,7 +86,7 @@ button {
 let tvOn = false;
 let currentHDMI = null;
 
-// Power Button
+// --- Toggle TV power ---
 document.getElementById("tvButton").addEventListener("click", () => {
     let action = tvOn ? "off" : "on";
     fetch(`/tv/${action}`).then(() => {
@@ -95,7 +95,7 @@ document.getElementById("tvButton").addEventListener("click", () => {
     });
 });
 
-// HDMI Buttons
+// --- HDMI Buttons ---
 function setActiveHDMI(port) {
     currentHDMI = port;
     document.getElementById("hdmiOneButton").classList.toggle("active", port === 1);
@@ -103,22 +103,37 @@ function setActiveHDMI(port) {
 }
 
 document.getElementById("hdmiOneButton").addEventListener("click", () => {
-    fetch(`/hdmi/1`)
-        .then(res => res.json())
-        .then(() => setActiveHDMI(1));
+    fetch(`/hdmi/1`).then(res => res.json()).then(() => setActiveHDMI(1));
 });
 
 document.getElementById("hdmiTwoButton").addEventListener("click", () => {
-    fetch(`/hdmi/2`)
-        .then(res => res.json())
-        .then(() => setActiveHDMI(2));
+    fetch(`/hdmi/2`).then(res => res.json()).then(() => setActiveHDMI(2));
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-    fetch("/hdmi/status")
-        .then(res => res.json())
-        .then(data => setActiveHDMI(data.hdmi || 1));
-});
+// --- Sync on page load ---
+async function syncFromServer() {
+    try {
+        // Get TV state
+        const stateRes = await fetch("/get_state");
+        const state = await stateRes.json();
+        tvOn = state.tv_on || false;
+        document.getElementById("tvButton").classList.toggle("off", !tvOn);
+
+        // Get current HDMI
+        const hdmiRes = await fetch("/hdmi/status");
+        const hdmiData = await hdmiRes.json();
+        setActiveHDMI(hdmiData.hdmi || 1);
+
+    } catch (err) {
+        console.error("Error syncing TV/HDMI:", err);
+    }
+}
+
+// Poll server every 500ms to stay in sync
+setInterval(syncFromServer, 500);
+
+// Run once on page load
+window.addEventListener("DOMContentLoaded", syncFromServer);
 </script>
 
 {% endblock %}

@@ -316,6 +316,43 @@
         }
     }, 500);
 
+    window.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const res = await fetch("/get_state");
+            const state = await res.json();
+
+            // Check if timer is running
+            if (state.timer_running && state.timer_start_ts) {
+                const elapsed = (Date.now()/1000 - state.timer_start_ts);
+                remainingSeconds = state.timer_duration - elapsed;
+                lastSetSeconds = remainingSeconds;
+                startTimestamp = performance.now() - elapsed * 1000;
+                running = true;
+
+                // Update button
+                btnText.textContent = "■ Stopp";
+                startBtn.classList.remove("start");
+                startBtn.classList.add("stop");
+
+                // Start interval
+                intervalId = setInterval(updateTimerDisplay, 50);
+            } else {
+                remainingSeconds = state.remaining_seconds || state.timer_duration || 600;
+                lastSetSeconds = remainingSeconds;
+
+                btnText.textContent = "▶ Start";
+                startBtn.classList.remove("stop");
+                startBtn.classList.add("start");
+            }
+
+            // Initial display
+            updateDisplay();
+
+        } catch (err) {
+            console.error("Error loading timer state from server:", err);
+        }
+    });
+
 </script>
 
 {% endblock %}

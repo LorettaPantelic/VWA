@@ -4,6 +4,7 @@
   "mode": "index",
   "message": "Nachricht",
   "hdmi": 1,
+  "tv_on": false,
 
   "teams": [
     {

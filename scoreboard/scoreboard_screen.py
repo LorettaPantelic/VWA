@@ -1,10 +1,11 @@
 import pygame
 import sys
 import time
-import json
-import os
+import requests
 import datetime
 from zoneinfo import ZoneInfo
+
+SERVER_URL = "http://127.0.0.1:5000"
 
 GERMAN_WEEKDAYS = {
     0: "Montag",
@@ -35,46 +36,29 @@ game_time_font = pygame.font.SysFont("Arial", 140)
 
 clock = pygame.time.Clock()
 
-# --- Path to state.json ---
-STATE_FILE = "/home/lori/VWA/scoreboard_web/state.json"
+# Store the last fetched state to reduce HTTP requests
+last_state = None
+last_state_ts = 0
+STATE_POLL_INTERVAL = 0.1  # seconds, fetch max 10x per second
 
-# --- State handling functions ---
-def save_state(state):
-    with open(STATE_FILE, "w") as f:
-        json.dump(state, f, indent=4)
-        f.flush()
-        os.fsync(f.fileno())
+def fetch_state():
+    global last_state, last_state_ts
 
-def load_state():
-    if not os.path.exists(STATE_FILE):
-        save_state({
-            "stopwatch_running": False,
-            "elapsed_ms": 0,
-            "mode": "index",
-            "message": "Nachricht",
-            "teams": [
-                {"name": "Team 1", "score": 0, "color": [11, 173, 254]},
-                {"name": "Team 2", "score": 0, "color": [214, 76, 76]}
-            ],
-            "last_start_ts": None
-        })
+    now = time.time()
+    # Only fetch if interval has passed
+    if now - last_state_ts < STATE_POLL_INTERVAL:
+        return last_state
+
     try:
-        with open(STATE_FILE, "r") as f:
-            data = json.load(f)
-    except (json.JSONDecodeError, FileNotFoundError):
-        data = {
-            "stopwatch_running": False,
-            "elapsed_ms": 0,
-            "mode": "index",
-            "message": "Nachricht",
-            "teams": [
-                {"name": "Team 1", "score": 0, "color": [11, 173, 254]},
-                {"name": "Team 2", "score": 0, "color": [214, 76, 76]}
-            ],
-            "last_start_ts": None
-        }
-        save_state(data)
-    return data
+        response = requests.get(f"{SERVER_URL}/get_state", timeout=0.05)
+        response.raise_for_status()
+        last_state = response.json()
+        last_state_ts = now
+    except requests.RequestException:
+        # Server temporarily unavailable, keep previous state
+        pass
+
+    return last_state
 
 def wrap_text(text, font, max_width):
     
@@ -135,8 +119,7 @@ def format_hms(ms):
     return f"{h:02}:{m:02}:{s:02}"
 
 # --- Time variables ---
-state = load_state()
-total_elapsed = state.get("elapsed_ms", 0) / 1000
+total_elapsed = 0
 last_tick = time.time()
 
 running = True
@@ -145,19 +128,25 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Load state from file
-    state = load_state()
-    mode = state.get("mode", "index")
-    message_text = state.get("message", "Nachricht")
-    stopwatch_running = state.get("stopwatch_running", False)
-    
-    buzzer1_running = state.get("buzzer1_running", False)
-    buzzer1_elapsed_ms = state.get("buzzer1_elapsed_ms", 0)
-    buzzer1_last_start_ts = state.get("buzzer1_last_start_ts", None)
+    # Fetch current state from Flask API
+    state = fetch_state()
+    if not state:
+        continue  # skip this frame if no state available
 
-    buzzer2_running = state.get("buzzer2_running", False)
-    buzzer2_elapsed_ms = state.get("buzzer2_elapsed_ms", 0)
-    buzzer2_last_start_ts = state.get("buzzer2_last_start_ts", None)
+    # --- Extract state values ---
+    mode = state.get("mode")
+    message_text = state.get("message")
+    stopwatch_running = state.get("stopwatch_running", False)
+
+    buzzer1_state = state.get("buzzer1", {})
+    buzzer1_running = buzzer1_state.get("running", False)
+    buzzer1_elapsed_ms = buzzer1_state.get("elapsed_ms", 0)
+    buzzer1_last_start_ts = buzzer1_state.get("last_start_ts", None)
+
+    buzzer2_state = state.get("buzzer2", {})
+    buzzer2_running = buzzer2_state.get("running", False)
+    buzzer2_elapsed_ms = buzzer2_state.get("elapsed_ms", 0)
+    buzzer2_last_start_ts = buzzer2_state.get("last_start_ts", None)
 
     current_time = time.time()
 
@@ -165,7 +154,7 @@ while running:
     if stopwatch_running and state.get("last_start_ts"):
         # total_elapsed = stored time + time elapsed since last start
         total_elapsed = state.get("elapsed_ms", 0) / 1000 + (current_time - state["last_start_ts"] / 1000)
-    elif not stopwatch_running:
+    else:
         # If stopwatch is stopped or reset, use stored state only
         total_elapsed = state.get("elapsed_ms", 0) / 1000
 
@@ -177,51 +166,42 @@ while running:
     time_text = f"{hours:02}:{minutes:02}:{seconds:02}.{milliseconds:02}"
 
     # --- Calculate buzzer stopwatch time ---
-    # Buzzer 1
     now_ms = int(time.time() * 1000)
 
+    # Buzzer 1
     if buzzer1_running and buzzer1_last_start_ts:
-        buzzer1_elapsed_ms_current = (
-            buzzer1_elapsed_ms + (now_ms - buzzer1_last_start_ts)
-        )
+        buzzer1_elapsed_ms_current = buzzer1_elapsed_ms + (now_ms - buzzer1_last_start_ts)
     else:
         buzzer1_elapsed_ms_current = buzzer1_elapsed_ms
 
     buzzer1_elapsed = buzzer1_elapsed_ms_current / 1000
-
     bh1 = int(buzzer1_elapsed // 3600)
     bm1 = int((buzzer1_elapsed % 3600) // 60)
     bs1 = int(buzzer1_elapsed % 60)
     bms1 = int((buzzer1_elapsed - int(buzzer1_elapsed)) * 100)
-
     buzzer1_time_text = f"{bh1:02}:{bm1:02}:{bs1:02}.{bms1:02}"
 
     # Buzzer 2
     if buzzer2_running and buzzer2_last_start_ts:
-        buzzer2_elapsed_ms_current = (
-            buzzer2_elapsed_ms + (now_ms - buzzer2_last_start_ts)
-        )
+        buzzer2_elapsed_ms_current = buzzer2_elapsed_ms + (now_ms - buzzer2_last_start_ts)
     else:
         buzzer2_elapsed_ms_current = buzzer2_elapsed_ms
 
     buzzer2_elapsed = buzzer2_elapsed_ms_current / 1000
-
     bh2 = int(buzzer2_elapsed // 3600)
     bm2 = int((buzzer2_elapsed % 3600) // 60)
     bs2 = int(buzzer2_elapsed % 60)
     bms2 = int((buzzer2_elapsed - int(buzzer2_elapsed)) * 100)
-
     buzzer2_time_text = f"{bh2:02}:{bm2:02}:{bs2:02}.{bms2:02}"
 
     # --- Always use white background ---
     screen.fill((255, 255, 255))
 
     # --- Current time and date ---
-    now = datetime.datetime.now(ZoneInfo("Europe/Vienna"))
-
-    weekday = GERMAN_WEEKDAYS[now.weekday()]
-    now_time = f"{now.hour:02}:{now.minute:02}:{now.second:02}"
-    date_text = f"{weekday}, {now.day:02}.{now.month:02}.{now.year}"
+    now_dt = datetime.datetime.now(ZoneInfo("Europe/Vienna"))
+    weekday = GERMAN_WEEKDAYS[now_dt.weekday()]
+    now_time = f"{now_dt.hour:02}:{now_dt.minute:02}:{now_dt.second:02}"
+    date_text = f"{weekday}, {now_dt.day:02}.{now_dt.month:02}.{now_dt.year}"
 
     # Always display date at the top-right
     date_surface = date_font_small.render(date_text, True, (0, 0, 0))
@@ -295,7 +275,7 @@ while running:
         if text_width + 2 * padding > base_box_width:
             box_width = min(text_width + 2 * padding, max_box_width)
 
-        # Adjust box height **only if text is taller than base**
+        # Adjust box height only if text is taller than base
         if text_height + 2 * padding > base_box_height:
             box_height = min(text_height + 2 * padding, max_box_height)
 
@@ -319,14 +299,15 @@ while running:
             x = box_x + (box_width - line_surface.get_width()) // 2
             screen.blit(line_surface, (x, y_offset))
             y_offset += line_height
+
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
 
         # --- Layout constants ---
-        top_margin = 120            # Original distance from top (same as before)
-        spacing_between_boxes = 40   # Horizontal spacing between team boxes
-        time_margin = 20             # Space between boxes and game time
-        bottom_margin = time_margin  # Make distance from time to bottom same as time_margin
+        top_margin = 120           # Original distance from top
+        spacing_between_boxes = 40  # Horizontal spacing between team boxes
+        time_margin = 20            # Space between boxes and game time
+        bottom_margin = time_margin # Keep distance from time to bottom same as time_margin
 
         num_teams = min(2, len(teams))
         card_width = WIDTH // 2 - spacing_between_boxes * 1.5
@@ -382,8 +363,9 @@ while running:
         time_x = (WIDTH - time_surf.get_width()) // 2
 
         # Position vertically: symmetric spacing
-        time_y = y + card_height + time_margin  # distance from boxes
+        time_y = y + card_height + time_margin
         screen.blit(time_surf, (time_x, time_y))
+
     elif mode == "timer":
         timer_duration = state.get("timer_duration", 0)
         timer_start_ts = state.get("timer_start_ts", 0)
@@ -417,6 +399,7 @@ while running:
             ((WIDTH - timer_surface.get_width()) // 2,
             (HEIGHT - timer_surface.get_height()) // 2)
         )
+
     elif mode == "buzzer":
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4

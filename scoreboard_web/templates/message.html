@@ -40,7 +40,7 @@
 <div class="container">
     <h1>Nachricht anzeigen</h1>
 
-    <form method="POST" action="/message">
+    <form id="messageForm" method="POST" action="/message">
         <input
             type="text"
             name="message"
@@ -52,5 +52,39 @@
         </button>
     </form>
 </div>
+
+<script>
+const messageInput = document.getElementById("messageInput");
+
+// --- Fetch the current message from the server on load ---
+async function syncMessage() {
+    try {
+        const res = await fetch("/get_state");
+        const state = await res.json();
+        if (state.message) {
+            messageInput.value = state.message;
+        }
+    } catch (err) {
+        console.error("Error fetching message:", err);
+    }
+}
+
+// Poll server every 1 second to keep message updated
+setInterval(syncMessage, 1000);
+
+// Run once on page load
+window.addEventListener("DOMContentLoaded", syncMessage);
+
+// Prevent overwriting while typing
+messageInput.addEventListener("focus", () => {
+    // Stop updating while editing
+    clearInterval(syncInterval);
+});
+
+// Restart polling after blur
+messageInput.addEventListener("blur", () => {
+    syncInterval = setInterval(syncMessage, 1000);
+});
+</script>
 
 {% endblock %}

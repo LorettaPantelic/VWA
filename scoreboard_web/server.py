@@ -44,7 +44,9 @@ def load_state():
 
 def save_state(state):
     with open(STATE_FILE, "w") as f:
-        json.dump(state, f)
+        json.dump(state, f, indent=4)
+        f.flush()
+        os.fsync(f.fileno())
 
 def set_mode(mode, message=None):
     state = load_state()
@@ -166,21 +168,13 @@ def stopwatch_reset():
 @app.route("/timer/update", methods=["POST"])
 def timer_update():
     data = request.json
-
-    try:
-        with open(STATE_FILE, "r") as f:
-            state = json.load(f)
-    except:
-        state = {}
-
+    state = load_state()
     now = time.time()
 
     # Start timer
     if data.get("running") is True:
-        # If the timer is already running, do nothing
         if not state.get("timer_running", False):
             state["timer_start_ts"] = now
-            # If a duration is provided, set a new duration
             if "duration" in data:
                 state["timer_duration"] = data["duration"]
             state["timer_running"] = True
@@ -192,21 +186,17 @@ def timer_update():
             state["timer_duration"] = max(0, state.get("timer_duration", 0) - elapsed)
         state["timer_start_ts"] = None
         state["timer_running"] = False
-        # If a duration is provided (preset or manual input)
         if "duration" in data:
             state["timer_duration"] = data["duration"]
 
-    # Only set duration (preset or manual), timer is not running
+    # Only set duration (preset/manual), timer is not running
     elif "duration" in data:
         state["timer_duration"] = data["duration"]
         state["timer_running"] = False
         state["timer_start_ts"] = None
 
     state["mode"] = "timer"
-
-    with open(STATE_FILE, "w") as f:
-        json.dump(state, f)
-
+    save_state(state)
     return "", 204
 
 # -------- API: Buzzer Stopwatch --------
@@ -215,20 +205,20 @@ def buzzer_toggle(buzzer_id):
     state = load_state()
     now = int(time.time() * 1000)
 
-    prefix = f"buzzer{buzzer_id}_"
+    buzzer_key = f"buzzer{buzzer_id}"
+    buzzer = state.get(buzzer_key, {})
 
-    running_key = prefix + "running"
-    elapsed_key = prefix + "elapsed_ms"
-    last_start_key = prefix + "last_start_ts"
-
-    if not state.get(running_key, False):
-        state[running_key] = True
-        state[last_start_key] = now
+    if not buzzer.get("running", False):
+        buzzer["running"] = True
+        buzzer["last_start_ts"] = int(time.time() * 1000)
     else:
-        state[running_key] = False
-        if state.get(last_start_key):
-            state[elapsed_key] += now - state[last_start_key]
-        state[last_start_key] = None
+        buzzer["running"] = False
+        if buzzer.get("last_start_ts"):
+            buzzer["elapsed_ms"] = buzzer.get("elapsed_ms", 0) + int(time.time() * 1000 - buzzer["last_start_ts"])
+        buzzer["last_start_ts"] = None
+
+    state[buzzer_key] = buzzer
+    save_state(state)
 
     save_state(state)
     return "", 204
@@ -237,11 +227,13 @@ def buzzer_toggle(buzzer_id):
 def buzzer_reset(buzzer_id):
     state = load_state()
 
-    prefix = f"buzzer{buzzer_id}_"
-
-    state[prefix + "running"] = False
-    state[prefix + "elapsed_ms"] = 0
-    state[prefix + "last_start_ts"] = None
+    buzzer_key = f"buzzer{buzzer_id}"
+    state[buzzer_key] = {
+        "running": False,
+        "elapsed_ms": 0,
+        "last_start_ts": None
+    }
+    save_state(state)
 
     save_state(state)
     return "", 204
@@ -249,10 +241,16 @@ def buzzer_reset(buzzer_id):
 # -------- API: TV --------
 @app.route("/tv/<action>")
 def tv_control(action):
+    state = load_state()  # read current state
+
     if action == "on":
         subprocess.run('echo "on 0" | cec-client -s -d 1', shell=True)
+        state["tv_on"] = True  # save state
     elif action == "off":
         subprocess.run('echo "standby 0" | cec-client -s -d 1', shell=True)
+        state["tv_on"] = False  # save state
+
+    save_state(state)
     return "", 204
 
 # -------- API: HDMI --------
@@ -286,8 +284,8 @@ def scores_and_teams_page():
     set_mode("scores_and_teams")
     return render_template(
         "scores_and_teams.html",
-        team1=state["teams"][0],
-        team2=state["teams"][1]
+        team1=state.get("teams", [{}])[0],
+        team2=state.get("teams", [{}])[1]
     )
 
 @app.route("/stopwatch")
@@ -297,17 +295,9 @@ def stopwatch_page():
 
 @app.route("/timer")
 def timer_page():
-    try:
-        with open("state.json", "r") as f:
-            state = json.load(f)
-    except:
-        state = {}
-
+    state = load_state()
     state["mode"] = "timer"
-
-    with open("state.json", "w") as f:
-        json.dump(state, f)
-
+    save_state(state)
     return render_template("timer.html")
 
 @app.route("/message", methods=["GET", "POST"])
