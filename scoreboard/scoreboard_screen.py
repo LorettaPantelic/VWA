@@ -27,6 +27,7 @@ pygame.display.set_caption("Scoreboard Uhr")
 
 # --- Fonts ---
 font = pygame.font.SysFont("Arial", 180)
+message_font = pygame.font.SysFont("Arial", 180)
 team_font = pygame.font.SysFont("Arial", 140)
 score_font = pygame.font.SysFont("Arial", 350)
 clock_font_small = pygame.font.SysFont("Arial", 100)
@@ -72,7 +73,7 @@ def wrap_text(text, font, max_width):
     for word in words:
         # Test if adding the next word exceeds the max width
         test_line = current_line + (" " if current_line else "") + word
-        if font.size(test_line)[0] <= max_width:
+        if message_font.size(test_line)[0] <= max_width:
             current_line = test_line
         else:
             # Start a new line
@@ -257,8 +258,8 @@ while running:
         MAX_FONT_SIZE = 180
         MIN_FONT_SIZE = 50
 
-        # Get optimal font and wrapped lines
-        font, lines = get_fitting_font(
+        # Get optimal font and wrapped lines for message
+        message_font, lines = get_fitting_font(
             message_text, "Arial",
             max_box_width - 2 * padding,
             max_box_height - 2 * padding,
@@ -295,7 +296,7 @@ while running:
 
         # Draw text lines
         for line in lines:
-            line_surface = font.render(line, True, (255, 255, 255))
+            line_surface = message_font.render(line, True, (255, 255, 255))
             x = box_x + (box_width - line_surface.get_width()) // 2
             screen.blit(line_surface, (x, y_offset))
             y_offset += line_height
