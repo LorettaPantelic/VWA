@@ -268,9 +268,9 @@ while running:
         )
 
         # Text dimensions
-        line_height = font.get_height()
+        line_height = message_font.get_height()
         text_height = line_height * len(lines)
-        text_width = max(font.size(line)[0] for line in lines)
+        text_width = max(message_font.size(line)[0] for line in lines)
 
         # Adjust box width if text is wider than base
         if text_width + 2 * padding > base_box_width:
