@@ -378,7 +378,7 @@ while running:
         time_x = (WIDTH - time_surf.get_width()) // 2
 
         # Position vertically: symmetric spacing
-        time_y = y + card_height + time_margin + vertical_offset
+        time_y = y + card_height + time_margin
         screen.blit(time_surf, (time_x, time_y))
 
     elif mode == "timer":
