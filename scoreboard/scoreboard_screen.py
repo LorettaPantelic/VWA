@@ -310,6 +310,7 @@ while running:
         time_margin = 20            # Space between boxes and game time
         bottom_margin = time_margin # Keep distance from time to bottom same as time_margin
         sport_margin = 120  # space for the sport title above the boxes
+        vertical_offset = sport_margin
 
         num_teams = min(2, len(teams))
         card_width = WIDTH // 2 - spacing_between_boxes * 1.5
@@ -325,15 +326,14 @@ while running:
         )
 
         # Y position of the boxes (fixed top margin)
-        y = top_margin
+        y = top_margin + vertical_offset
 
         # --- Display current sport above team boxes ---
         sport_name = state.get("sport", "")
         if sport_name:
             sport_font = pygame.font.SysFont("Arial", 120)
             sport_surf = sport_font.render(f"Sport: {sport_name}", True, (0, 0, 0))
-            # Position: top_margin minus die Höhe der Sportart
-            sport_y = top_margin - sport_surf.get_height() - 20  # 20px Abstand
+            sport_y = top_margin - sport_surf.get_height() - 20  + vertical_offset
             screen.blit(
                 sport_surf,
                 ((WIDTH - sport_surf.get_width()) // 2, sport_y)
@@ -378,7 +378,7 @@ while running:
         time_x = (WIDTH - time_surf.get_width()) // 2
 
         # Position vertically: symmetric spacing
-        time_y = y + card_height + time_margin
+        time_y = y + card_height + time_margin + vertical_offset
         screen.blit(time_surf, (time_x, time_y))
 
     elif mode == "timer":

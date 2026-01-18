@@ -140,7 +140,7 @@
         border-radius: 12px;
         max-height: 200px;
         overflow-y: auto;
-        width: calc(100% - 4px);
+        width: 100%;
         z-index: 1000;
     }
     .options-list div {
@@ -158,10 +158,10 @@
 <div class="container">
     <h1>Teams & Punktestände</h1>
     <div class="team">
-        <div class="team-name-row">
+        <div style="position: relative;"> <!-- new wrapper -->
             <input id="sportInput" type="text" placeholder="Sportart eingeben..." oninput="updateSport()" autocomplete="off">
+            <div id="sportOptions" class="options-list hidden"></div>
         </div>
-        <div id="sportOptions" class="options-list hidden"></div>
     </div>
     <!-- Team 1 -->
     <div class="team">
@@ -323,15 +323,15 @@
 
     // Show suggestions on focus
     sportInput.addEventListener("focus", showOptions);
-    // Hide suggestions after blur (with small delay to allow click)
-    sportInput.addEventListener("blur", () => setTimeout(() => sportOptions.classList.add("hidden"), 100));
+    // Hide suggestions after blur (longer delay to allow click)
+    sportInput.addEventListener("blur", () => setTimeout(() => sportOptions.classList.add("hidden"), 250));
 
     function showOptions() {
         sportOptions.innerHTML = "";
         predefinedSports.forEach(sport => {
             const div = document.createElement("div");
             div.textContent = sport;
-            div.onclick = () => selectSport(sport);
+            div.addEventListener("click", () => selectSport(sport));
             sportOptions.appendChild(div);
         });
         sportOptions.classList.remove("hidden");
