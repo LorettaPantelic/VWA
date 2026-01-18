@@ -37,10 +37,18 @@ def load_state():
             "buzzer2_last_start_ts": None,
 
             "mode": "index",
-            "message": "Nachricht"
+            "message": "Nachricht",
+
+            "sport": ""  # NEW: default empty sport
         })
     with open(STATE_FILE, "r") as f:
-        return json.load(f)
+        state = json.load(f)
+
+    # Ensure 'sport' key exists in case old JSON doesn't have it
+    if "sport" not in state:
+        state["sport"] = ""
+
+    return state
 
 def save_state(state):
     with open(STATE_FILE, "w") as f:
@@ -99,9 +107,15 @@ def scoreboard_update():
 
     state = load_state()
     state["mode"] = "scores_and_teams"
-    state["teams"] = data.get("teams", state.get("teams", []))
-    save_state(state)
 
+    # Update teams as before
+    state["teams"] = data.get("teams", state.get("teams", []))
+
+    # Save sport if provided
+    if "sport" in data:
+        state["sport"] = data["sport"]
+
+    save_state(state)
     return jsonify({"status": "ok"})
 
 @app.route("/game_clock/toggle", methods=["POST"])

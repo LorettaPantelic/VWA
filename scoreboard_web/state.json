@@ -19,6 +19,8 @@
     }
   ],
 
+  "sport": "",
+
   "game_clock_running": false,
   "game_elapsed_ms": 0,
   "game_last_start_ts": null,
