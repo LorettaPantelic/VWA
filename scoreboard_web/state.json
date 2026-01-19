@@ -20,6 +20,7 @@
   ],
 
   "sport": "",
+  "winner_locked": false,
 
   "game_clock_running": false,
   "game_elapsed_ms": 0,
@@ -33,12 +34,12 @@
   "running": false,
   "elapsed_ms": 0,
   "last_start_ts": null
-},
+  },
 
-"buzzer2": {
-  "running": false,
-  "elapsed_ms": 0,
-  "last_start_ts": null
-}
+  "buzzer2": {
+    "running": false,
+    "elapsed_ms": 0,
+    "last_start_ts": null
+  }
 
 }

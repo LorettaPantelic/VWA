@@ -108,16 +108,24 @@ def scoreboard_update():
     state = load_state()
     state["mode"] = "scores_and_teams"
 
-    # Update teams
-    state["teams"] = data.get("teams", state.get("teams", []))
+    # --- Update teams ---
+    old_scores = [team.get("score", 0) for team in state.get("teams", [])]
+    new_scores = data.get("teams", old_scores)
+    
+    state["teams"] = new_scores
 
-    # Save sport if provided
+    # --- Reset winner_locked if scores changed ---
+    new_score_values = [team.get("score", 0) for team in new_scores]
+    if new_score_values != old_scores:
+        state["winner_locked"] = False
+
+    # --- Save sport if provided ---
     if "sport" in data:
         state["sport"] = data["sport"]
 
     # --- Stop game clock if Volleyball win detected ---
     sport = state.get("sport", "").lower()
-    if sport == "volleyball" and len(state["teams"]) >= 2:
+    if sport == "volleyball" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
         a, b = state["teams"][0], state["teams"][1]
         sa, sb = a.get("score", 0), b.get("score", 0)
         if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
@@ -125,6 +133,8 @@ def scoreboard_update():
             state["game_clock_running"] = False
             state["game_last_start_ts"] = None
             state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0)
+            # mark this win as handled
+            state["winner_locked"] = True
 
     save_state(state)
     return jsonify({"status": "ok"})
