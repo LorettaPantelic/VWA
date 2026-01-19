@@ -18,6 +18,21 @@ def check_volleyball_winner(teams):
 
     return None
 
+def check_badminton_winner(teams):
+    if len(teams) < 2:
+        return None
+
+    a, b = teams[0], teams[1]
+    sa, sb = a.get("score", 0), b.get("score", 0)
+
+    if max(sa, sb) >= 21 and abs(sa - sb) >= 2:
+        return a["name"] if sa > sb else b["name"]
+
+    if sa == 30 or sb == 30:
+        return a["name"] if sa > sb else b["name"]
+
+    return None
+
 SERVER_URL = "http://127.0.0.1:5000"
 
 GERMAN_WEEKDAYS = {
@@ -380,14 +395,24 @@ while running:
         last_scores = current_scores
         sport_name = state.get("sport", "").lower()
 
-        sport_name_display = state.get("sport", "")  # für Anzeige
-        sport_name_lower = sport_name_display.lower()  # für Gewinncheck
+        sport_name_display = state.get("sport", "")
+        sport_name_lower = sport_name_display.lower()
 
-        if not game_over and not winner_locked and sport_name_display.lower() == "volleyball":
-            winner = check_volleyball_winner(teams)
+        if not game_over and not winner_locked:
+            sport_lower = sport_name_display.lower()
+            winner = None
+
+            # --- Check winner based on sport ---
+            if sport_lower == "volleyball":
+                winner = check_volleyball_winner(teams)
+            elif sport_lower == "badminton":
+                winner = check_badminton_winner(teams)
+
+            # --- Trigger animation & stop clock if winner exists ---
             if winner:
                 winner_locked = True
-                # --- Update Server first ---
+
+                # --- Update server with current state ---
                 try:
                     requests.post(f"{SERVER_URL}/scoreboard/update", json={
                         "teams": state["teams"],
@@ -396,11 +421,12 @@ while running:
                 except requests.RequestException:
                     pass
 
-                # Stop the game clock locally
+                # --- Stop the game clock locally ---
                 state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0)
                 state["game_clock_running"] = False
                 state["game_last_start_ts"] = None
 
+                # --- Trigger Game Over animation ---
                 game_over = True
                 winner_name = winner
                 game_over_start_ts = time.time()
