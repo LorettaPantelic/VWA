@@ -382,10 +382,22 @@ while running:
         if not game_over and not winner_locked and sport_name == "volleyball":
             winner = check_volleyball_winner(teams)
             if winner:
+                # --- Game Over Setup ---
                 game_over = True
                 winner_name = winner
                 game_over_start_ts = time.time()
                 winner_locked = True
+
+                # --- Stop the game clock ---
+                state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0)
+                state["game_clock_running"] = False
+                state["game_last_start_ts"] = None
+
+                # Save state back to server
+                try:
+                    requests.post(f"{SERVER_URL}/scoreboard/update", json=state, timeout=0.05)
+                except requests.RequestException:
+                    pass
 
         # --- Layout constants ---
         top_margin = 120           # Original distance from top

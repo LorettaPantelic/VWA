@@ -261,6 +261,25 @@
                 ]
             })
         }).catch(() => {});
+
+        // --- Check for winner and stop game clock ---
+        const sport = document.getElementById("sportInput").value.toLowerCase();
+        if (sport === "volleyball") {
+            if ((scoreboard.team1.score >= 25 && scoreboard.team1.score - scoreboard.team2.score >= 2) ||
+                (scoreboard.team2.score >= 25 && scoreboard.team2.score - scoreboard.team1.score >= 2)) {
+
+                // Stop the game clock
+                fetch("/game_clock/stop", { method: "POST" }).catch(() => {});
+
+                // Update button UI
+                const btn = document.getElementById("gameToggle");
+                const btnText = btn.querySelector(".btn-text");
+                btnText.textContent = "▶ Start";
+                btn.classList.remove("stop");
+                btn.classList.add("start");
+                gameRunning = false;
+            }
+        }
     }
 
     let gameRunning = false;
