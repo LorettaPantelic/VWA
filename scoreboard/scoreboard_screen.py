@@ -164,26 +164,42 @@ while running:
             game_over = False
             winner_name = None
         else:
+            # --- blinking background ---
             blink = int(elapsed * 4) % 2
             bg_color = (255, 200, 0) if blink else (0, 200, 255)
-
             screen.fill(bg_color)
 
-            text = f"Team {winner_name} gewinnt!"
-            win_font = pygame.font.SysFont("Arial", 220, bold=True)
-            text_surf = win_font.render(text, True, (0, 0, 0))
+            # --- winner text with automatic line wrapping ---
+            text = f"Team {winner_name} wins!"
 
-            screen.blit(
-                text_surf,
-                (
-                    (WIDTH - text_surf.get_width()) // 2,
-                    (HEIGHT - text_surf.get_height()) // 2
-                )
+            # Padding and maximum text area
+            padding = 40
+            max_width = WIDTH - 2 * padding
+            max_height = HEIGHT - 2 * padding
+
+            # Local font and wrapped lines, only for this text
+            win_font, lines = get_fitting_font(
+                text, "Arial", max_width, max_height, max_size=220, min_size=50
             )
 
+            # Vertical centering
+            line_height = win_font.get_height()
+            total_text_height = line_height * len(lines)
+            y_offset = (HEIGHT - total_text_height) // 2
+
+            # Render each line, centered horizontally
+            for line in lines:
+                text_surf = win_font.render(line, True, (0, 0, 0))
+                x = (WIDTH - text_surf.get_width()) // 2
+                screen.blit(text_surf, (x, y_offset))
+                y_offset += line_height
+
+            # Update display and control frame rate
             pygame.display.flip()
             clock.tick(60)
+
             continue
+
 
     # --- Extract state values ---
     mode = state.get("mode")
