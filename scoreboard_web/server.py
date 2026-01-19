@@ -111,7 +111,6 @@ def scoreboard_update():
     # --- Update teams ---
     old_scores = [team.get("score", 0) for team in state.get("teams", [])]
     new_scores = data.get("teams", old_scores)
-    
     state["teams"] = new_scores
 
     # --- Reset winner_locked if scores changed ---
@@ -123,20 +122,37 @@ def scoreboard_update():
     if "sport" in data:
         state["sport"] = data["sport"]
 
-    # --- Stop game clock if Volleyball win detected ---
-    sport = state.get("sport", "")
-    if sport.lower() == "volleyball" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
-        a, b = state["teams"][0], state["teams"][1]
-        sa, sb = a.get("score", 0), b.get("score", 0)
+    sport = state.get("sport", "").lower()
+
+    # --- Helper: stop game clock safely ---
+    def stop_game_clock():
+        now = int(time.time() * 1000)
+        if state.get("game_clock_running") and state.get("game_last_start_ts"):
+            state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (
+                now - state["game_last_start_ts"]
+            )
+        state["game_clock_running"] = False
+        state["game_last_start_ts"] = None
+        state["winner_locked"] = True
+
+    # --- Volleyball ---
+    if sport == "volleyball" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
+        sa = state["teams"][0].get("score", 0)
+        sb = state["teams"][1].get("score", 0)
         if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
+            stop_game_clock()
 
-            if state.get("game_clock_running") and state.get("game_last_start_ts"):
-                now = int(time.time() * 1000)
-                state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (now - state["game_last_start_ts"])
+    # --- Badminton ---
+    if sport == "badminton" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
+        sa = state["teams"][0].get("score", 0)
+        sb = state["teams"][1].get("score", 0)
 
-            state["game_clock_running"] = False
-            state["game_last_start_ts"] = None
-            state["winner_locked"] = True
+        if (
+            (max(sa, sb) >= 21 and abs(sa - sb) >= 2)
+            or sa == 30
+            or sb == 30
+        ):
+            stop_game_clock()
 
     save_state(state)
     return jsonify({"status": "ok"})
