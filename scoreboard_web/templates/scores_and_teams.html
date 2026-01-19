@@ -247,6 +247,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 mode: "scores_and_teams",
+                sport: sportInput.value,
                 teams: [
                     {
                         name: scoreboard.team1.name,
@@ -381,7 +382,19 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 mode: "scores_and_teams",
-                sport: sport
+                sport: sport,
+                teams: [
+                    {
+                        name: scoreboard.team1.name,
+                        score: scoreboard.team1.score,
+                        color: hexToRgb(scoreboard.team1.color)
+                    },
+                    {
+                        name: scoreboard.team2.name,
+                        score: scoreboard.team2.score,
+                        color: hexToRgb(scoreboard.team2.color)
+                    }
+                ]
             })
         }).catch(() => {});
     }
