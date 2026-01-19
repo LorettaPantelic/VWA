@@ -108,12 +108,23 @@ def scoreboard_update():
     state = load_state()
     state["mode"] = "scores_and_teams"
 
-    # Update teams as before
+    # Update teams
     state["teams"] = data.get("teams", state.get("teams", []))
 
     # Save sport if provided
     if "sport" in data:
         state["sport"] = data["sport"]
+
+    # --- Stop game clock if Volleyball win detected ---
+    sport = state.get("sport", "").lower()
+    if sport == "volleyball" and len(state["teams"]) >= 2:
+        a, b = state["teams"][0], state["teams"][1]
+        sa, sb = a.get("score", 0), b.get("score", 0)
+        if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
+            # Stop the game clock, keep elapsed time
+            state["game_clock_running"] = False
+            state["game_last_start_ts"] = None
+            state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0)
 
     save_state(state)
     return jsonify({"status": "ok"})
