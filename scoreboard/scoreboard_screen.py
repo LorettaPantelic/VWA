@@ -5,6 +5,19 @@ import requests
 import datetime
 from zoneinfo import ZoneInfo
 
+def check_volleyball_winner(teams):
+    if len(teams) < 2:
+        return None
+
+    a, b = teams[0], teams[1]
+    sa, sb = a.get("score", 0), b.get("score", 0)
+
+    if sa >= 25 or sb >= 25:
+        if abs(sa - sb) >= 2:
+            return a["name"] if sa > sb else b["name"]
+
+    return None
+
 SERVER_URL = "http://127.0.0.1:5000"
 
 GERMAN_WEEKDAYS = {
@@ -36,6 +49,12 @@ date_font_small   = pygame.font.SysFont("Arial", 100)
 game_time_font = pygame.font.SysFont("Arial", 140)
 
 clock = pygame.time.Clock()
+
+# --- GAME OVER ANIMATION STATE ---
+game_over = False
+winner_name = None
+game_over_start_ts = 0
+GAME_OVER_DURATION = 5.0  # Seconds
 
 # Store the last fetched state to reduce HTTP requests
 last_state = None
@@ -133,6 +152,35 @@ while running:
     state = fetch_state()
     if not state:
         continue  # skip this frame if no state available
+
+    # --- GAME OVER ANIMATION (blocks everything else) ---
+    if game_over:
+        elapsed = time.time() - game_over_start_ts
+
+        if elapsed >= GAME_OVER_DURATION:
+            game_over = False
+            winner_name = None
+        else:
+            blink = int(elapsed * 4) % 2
+            bg_color = (255, 200, 0) if blink else (0, 200, 255)
+
+            screen.fill(bg_color)
+
+            text = f"Team {winner_name} gewinnt!"
+            win_font = pygame.font.SysFont("Arial", 220, bold=True)
+            text_surf = win_font.render(text, True, (0, 0, 0))
+
+            screen.blit(
+                text_surf,
+                (
+                    (WIDTH - text_surf.get_width()) // 2,
+                    (HEIGHT - text_surf.get_height()) // 2
+                )
+            )
+
+            pygame.display.flip()
+            clock.tick(60)
+            continue
 
     # --- Extract state values ---
     mode = state.get("mode")
@@ -303,6 +351,14 @@ while running:
 
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
+        sport_name = state.get("sport", "").lower()
+
+        if not game_over and sport_name == "volleyball":
+            winner = check_volleyball_winner(teams)
+            if winner:
+                game_over = True
+                winner_name = winner
+                game_over_start_ts = time.time()
 
         # --- Layout constants ---
         top_margin = 120           # Original distance from top
