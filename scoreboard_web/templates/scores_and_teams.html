@@ -263,23 +263,38 @@
             })
         }).catch(() => {});
 
-        // --- Check for winner and stop game clock ---
+        // --- Check for winner and stop the game clock on frontend ---
         const sport = document.getElementById("sportInput").value.toLowerCase();
+        const t1 = scoreboard.team1.score;
+        const t2 = scoreboard.team2.score;
+        let winner = false;
+
+        // Volleyball win condition: 25 points with at least 2 point lead
         if (sport === "volleyball") {
-            if ((scoreboard.team1.score >= 25 && scoreboard.team1.score - scoreboard.team2.score >= 2) ||
-                (scoreboard.team2.score >= 25 && scoreboard.team2.score - scoreboard.team1.score >= 2)) {
-
-                // Stop the game clock
-                fetch("/game_clock/stop", { method: "POST" }).catch(() => {});
-
-                // Update button UI
-                const btn = document.getElementById("gameToggle");
-                const btnText = btn.querySelector(".btn-text");
-                btnText.textContent = "▶ Start";
-                btn.classList.remove("stop");
-                btn.classList.add("start");
-                gameRunning = false;
+            if ((t1 >= 25 && t1 - t2 >= 2) || (t2 >= 25 && t2 - t1 >= 2)) {
+                winner = true;
             }
+        }
+
+        // Badminton win condition: 21 points + 2 point lead, max 30 points
+        if (sport === "badminton") {
+            if ((Math.max(t1, t2) >= 21 && Math.abs(t1 - t2) >= 2) || t1 === 30 || t2 === 30) {
+                winner = true;
+            }
+        }
+
+        // --- If a winner is detected, stop the game clock and update button UI ---
+        if (winner) {
+            // Stop server-side game clock
+            fetch("/game_clock/stop", { method: "POST" }).catch(() => {});
+
+            // Update start/stop button UI
+            const btn = document.getElementById("gameToggle");
+            const btnText = btn.querySelector(".btn-text");
+            btnText.textContent = "▶ Start";
+            btn.classList.remove("stop");
+            btn.classList.add("start");
+            gameRunning = false;
         }
     }
 
