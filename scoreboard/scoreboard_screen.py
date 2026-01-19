@@ -155,7 +155,6 @@ while running:
     state = fetch_state()
     if not state:
         continue  # skip this frame if no state available
-
     winner_locked = state.get("winner_locked", False)
 
     # --- GAME OVER ANIMATION (blocks everything else) ---
@@ -384,26 +383,27 @@ while running:
         sport_name_display = state.get("sport", "")  # für Anzeige
         sport_name_lower = sport_name_display.lower()  # für Gewinncheck
 
-        if not game_over and not winner_locked and sport_name_lower == "volleyball":
+        if not game_over and not winner_locked and sport_name_display.lower() == "volleyball":
             winner = check_volleyball_winner(teams)
             if winner:
-                game_over = True
-                winner_name = winner
-                game_over_start_ts = time.time()
                 winner_locked = True
+                # --- Update Server first ---
+                try:
+                    requests.post(f"{SERVER_URL}/scoreboard/update", json={
+                        "teams": state["teams"],
+                        "sport": state["sport"]
+                    }, timeout=0.3)
+                except requests.RequestException:
+                    pass
 
                 # Stop the game clock locally
                 state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0)
                 state["game_clock_running"] = False
                 state["game_last_start_ts"] = None
 
-                try:
-                    requests.post(f"{SERVER_URL}/scoreboard/update", json={
-                        "teams": state["teams"],
-                        "sport": state["sport"]
-                    }, timeout=0.2)
-                except requests.RequestException:
-                    pass
+                game_over = True
+                winner_name = winner
+                game_over_start_ts = time.time()
 
         # --- Layout constants ---
         top_margin = 120           # Original distance from top
@@ -430,11 +430,12 @@ while running:
         y = top_margin + vertical_offset
 
         # --- Display current sport above team boxes ---
-        sport_name = state.get("sport", "")
+        sport_name_display = state.get("sport", "")
         if sport_name_display:
             sport_font = pygame.font.SysFont("Arial", 120)
             sport_surf = sport_font.render(f"Sport: {sport_name_display}", True, (0, 0, 0))
-            sport_y = max(top_margin, 120)
+            
+            sport_y = top_margin - 100
             screen.blit(
                 sport_surf,
                 ((WIDTH - sport_surf.get_width()) // 2, sport_y)
