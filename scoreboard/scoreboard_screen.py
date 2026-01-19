@@ -53,8 +53,11 @@ clock = pygame.time.Clock()
 # --- GAME OVER ANIMATION STATE ---
 game_over = False
 winner_name = None
+last_scores = None
 game_over_start_ts = 0
 GAME_OVER_DURATION = 5.0  # Seconds
+
+winner_locked = False
 
 # Store the last fetched state to reduce HTTP requests
 last_state = None
@@ -351,14 +354,22 @@ while running:
 
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
+        # --- Unlock winner if scores have changed ---
+        current_scores = tuple(team.get("score", 0) for team in teams)
+
+        if last_scores is not None and current_scores != last_scores:
+            winner_locked = False
+
+        last_scores = current_scores
         sport_name = state.get("sport", "").lower()
 
-        if not game_over and sport_name == "volleyball":
+        if not game_over and not winner_locked and sport_name == "volleyball":
             winner = check_volleyball_winner(teams)
             if winner:
                 game_over = True
                 winner_name = winner
                 game_over_start_ts = time.time()
+                winner_locked = True
 
         # --- Layout constants ---
         top_margin = 120           # Original distance from top
