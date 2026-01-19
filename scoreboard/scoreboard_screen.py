@@ -379,23 +379,27 @@ while running:
         last_scores = current_scores
         sport_name = state.get("sport", "").lower()
 
-        if not game_over and not winner_locked and sport_name == "volleyball":
+        sport_name_display = state.get("sport", "")  # für Anzeige
+        sport_name_lower = sport_name_display.lower()  # für Gewinncheck
+
+        if not game_over and not winner_locked and sport_name_lower == "volleyball":
             winner = check_volleyball_winner(teams)
             if winner:
-                # --- Game Over Setup ---
                 game_over = True
                 winner_name = winner
                 game_over_start_ts = time.time()
                 winner_locked = True
 
-                # --- Stop the game clock ---
+                # Stop the game clock locally
                 state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0)
                 state["game_clock_running"] = False
                 state["game_last_start_ts"] = None
 
-                # Save state back to server
                 try:
-                    requests.post(f"{SERVER_URL}/scoreboard/update", json=state, timeout=0.05)
+                    requests.post(f"{SERVER_URL}/scoreboard/update", json={
+                        "teams": state["teams"],
+                        "sport": state["sport"]
+                    }, timeout=0.05)
                 except requests.RequestException:
                     pass
 
@@ -425,9 +429,9 @@ while running:
 
         # --- Display current sport above team boxes ---
         sport_name = state.get("sport", "")
-        if sport_name:
+        if sport_name_display:
             sport_font = pygame.font.SysFont("Arial", 120)
-            sport_surf = sport_font.render(f"Sport: {sport_name}", True, (0, 0, 0))
+            sport_surf = sport_font.render(f"Sport: {sport_name_display}", True, (0, 0, 0))
             sport_y = top_margin - sport_surf.get_height() - 20  + vertical_offset
             screen.blit(
                 sport_surf,

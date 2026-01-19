@@ -124,8 +124,8 @@ def scoreboard_update():
         state["sport"] = data["sport"]
 
     # --- Stop game clock if Volleyball win detected ---
-    sport = state.get("sport", "").lower()
-    if sport == "volleyball" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
+    sport = state.get("sport", "")
+    if sport.lower() == "volleyball" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
         a, b = state["teams"][0], state["teams"][1]
         sa, sb = a.get("score", 0), b.get("score", 0)
         if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
