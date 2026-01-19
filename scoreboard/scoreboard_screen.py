@@ -159,41 +159,41 @@ while running:
     # --- GAME OVER ANIMATION (blocks everything else) ---
     if game_over:
         elapsed = time.time() - game_over_start_ts
-
         if elapsed >= GAME_OVER_DURATION:
             game_over = False
             winner_name = None
         else:
-            # --- blinking background ---
+            # blinking background
             blink = int(elapsed * 4) % 2
             bg_color = (255, 200, 0) if blink else (0, 200, 255)
             screen.fill(bg_color)
 
-            # --- winner text with automatic line wrapping ---
+            # winner text
             text = f"Team {winner_name} gewinnt!"
-
             padding = 40
             max_width = WIDTH - 2 * padding
             max_height = HEIGHT - 2 * padding
 
-            # get font + lines
-            win_font, lines = get_fitting_font(
-                text, "Arial", max_width, max_height, max_size=220, min_size=50
-            )
+            # create bold font with max size
+            win_font, _ = get_fitting_font(text, "Arial", max_width, max_height, max_size=220, min_size=50)
+            win_font = pygame.font.SysFont("Arial", win_font.get_height(), bold=True)
 
-            # make font bold
-            win_font.set_bold(True)
+            # wrap only if necessary
+            if win_font.size(text)[0] > max_width:
+                lines = wrap_text(text, win_font, max_width)
+            else:
+                lines = [text]
 
             # vertical centering
             line_height = win_font.get_height()
             total_text_height = line_height * len(lines)
             y_offset = (HEIGHT - total_text_height) // 2
 
-            # render each line centered
+            # render lines
             for line in lines:
-                text_surf = win_font.render(line, True, (0, 0, 0))
-                x = (WIDTH - text_surf.get_width()) // 2
-                screen.blit(text_surf, (x, y_offset))
+                surf = win_font.render(line, True, (0, 0, 0))
+                x = (WIDTH - surf.get_width()) // 2
+                screen.blit(surf, (x, y_offset))
                 y_offset += line_height
 
             pygame.display.flip()
