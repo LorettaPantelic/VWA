@@ -170,34 +170,34 @@ while running:
             screen.fill(bg_color)
 
             # --- winner text with automatic line wrapping ---
-            text = f"Team {winner_name} wins!"
+            text = f"Team {winner_name} gewinnt!"
 
-            # Padding and maximum text area
             padding = 40
             max_width = WIDTH - 2 * padding
             max_height = HEIGHT - 2 * padding
 
-            # Local font and wrapped lines, only for this text
+            # get font + lines
             win_font, lines = get_fitting_font(
                 text, "Arial", max_width, max_height, max_size=220, min_size=50
             )
 
-            # Vertical centering
+            # make font bold
+            win_font.set_bold(True)
+
+            # vertical centering
             line_height = win_font.get_height()
             total_text_height = line_height * len(lines)
             y_offset = (HEIGHT - total_text_height) // 2
 
-            # Render each line, centered horizontally
+            # render each line centered
             for line in lines:
                 text_surf = win_font.render(line, True, (0, 0, 0))
                 x = (WIDTH - text_surf.get_width()) // 2
                 screen.blit(text_surf, (x, y_offset))
                 y_offset += line_height
 
-            # Update display and control frame rate
             pygame.display.flip()
             clock.tick(60)
-
             continue
 
 
