@@ -462,12 +462,16 @@ while running:
             )
 
         # --- Draw the game time below the boxes ---
-        elapsed = state.get("game_elapsed_ms", 0)
+        # --- Calculate game clock ---
         if state.get("game_clock_running") and state.get("game_last_start_ts"):
-            elapsed += int(time.time() * 1000 - state["game_last_start_ts"])
+            # Add time since last start
+            game_elapsed = state.get("game_elapsed_ms", 0) / 1000 + (current_time - state["game_last_start_ts"] / 1000)
+        else:
+            # Clock stopped → keep current elapsed
+            game_elapsed = state.get("game_elapsed_ms", 0) / 1000
 
-        time_text = format_hms(elapsed)
-        time_surf = game_time_font.render(time_text, True, (0, 0, 0))  # Black text
+        time_text = format_hms(int(game_elapsed * 1000))
+        time_surf = game_time_font.render(time_text, True, (0, 0, 0))
 
         # Center horizontally
         time_x = (WIDTH - time_surf.get_width()) // 2
