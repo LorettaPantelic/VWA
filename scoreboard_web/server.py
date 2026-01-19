@@ -129,11 +129,13 @@ def scoreboard_update():
         a, b = state["teams"][0], state["teams"][1]
         sa, sb = a.get("score", 0), b.get("score", 0)
         if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
-            # Stop the game clock, keep elapsed time
+
+            if state.get("game_clock_running") and state.get("game_last_start_ts"):
+                now = int(time.time() * 1000)
+                state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (now - state["game_last_start_ts"])
+
             state["game_clock_running"] = False
             state["game_last_start_ts"] = None
-            state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0)
-            # mark this win as handled
             state["winner_locked"] = True
 
     save_state(state)

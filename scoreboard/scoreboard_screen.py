@@ -434,8 +434,7 @@ while running:
         if sport_name_display:
             sport_font = pygame.font.SysFont("Arial", 120)
             sport_surf = sport_font.render(f"Sport: {sport_name_display}", True, (0, 0, 0))
-            
-            sport_y = top_margin - 100
+            sport_y = top_margin - sport_surf.get_height() - 20  + vertical_offset
             screen.blit(
                 sport_surf,
                 ((WIDTH - sport_surf.get_width()) // 2, sport_y)
