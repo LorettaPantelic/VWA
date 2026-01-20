@@ -185,7 +185,7 @@ while running:
             screen.fill(bg_color)
 
             # winner text
-            text = f"Team {winner_name} gewinnt!"
+            text = f"{winner_name} gewinnt!"
             padding = 40
             max_width = WIDTH - 2 * padding
             max_height = HEIGHT - 2 * padding
@@ -463,7 +463,7 @@ while running:
         sport_name_display = state.get("sport", "")
         if sport_name_display:
             sport_font = pygame.font.SysFont("Arial", 120)
-            sport_surf = sport_font.render(f"Sport: {sport_name_display}", True, (0, 0, 0))
+            sport_surf = sport_font.render(f"{sport_name_display}", True, (0, 0, 0))
             sport_y = top_margin - sport_surf.get_height() - 20  + vertical_offset
             screen.blit(
                 sport_surf,
