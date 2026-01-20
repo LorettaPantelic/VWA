@@ -342,7 +342,7 @@ while running:
 
         # Max & Min font sizes
         MAX_FONT_SIZE = int(base_box_height * 0.5)
-        MIN_FONT_SIZE = int(base_box_height * 0.2)
+        MIN_FONT_SIZE = int(base_box_height * 0.01)
 
         # Get optimal font and wrapped lines for message
         message_font, lines = get_fitting_font(
