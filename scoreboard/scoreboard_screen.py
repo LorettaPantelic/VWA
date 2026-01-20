@@ -305,17 +305,20 @@ while running:
         screen.blit(clock_surface, (10, 10))
 
     if mode == "stopwatch":
-        # Blue box (same style as message/timer)
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4
         box_x = (WIDTH - box_width) / 2
         box_y = (HEIGHT - box_height) / 2
 
-        rect = pygame.Rect(box_x, box_y, box_width, box_height)
-        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=40)
+        font_size = int(box_height * 0.5)
+        stopwatch_font = pygame.font.SysFont("Arial", font_size)
 
-        # Stopwatch time (white, centered)
-        text_surface = font.render(time_text, True, (255, 255, 255))
+        rect = pygame.Rect(box_x, box_y, box_width, box_height)
+        border_radius = int(box_height * 0.15)
+        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=border_radius)
+
+        # Stopwatch time
+        text_surface = stopwatch_font.render(time_text, True, (255, 255, 255))
         screen.blit(
             text_surface,
             ((WIDTH - text_surface.get_width()) // 2,
@@ -323,7 +326,7 @@ while running:
         )
 
     elif mode == "message":
-        padding = 40
+        padding = int(HEIGHT * 0.04)
 
         # Original box size
         base_box_width = int(WIDTH * 0.7)
@@ -338,8 +341,8 @@ while running:
         max_box_height = HEIGHT - top_margin - bottom_margin
 
         # Max & Min font sizes
-        MAX_FONT_SIZE = 180
-        MIN_FONT_SIZE = 50
+        MAX_FONT_SIZE = int(base_box_height * 0.5)
+        MIN_FONT_SIZE = int(base_box_height * 0.2)
 
         # Get optimal font and wrapped lines for message
         message_font, lines = get_fitting_font(
@@ -369,7 +372,8 @@ while running:
 
         # Draw box
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
-        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=40)
+        border_radius = int(box_height * 0.15)
+        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=border_radius)
 
         # Text vertical positioning
         if text_height + 2 * padding >= box_height:
@@ -536,10 +540,16 @@ while running:
         box_y = (HEIGHT - box_height) / 2
 
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
-        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=40)
 
-        # Time (white)
-        timer_surface = font.render(time_text, True, (255, 255, 255))
+        border_radius = int(box_height * 0.15)
+        pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=border_radius)
+
+        # Adaptive font for timer
+        font_size = int(box_height * 0.5)
+        timer_font = pygame.font.SysFont("Arial", font_size)
+
+        # Time
+        timer_surface = timer_font.render(time_text, True, (255, 255, 255))
         screen.blit(
             timer_surface,
             ((WIDTH - timer_surface.get_width()) // 2,
@@ -550,10 +560,13 @@ while running:
         box_width = WIDTH * 0.7
         box_height = HEIGHT * 0.4
         box_x = (WIDTH - box_width) / 2
-        spacing = 40
 
-        top_margin = 120
+        spacing = box_height * 0.15
+        top_margin = HEIGHT * 0.1
         start_y = top_margin
+
+        font_size = int(box_height * 0.5)
+        buzzer_font = pygame.font.SysFont("Arial", font_size)
 
         times = [buzzer1_time_text, buzzer2_time_text]
 
@@ -561,9 +574,10 @@ while running:
             box_y = start_y + i * (box_height + spacing)
 
             rect = pygame.Rect(box_x, box_y, box_width, box_height)
-            pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=40)
+            border_radius = int(box_height * 0.15)
+            pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=border_radius)
 
-            surface = font.render(time_text, True, (255, 255, 255))
+            surface = buzzer_font.render(time_text, True, (255, 255, 255))
             screen.blit(
                 surface,
                 (
