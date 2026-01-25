@@ -173,12 +173,10 @@ while running:
     winner_locked = state.get("winner_locked", False)
 
     if state.get("winner_locked") and not game_over:
-        for i, team in enumerate(state.get("teams", [])):
-            if state["winner_locked"]:
-                winner_name = team["name"]
-                game_over = True
-                game_over_start_ts = time.time()
-                break
+        winner_name = state.get("winner_name")
+        if winner_name:
+            game_over = True
+            game_over_start_ts = time.time()
 
     # --- GAME OVER ANIMATION (blocks everything else) ---
     if game_over:

@@ -201,15 +201,13 @@ def trigger_winner():
     winner_team = state["teams"][team_index]
 
     state["winner_locked"] = True
+    state["winner_name"] = winner_team["name"]
     state["game_clock_running"] = False
     state["game_last_start_ts"] = None
 
     save_state(state)
 
     return jsonify({"winner_name": winner_team["name"]})
-
-    save_state(state)
-    return "", 204
 
 @app.route("/scoreboard/reset_all", methods=["POST"])
 def scoreboard_reset_all():
