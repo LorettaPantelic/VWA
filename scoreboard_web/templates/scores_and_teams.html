@@ -133,6 +133,15 @@
         background: #e5e7eb;
     }
 
+    .reset-all {
+        background: #dc2626;
+        color: white;
+        width: 100%;
+        padding: 16px;
+        font-size: 18px;
+        border-radius: 12px;
+    }
+
     .options-list {
         position: absolute;
         top: 100%;      
@@ -201,6 +210,9 @@
             <span class="btn-placeholder" aria-hidden="true">■ Stopp</span>
         </button>
         <button class="reset" onclick="resetGameClock()">↺ Reset</button>
+    </div>
+    <div class="controls" style="margin-top: 16px;">
+        <button class="reset-all" onclick="resetAll()">🗑 Alles zurücksetzen</button>
     </div>
 </div>
 
@@ -422,5 +434,27 @@
                 if(state.sport) sportInput.value = state.sport;
             });
     });
+    function resetAll() {
+        if (!confirm("Willst du wirklich alles zurücksetzen?")) return;
+
+        fetch("/scoreboard/reset_all", { method: "POST" })
+            .then(() => {
+                scoreboard.team1.name = "Team 1";
+                scoreboard.team2.name = "Team 2";
+                scoreboard.team1.score = 0;
+                scoreboard.team2.score = 0;
+                scoreboard.team1.color = "#0badfe";
+                scoreboard.team2.color = "#d64c4c";
+
+                document.getElementById("team1Name").value = "Team 1";
+                document.getElementById("team2Name").value = "Team 2";
+                document.getElementById("team1Score").textContent = "0";
+                document.getElementById("team2Score").textContent = "0";
+                document.getElementById("sportInput").value = "";
+
+                resetGameClock();
+            })
+            .catch(() => {});
+    }
 </script>
 {% endblock %}

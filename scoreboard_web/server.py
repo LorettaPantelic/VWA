@@ -188,6 +188,25 @@ def game_clock_reset():
     save_state(state)
     return "", 204
 
+@app.route("/scoreboard/reset_all", methods=["POST"])
+def scoreboard_reset_all():
+    state = load_state()
+
+    state["teams"] = [
+        {"name": "Team 1", "score": 0, "color": [11, 173, 254]},
+        {"name": "Team 2", "score": 0, "color": [214, 76, 76]},
+    ]
+
+    state["sport"] = ""
+    state["winner_locked"] = False
+
+    state["game_elapsed_ms"] = 0
+    state["game_clock_running"] = False
+    state["game_last_start_ts"] = None
+
+    save_state(state)
+    return "", 204
+
 # -------- API: Stopwatch --------
 @app.route("/stopwatch/toggle", methods=["POST"])
 def stopwatch_toggle():
