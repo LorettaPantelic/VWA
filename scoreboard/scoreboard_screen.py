@@ -160,34 +160,29 @@ def format_hms(ms):
 total_elapsed = 0
 last_tick = time.time()
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+def handle_button_click(button_id):
+    if winner_locked:  # buttons are locked during game over
+        return  # ignore clicks
 
-    # Fetch current state from Flask API
-    state = fetch_state()
-    if not state:
-        continue  # skip this frame if no state available
-    winner_locked = state.get("winner_locked", False)
-
-    if state.get("winner_locked") and not game_over:
-        winner_name = state.get("winner_name")
-        if winner_name:
-            game_over = True
-            game_over_start_ts = time.time()
+    # normal button handling here
+    try:
+        requests.post(f"{SERVER_URL}/scoreboard/button/{button_id}", timeout=0.2)
+    except requests.RequestException:
+        pass
 
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # block button events if game over
-        if game_over:
-            continue
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            # Assuming you have a dict called `buttons` with Rects
+            for button_id, rect in buttons.items():
+                if rect.collidepoint(mouse_pos):
+                    handle_button_click(button_id)
 
-    # Fetch current state from Flask API
+    # --- Fetch current state from Flask API ---
     state = fetch_state()
     if not state:
         continue  # skip this frame if no state available
