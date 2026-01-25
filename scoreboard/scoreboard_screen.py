@@ -185,6 +185,7 @@ while running:
             game_over = False
             winner_name = None
             winner_locked = False
+            game_over_start_ts = None
         else:
             # blinking background
             blink = int(elapsed * 4) % 2
