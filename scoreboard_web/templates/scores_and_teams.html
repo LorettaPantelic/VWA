@@ -334,6 +334,16 @@
 
     let gameRunning = false;
 
+    setInterval(() => {
+        fetch("/get_state")
+            .then(res => res.json())
+            .then(state => {
+                scoreboard.winner_locked = state.winner_locked || false;
+                updateWinButtons();
+            })
+            .catch(() => {});
+    }, 500);
+
     function toggleGameClock() {
         fetch("/game_clock/toggle", { method: "POST" }).catch(() => {});
 
@@ -472,6 +482,12 @@
             updateWinButtons();
 
             startWinnerAnimation(data.winner_name);
+
+            const GAME_OVER_DURATION = 5000;
+            setTimeout(() => {
+                scoreboard.winner_locked = false;
+                updateWinButtons();
+            }, GAME_OVER_DURATION);
         })
         .catch(() => {});
     }
