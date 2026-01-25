@@ -136,16 +136,24 @@
     .win-controls button {
         flex: 1;
         padding: 14px;
+        margin-top: 16px;
         font-size: 18px;
         border-radius: 12px;
         color: white;
         font-weight: 600;
+        cursor: pointer;
+        border: none;
+    }
+    .win-controls button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 
     .reset-all {
         background: #dc2626;
         color: white;
         width: 100%;
+        margin-top: 16px;
         padding: 16px;
         font-size: 18px;
         border-radius: 12px;
@@ -224,7 +232,7 @@
         <button id="winTeam1" onclick="triggerWin(1)"></button>
         <button id="winTeam2" onclick="triggerWin(2)"></button>
     </div>
-    <div class="controls" style="margin-top: 16px;">
+    <div class="controls">
         <button class="reset-all" onclick="resetAll()">🗑 Alles zurücksetzen</button>
     </div>
 </div>
@@ -264,6 +272,7 @@
         t.name = document.getElementById("team" + team + "Name").value;
         t.color = document.getElementById("team" + team + "Color").value;
         sendToServer();
+        updateWinButtons();
     }
 
     function sendToServer() {
@@ -361,23 +370,24 @@
             .then(res => res.json())
             .then(state => {
                 gameRunning = state.game_clock_running || false;
+                scoreboard.team1.name = state.teams[0].name;
+                scoreboard.team2.name = state.teams[1].name;
+                scoreboard.team1.score = state.teams[0].score;
+                scoreboard.team2.score = state.teams[1].score;
+                scoreboard.team1.color = document.getElementById("team1Color").value;
+                scoreboard.team2.color = document.getElementById("team2Color").value;
+                scoreboard.winner_locked = state.winner_locked || false;
+
                 const btn = document.getElementById("gameToggle");
                 const btnText = btn.querySelector(".btn-text");
+                btnText.textContent = gameRunning ? "■ Stopp" : "▶ Start";
+                btn.classList.toggle("stop", gameRunning);
+                btn.classList.toggle("start", !gameRunning);
 
-                if (gameRunning) {
-                    btnText.textContent = "■ Stopp";
-                    btn.classList.remove("start");
-                    btn.classList.add("stop");
-                } else {
-                    btnText.textContent = "▶ Start";
-                    btn.classList.remove("stop");
-                    btn.classList.add("start");
-                }
-
-                document.getElementById("team1Name").value = state.teams[0].name;
-                document.getElementById("team2Name").value = state.teams[1].name;
-                document.getElementById("team1Score").textContent = state.teams[0].score;
-                document.getElementById("team2Score").textContent = state.teams[1].score;
+                document.getElementById("team1Name").value = scoreboard.team1.name;
+                document.getElementById("team2Name").value = scoreboard.team2.name;
+                document.getElementById("team1Score").textContent = scoreboard.team1.score;
+                document.getElementById("team2Score").textContent = scoreboard.team2.score;
 
                 updateWinButtons();
             });
@@ -457,7 +467,7 @@
             body: JSON.stringify({ team: team })
         }).then(() => {
             scoreboard.winner_locked = true;
-            updateWinButtons();
+            updateWinButtons()
         }).catch(() => {});
     }
 
