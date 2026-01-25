@@ -185,7 +185,6 @@ while running:
             game_over = False
             winner_name = None
             winner_locked = False
-            game_over_start_ts = None
         else:
             # blinking background
             blink = int(elapsed * 4) % 2
@@ -202,11 +201,8 @@ while running:
             win_font, _ = get_fitting_font(text, "Arial", max_width, max_height, max_size=220, min_size=50)
             win_font = pygame.font.SysFont("Arial", win_font.get_height(), bold=True)
 
-            # wrap only if necessary
-            if win_font.size(text)[0] > max_width:
-                lines = wrap_text(text, win_font, max_width)
-            else:
-                lines = [text]
+            # Wrap text if necessary
+            lines = wrap_text(text, win_font, max_width) if win_font.size(text)[0] > max_width else [text]
 
             # vertical centering
             line_height = win_font.get_height()
@@ -220,9 +216,8 @@ while running:
                 screen.blit(surf, (x, y_offset))
                 y_offset += line_height
 
-            pygame.display.flip()
-            clock.tick(60)
-            continue
+        pygame.display.flip()
+        clock.tick(60)
 
 
     # --- Extract state values ---
