@@ -378,6 +378,8 @@
                 document.getElementById("team2Name").value = state.teams[1].name;
                 document.getElementById("team1Score").textContent = state.teams[0].score;
                 document.getElementById("team2Score").textContent = state.teams[1].score;
+
+                updateWinButtons();
             });
     });
 
@@ -453,6 +455,9 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ team: team })
+        }).then(() => {
+            scoreboard.winner_locked = true;
+            updateWinButtons();
         }).catch(() => {});
     }
 
