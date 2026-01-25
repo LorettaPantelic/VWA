@@ -133,6 +133,15 @@
         background: #e5e7eb;
     }
 
+    .win-controls button {
+        flex: 1;
+        padding: 14px;
+        font-size: 18px;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+    }
+
     .reset-all {
         background: #dc2626;
         color: white;
@@ -210,6 +219,10 @@
             <span class="btn-placeholder" aria-hidden="true">■ Stopp</span>
         </button>
         <button class="reset" onclick="resetGameClock()">↺ Reset</button>
+    </div>
+    <div class="controls win-controls">
+        <button id="winTeam1" onclick="triggerWin(1)"></button>
+        <button id="winTeam2" onclick="triggerWin(2)"></button>
     </div>
     <div class="controls" style="margin-top: 16px;">
         <button class="reset-all" onclick="resetAll()">🗑 Alles zurücksetzen</button>
@@ -434,6 +447,30 @@
                 if(state.sport) sportInput.value = state.sport;
             });
     });
+
+    function triggerWin(team) {
+        fetch("/scoreboard/trigger_winner", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ team: team })
+        }).catch(() => {});
+    }
+
+    function updateWinButtons() {
+        const btn1 = document.getElementById("winTeam1");
+        const btn2 = document.getElementById("winTeam2");
+
+        btn1.textContent = scoreboard.team1.name + " gewinnt";
+        btn2.textContent = scoreboard.team2.name + " gewinnt";
+
+        btn1.style.background = scoreboard.team1.color;
+        btn2.style.background = scoreboard.team2.color;
+
+        const disabled = scoreboard.winner_locked || false;
+        btn1.disabled = disabled;
+        btn2.disabled = disabled;
+    }
+
     function resetAll() {
         if (!confirm("Willst du wirklich alles zurücksetzen?")) return;
 

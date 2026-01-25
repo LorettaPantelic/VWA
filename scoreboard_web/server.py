@@ -188,6 +188,23 @@ def game_clock_reset():
     save_state(state)
     return "", 204
 
+@app.route("/scoreboard/trigger_winner", methods=["POST"])
+def trigger_winner():
+    data = request.get_json()
+    team_index = int(data.get("team", 0)) - 1
+
+    state = load_state()
+
+    if team_index not in (0, 1):
+        return "Invalid team", 400
+
+    state["winner_locked"] = True
+    state["game_clock_running"] = False
+    state["game_last_start_ts"] = None
+
+    save_state(state)
+    return "", 204
+
 @app.route("/scoreboard/reset_all", methods=["POST"])
 def scoreboard_reset_all():
     state = load_state()
