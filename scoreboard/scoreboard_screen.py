@@ -172,12 +172,21 @@ while running:
         continue  # skip this frame if no state available
     winner_locked = state.get("winner_locked", False)
 
+    if state.get("winner_locked") and not game_over:
+        for i, team in enumerate(state.get("teams", [])):
+            if state["winner_locked"]:
+                winner_name = team["name"]
+                game_over = True
+                game_over_start_ts = time.time()
+                break
+
     # --- GAME OVER ANIMATION (blocks everything else) ---
     if game_over:
         elapsed = time.time() - game_over_start_ts
         if elapsed >= GAME_OVER_DURATION:
             game_over = False
             winner_name = None
+            winner_locked = False
         else:
             # blinking background
             blink = int(elapsed * 4) % 2

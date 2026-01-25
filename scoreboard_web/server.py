@@ -198,9 +198,15 @@ def trigger_winner():
     if team_index not in (0, 1):
         return "Invalid team", 400
 
+    winner_team = state["teams"][team_index]
+
     state["winner_locked"] = True
     state["game_clock_running"] = False
     state["game_last_start_ts"] = None
+
+    save_state(state)
+
+    return jsonify({"winner_name": winner_team["name"]})
 
     save_state(state)
     return "", 204

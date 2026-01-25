@@ -465,10 +465,15 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ team: team })
-        }).then(() => {
+        })
+        .then(res => res.json())
+        .then(data => {
             scoreboard.winner_locked = true;
-            updateWinButtons()
-        }).catch(() => {});
+            updateWinButtons();
+
+            startWinnerAnimation(data.winner_name);
+        })
+        .catch(() => {});
     }
 
     function updateWinButtons() {
