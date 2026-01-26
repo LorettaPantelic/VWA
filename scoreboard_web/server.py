@@ -151,8 +151,9 @@ def scoreboard_update():
     if sport == "volleyball" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
         sa = state["teams"][0].get("score", 0)
         sb = state["teams"][1].get("score", 0)
-        if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
-            stop_game_clock()
+    if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
+        winner = state["teams"][0]["name"] if sa > sb else state["teams"][1]["name"]
+        stop_game_clock(winner)
 
     # --- Badminton ---
     if sport == "badminton" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
@@ -164,7 +165,8 @@ def scoreboard_update():
             or sa == 30
             or sb == 30
         ):
-            stop_game_clock()
+            winner = state["teams"][0]["name"] if sa > sb else state["teams"][1]["name"]
+            stop_game_clock(winner)
 
     save_state(state)
     return jsonify({"status": "ok"})
