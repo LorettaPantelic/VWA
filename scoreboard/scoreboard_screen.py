@@ -5,34 +5,6 @@ import requests
 import datetime
 from zoneinfo import ZoneInfo
 
-def check_volleyball_winner(teams):
-    if len(teams) < 2:
-        return None
-
-    a, b = teams[0], teams[1]
-    sa, sb = a.get("score", 0), b.get("score", 0)
-
-    if sa >= 25 or sb >= 25:
-        if abs(sa - sb) >= 2:
-            return a["name"] if sa > sb else b["name"]
-
-    return None
-
-def check_badminton_winner(teams):
-    if len(teams) < 2:
-        return None
-
-    a, b = teams[0], teams[1]
-    sa, sb = a.get("score", 0), b.get("score", 0)
-
-    if max(sa, sb) >= 21 and abs(sa - sb) >= 2:
-        return a["name"] if sa > sb else b["name"]
-
-    if sa == 30 or sb == 30:
-        return a["name"] if sa > sb else b["name"]
-
-    return None
-
 SERVER_URL = "http://127.0.0.1:5000"
 
 GERMAN_WEEKDAYS = {
@@ -68,11 +40,7 @@ clock = pygame.time.Clock()
 # --- GAME OVER ANIMATION STATE ---
 game_over = False
 winner_name = None
-last_scores = None
 game_over_start_ts = 0
-GAME_OVER_DURATION = 5.0  # Seconds
-
-winner_locked = False
 
 # Store the last fetched state to reduce HTTP requests
 last_state = None
@@ -161,10 +129,6 @@ total_elapsed = 0
 last_tick = time.time()
 
 def handle_button_click(button_id):
-    if winner_locked:  # buttons are locked during game over
-        return  # ignore clicks
-
-    # normal button handling here
     try:
         requests.post(f"{SERVER_URL}/scoreboard/button/{button_id}", timeout=0.2)
     except requests.RequestException:
@@ -175,12 +139,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            # Assuming you have a dict called `buttons` with Rects
-            for button_id, rect in buttons.items():
-                if rect.collidepoint(mouse_pos):
-                    handle_button_click(button_id)
 
     # --- Fetch current state from Flask API ---
     state = fetch_state()
@@ -188,7 +146,7 @@ while running:
         continue  # skip this frame if no state available
     winner_locked = state.get("winner_locked", False)
 
-    if state.get("winner_locked") and not game_over:
+    if winner_locked and not game_over:
         winner_name = state.get("winner_name")
         if winner_name:
             game_over = True
@@ -200,6 +158,7 @@ while running:
         if not state.get("winner_locked"):
             game_over = False
             winner_name = None
+            game_over_start_ts = 0
         else:
             # blinking background
             blink = int(elapsed * 4) % 2
@@ -413,39 +372,6 @@ while running:
 
         sport_name_display = state.get("sport", "")
         sport_name_lower = sport_name_display.lower()
-
-        if not game_over and not state.get("winner_locked", False):
-            sport_lower = sport_name_display.lower()
-            winner = None
-
-            # --- Check winner based on sport ---
-            if sport_lower == "volleyball":
-                winner = check_volleyball_winner(teams)
-            elif sport_lower == "badminton":
-                winner = check_badminton_winner(teams)
-
-            # --- Trigger animation & stop clock if winner exists ---
-            if winner:
-                winner_locked = True
-
-                # --- Update server with current state ---
-                try:
-                    requests.post(f"{SERVER_URL}/scoreboard/update", json={
-                        "teams": state["teams"],
-                        "sport": state["sport"]
-                    }, timeout=0.3)
-                except requests.RequestException:
-                    pass
-
-                # --- Stop the game clock locally ---
-                state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0)
-                state["game_clock_running"] = False
-                state["game_last_start_ts"] = None
-
-                # --- Trigger Game Over animation ---
-                game_over = True
-                winner_name = winner
-                game_over_start_ts = time.time()
 
         # --- Layout constants ---
         top_margin = 120           # Original distance from top

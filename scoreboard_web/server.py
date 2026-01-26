@@ -151,20 +151,16 @@ def scoreboard_update():
     if sport == "volleyball" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
         sa = state["teams"][0].get("score", 0)
         sb = state["teams"][1].get("score", 0)
-    if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
-        winner = state["teams"][0]["name"] if sa > sb else state["teams"][1]["name"]
-        stop_game_clock(winner)
+        if max(sa, sb) >= 25 and abs(sa - sb) >= 2:
+            winner = state["teams"][0]["name"] if sa > sb else state["teams"][1]["name"]
+            stop_game_clock(winner)
 
     # --- Badminton ---
     if sport == "badminton" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
         sa = state["teams"][0].get("score", 0)
         sb = state["teams"][1].get("score", 0)
 
-        if (
-            (max(sa, sb) >= 21 and abs(sa - sb) >= 2)
-            or sa == 30
-            or sb == 30
-        ):
+        if ((max(sa, sb) >= 21 and abs(sa - sb) >= 2) or sa == 30 or sb == 30):
             winner = state["teams"][0]["name"] if sa > sb else state["teams"][1]["name"]
             stop_game_clock(winner)
 
