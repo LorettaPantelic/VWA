@@ -475,7 +475,34 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ team })
-        }).catch(() => {});
+        })
+        .then(res => res.json())
+        .then(data => {
+            fetch("/get_state")
+                .then(res => res.json())
+                .then(state => {
+                    const btn = document.getElementById("gameToggle");
+                    const btnText = btn.querySelector(".btn-text");
+                    btnText.textContent = "▶ Start";
+                    btn.classList.remove("stop");
+                    btn.classList.add("start");
+                    gameRunning = state.game_clock_running || false;
+
+                    scoreboard.team1.score = state.teams[0].score;
+                    scoreboard.team2.score = state.teams[1].score;
+                    scoreboard.team1.name = state.teams[0].name;
+                    scoreboard.team2.name = state.teams[1].name;
+
+                    document.getElementById("team1Score").textContent = scoreboard.team1.score;
+                    document.getElementById("team2Score").textContent = scoreboard.team2.score;
+                    document.getElementById("team1Name").value = scoreboard.team1.name;
+                    document.getElementById("team2Name").value = scoreboard.team2.name;
+
+                    scoreboard.winner_locked = state.winner_locked || false;
+                    updateWinButtons();
+                });
+        })
+        .catch(() => {});
     }
 
     function updateWinButtons() {
