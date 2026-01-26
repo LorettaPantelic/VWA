@@ -193,7 +193,6 @@ while running:
         if winner_name:
             game_over = True
             game_over_start_ts = time.time()
-            winner_locked = True  # immediately lock buttons
 
     # --- GAME OVER ANIMATION (blocks everything else) ---
     if game_over:
@@ -409,19 +408,13 @@ while running:
 
     elif mode == "scores_and_teams":
         teams = state.get("teams", [])
-        # --- Unlock winner if scores have changed ---
-        current_scores = tuple(team.get("score", 0) for team in teams)
 
-        if last_scores is not None and current_scores != last_scores:
-            winner_locked = False
-
-        last_scores = current_scores
         sport_name = state.get("sport", "").lower()
 
         sport_name_display = state.get("sport", "")
         sport_name_lower = sport_name_display.lower()
 
-        if not game_over and not winner_locked:
+        if not game_over and not state.get("winner_locked", False):
             sport_lower = sport_name_display.lower()
             winner = None
 
