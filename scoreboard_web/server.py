@@ -210,6 +210,14 @@ def trigger_winner():
 
     winner_team = state["teams"][team_index]
 
+    # --- Stop game clock correctly ---
+    now = int(time.time() * 1000)
+    if state.get("game_clock_running") and state.get("game_last_start_ts"):
+        state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (
+            now - state["game_last_start_ts"]
+        )
+        
+    # --- Lock winner ---
     state["winner_locked"] = True
     state["winner_name"] = winner_team["name"]
     state["winner_start_ts"] = time.time()

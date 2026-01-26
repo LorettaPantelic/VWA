@@ -319,9 +319,6 @@
 
         // --- If a winner is detected, stop the game clock and update button UI ---
         if (winner) {
-            // Stop server-side game clock
-            fetch("/game_clock/stop", { method: "POST" }).catch(() => {});
-
             // Update start/stop button UI
             const btn = document.getElementById("gameToggle");
             const btnText = btn.querySelector(".btn-text");
