@@ -198,10 +198,9 @@ while running:
     # --- GAME OVER ANIMATION (blocks everything else) ---
     if game_over:
         elapsed = time.time() - game_over_start_ts
-        if elapsed >= GAME_OVER_DURATION:
+        if not state.get("winner_locked"):
             game_over = False
             winner_name = None
-            winner_locked = False
         else:
             # blinking background
             blink = int(elapsed * 4) % 2

@@ -68,6 +68,13 @@ def set_mode(mode, message=None):
 def get_state():
     state = load_state()
 
+    if state.get("winner_locked") and state.get("winner_start_ts"):
+        if time.time() - state["winner_start_ts"] > 5:
+            state["winner_locked"] = False
+            state["winner_name"] = None
+            state["winner_start_ts"] = None
+            save_state(state)
+
     # If the clock is running → calculate current time
 
     if state["stopwatch_running"] and state.get("last_start_ts"):
@@ -202,11 +209,11 @@ def trigger_winner():
 
     state["winner_locked"] = True
     state["winner_name"] = winner_team["name"]
+    state["winner_start_ts"] = time.time()
     state["game_clock_running"] = False
     state["game_last_start_ts"] = None
 
     save_state(state)
-
     return jsonify({"winner_name": winner_team["name"]})
 
 @app.route("/scoreboard/reset_all", methods=["POST"])

@@ -474,22 +474,8 @@
         fetch("/scoreboard/trigger_winner", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ team: team })
-        })
-        .then(res => res.json())
-        .then(data => {
-            scoreboard.winner_locked = true;
-            updateWinButtons();
-
-            startWinnerAnimation(data.winner_name);
-
-            const GAME_OVER_DURATION = 5000;
-            setTimeout(() => {
-                scoreboard.winner_locked = false;
-                updateWinButtons();
-            }, GAME_OVER_DURATION);
-        })
-        .catch(() => {});
+            body: JSON.stringify({ team })
+        }).catch(() => {});
     }
 
     function updateWinButtons() {
