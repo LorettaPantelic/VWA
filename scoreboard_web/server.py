@@ -132,15 +132,20 @@ def scoreboard_update():
     sport = state.get("sport", "").lower()
 
     # --- Helper: stop game clock safely ---
-    def stop_game_clock():
+    def stop_game_clock(winner_name):
         now = int(time.time() * 1000)
+
         if state.get("game_clock_running") and state.get("game_last_start_ts"):
             state["game_elapsed_ms"] = state.get("game_elapsed_ms", 0) + (
                 now - state["game_last_start_ts"]
             )
+
         state["game_clock_running"] = False
         state["game_last_start_ts"] = None
+
         state["winner_locked"] = True
+        state["winner_name"] = winner_name
+        state["winner_start_ts"] = time.time()
 
     # --- Volleyball ---
     if sport == "volleyball" and len(state["teams"]) >= 2 and not state.get("winner_locked", False):
