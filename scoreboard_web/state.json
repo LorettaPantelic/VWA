@@ -1,45 +1,49 @@
 {
-  "stopwatch_running": false,
-  "elapsed_ms": 0,
-  "mode": "index",
-  "message": "Nachricht",
-  "hdmi": 1,
-  "tv_on": false,
-
-  "teams": [
-    {
-      "name": "Team 1",
-      "score": 0,
-      "color": [11, 173, 254]
-    },
-    {
-      "name": "Team 2",
-      "score": 0,
-      "color": [214, 76, 76]
-    }
-  ],
-
-  "sport": "",
-  "winner_locked": false,
-
-  "game_clock_running": false,
-  "game_elapsed_ms": 0,
-  "game_last_start_ts": null,
-
-  "timer_duration": 600,
-  "timer_start_ts": 0,
-  "timer_running": false,
-
-  "buzzer1": {
-  "running": false,
-  "elapsed_ms": 0,
-  "last_start_ts": null
-  },
-
-  "buzzer2": {
-    "running": false,
+    "stopwatch_running": false,
     "elapsed_ms": 0,
+    "mode": "scores_and_teams",
+    "message": "Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo Hallo",
+    "hdmi": 1,
+    "tv_on": true,
+    "teams": [
+        {
+            "name": "Team 1",
+            "score": 0,
+            "color": [
+                11,
+                173,
+                254
+            ]
+        },
+        {
+            "name": "Team 2",
+            "score": 0,
+            "color": [
+                214,
+                76,
+                76
+            ]
+        }
+    ],
+    "sport": "Volleyball",
+    "winner_locked": false,
+    "game_clock_running": false,
+    "game_elapsed_ms": 0,
+    "game_last_start_ts": null,
+    "timer_duration": 597.1795506477356,
+    "timer_start_ts": null,
+    "timer_running": false,
+    "buzzer1": {
+        "running": false,
+        "elapsed_ms": 0,
+        "last_start_ts": null
+    },
+    "buzzer2": {
+        "running": false,
+        "elapsed_ms": 0,
+        "last_start_ts": null
+    },
+    "winner_name": null,
+    "winner_start_ts": null,
     "last_start_ts": null
-  }
-
 }

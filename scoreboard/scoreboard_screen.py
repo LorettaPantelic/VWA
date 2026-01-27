@@ -31,12 +31,12 @@ FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 # --- Fonts ---
 font = pygame.font.Font(FONT_PATH, 180)
 message_font = pygame.font.Font(FONT_PATH, 180)
-team_font = pygame.font.Font(FONT_PATH, 140)
-score_font = pygame.font.Font(FONT_PATH, 350)
-clock_font_small = pygame.font.Font(FONT_PATH, 100)
-clock_font_large = pygame.font.Font(FONT_PATH, 300)
-date_font_small = pygame.font.Font(FONT_PATH, 100)
-game_time_font = pygame.font.Font(FONT_PATH, 140)
+team_font = pygame.font.Font(FONT_PATH, int(WIDTH * 0.065))
+score_font = pygame.font.Font(FONT_PATH, int(WIDTH * 0.15))
+clock_font_small = pygame.font.Font(FONT_PATH, int(WIDTH * 0.056))
+clock_font_large = pygame.font.Font(FONT_PATH, int(WIDTH * 0.2))
+date_font_small = pygame.font.Font(FONT_PATH, int(WIDTH * 0.056))
+game_time_font = pygame.font.Font(FONT_PATH, int(WIDTH * 0.07))
 
 clock = pygame.time.Clock()
 
@@ -103,7 +103,7 @@ def get_fitting_font(text, base_font_name, max_width, max_height, max_size, min_
     font_size = max_size
 
     while font_size >= min_size:
-        font = pygame.font.SysFont(base_font_name, font_size)
+        font = pygame.font.Font(base_font_name, font_size)
         # Wrap text based on current font size
         lines = wrap_text(text, font, max_width)
         line_height = font.get_height()   # <-- use current font
@@ -116,7 +116,7 @@ def get_fitting_font(text, base_font_name, max_width, max_height, max_size, min_
         font_size -= 2  # try smaller font
 
     # If nothing fits, return min size
-    font = pygame.font.SysFont(base_font_name, min_size)
+    font = pygame.font.Font(base_font_name, min_size)
     lines = wrap_text(text, font, max_width)
     return font, lines
 
@@ -136,6 +136,10 @@ def handle_button_click(button_id):
         requests.post(f"{SERVER_URL}/scoreboard/button/{button_id}", timeout=0.2)
     except requests.RequestException:
         pass
+
+team_scroll_offsets = [0, 0]
+team_scroll_start_pause = [1.0, 1.0]  # pause before scrolling
+team_scroll_end_pause = [0, 0]
 
 running = True
 while running:
@@ -175,7 +179,7 @@ while running:
             max_height = HEIGHT - 2 * padding
 
             # create bold font with max size
-            win_font, _ = get_fitting_font(text, FONT_PATH, max_width, max_height, max_size=220, min_size=50)
+            win_font, _ = get_fitting_font(text, FONT_PATH, max_width, max_height, max_size=int(WIDTH * 0.2), min_size=int(WIDTH * 0.07))
             win_font = pygame.font.SysFont(FONT_PATH, win_font.get_height(), bold=True)
 
             # Wrap text if necessary
@@ -222,12 +226,11 @@ while running:
         # If stopwatch is stopped or reset, use stored state only
         total_elapsed = state.get("elapsed_ms", 0) / 1000
 
-    hours = int(total_elapsed // 3600)
-    minutes = int((total_elapsed % 3600) // 60)
+    minutes = int(total_elapsed // 60)
     seconds = int(total_elapsed % 60)
-    milliseconds = int((total_elapsed - int(total_elapsed)) * 1000) // 10
+    milliseconds = int((total_elapsed - int(total_elapsed)) * 1000)
 
-    time_text = f"{hours:02}:{minutes:02}:{seconds:02}.{milliseconds:02}"
+    time_text = f"{minutes:02}:{seconds:02}.{milliseconds:03}"
 
     # --- Calculate buzzer stopwatch time ---
     now_ms = int(time.time() * 1000)
@@ -239,11 +242,10 @@ while running:
         buzzer1_elapsed_ms_current = buzzer1_elapsed_ms
 
     buzzer1_elapsed = buzzer1_elapsed_ms_current / 1000
-    bh1 = int(buzzer1_elapsed // 3600)
-    bm1 = int((buzzer1_elapsed % 3600) // 60)
+    bm1 = int(buzzer1_elapsed // 60)
     bs1 = int(buzzer1_elapsed % 60)
-    bms1 = int((buzzer1_elapsed - int(buzzer1_elapsed)) * 100)
-    buzzer1_time_text = f"{bh1:02}:{bm1:02}:{bs1:02}.{bms1:02}"
+    bms1 = int((buzzer1_elapsed - int(buzzer1_elapsed)) * 1000)
+    buzzer1_time_text = f"{bm1:02}:{bs1:02}.{bms1:03}"
 
     # Buzzer 2
     if buzzer2_running and buzzer2_last_start_ts:
@@ -252,11 +254,10 @@ while running:
         buzzer2_elapsed_ms_current = buzzer2_elapsed_ms
 
     buzzer2_elapsed = buzzer2_elapsed_ms_current / 1000
-    bh2 = int(buzzer2_elapsed // 3600)
-    bm2 = int((buzzer2_elapsed % 3600) // 60)
+    bm2 = int(buzzer2_elapsed // 60)
     bs2 = int(buzzer2_elapsed % 60)
-    bms2 = int((buzzer2_elapsed - int(buzzer2_elapsed)) * 100)
-    buzzer2_time_text = f"{bh2:02}:{bm2:02}:{bs2:02}.{bms2:02}"
+    bms2 = int((buzzer2_elapsed - int(buzzer2_elapsed)) * 1000)
+    buzzer2_time_text = f"{bm2:02}:{bs2:02}.{bms2:03}"
 
     # --- Always use white background ---
     screen.fill((255, 255, 255))
@@ -291,7 +292,7 @@ while running:
         box_y = (HEIGHT - box_height) / 2
 
         font_size = int(box_height * 0.5)
-        stopwatch_font = pygame.font.SysFont(FONT_PATH, font_size)
+        stopwatch_font = pygame.font.Font(FONT_PATH, font_size)
 
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
         border_radius = int(box_height * 0.15)
@@ -307,61 +308,70 @@ while running:
 
     elif mode == "message":
         padding = int(HEIGHT * 0.04)
+        top_padding = padding
+        bottom_padding = padding
 
-        # Original box size
-        base_box_width = int(WIDTH * 0.7)
-        base_box_height = int(HEIGHT * 0.4)
+        # Determine vertical limits based on date and bottom margin
+        date_surface = date_font_small.render(date_text, True, (0, 0, 0))
+        top_limit = date_surface.get_height() + top_padding
+        bottom_limit = HEIGHT - bottom_padding
+        max_box_height = bottom_limit - top_limit
+
+        # Base box and max width
+        base_box_width = WIDTH * 0.7
+        base_box_height = HEIGHT * 0.4
+        max_box_width = WIDTH * 0.9
         box_width = base_box_width
         box_height = base_box_height
+        font_size = int(box_height * 0.5)
+        message_font = pygame.font.Font(FONT_PATH, font_size)
 
-        # Maximum allowed size (safe area)
-        top_margin = 160
-        bottom_margin = 60  # distance to bottom screen edge
-        max_box_width = int(WIDTH * 0.9)
-        max_box_height = HEIGHT - top_margin - bottom_margin
-
-        # Max & Min font sizes
-        MAX_FONT_SIZE = int(base_box_height * 0.5)
-        MIN_FONT_SIZE = int(base_box_height * 0.01)
-
-        # Get optimal font and wrapped lines for message
-        message_font, lines = get_fitting_font(
-            message_text, FONT_PATH,
-            max_box_width - 2 * padding,
-            max_box_height - 2 * padding,
-            MAX_FONT_SIZE,
-            MIN_FONT_SIZE
-        )
-
-        # Text dimensions
+        # Initial wrap
+        lines = wrap_text(message_text, message_font, box_width - 2 * padding)
         line_height = message_font.get_height()
-        text_height = line_height * len(lines)
         text_width = max(message_font.size(line)[0] for line in lines)
+        text_height = line_height * len(lines)
 
-        # Adjust box width if text is wider than base
-        if text_width + 2 * padding > base_box_width:
-            box_width = min(text_width + 2 * padding, max_box_width)
+        # --- Grow width first ---
+        while text_width + 2 * padding > box_width and box_width < max_box_width:
+            box_width = min(box_width + 10, max_box_width)
+            lines = wrap_text(message_text, message_font, box_width - 2 * padding)
+            text_width = max(message_font.size(line)[0] for line in lines)
+            text_height = line_height * len(lines)
 
-        # Adjust box height only if text is taller than base
-        if text_height + 2 * padding > base_box_height:
+        # --- Grow height only if needed ---
+        if text_height + 2 * padding > box_height:
             box_height = min(text_height + 2 * padding, max_box_height)
 
-        # Center box horizontally and vertically like stopwatch
-        box_x = (WIDTH - box_width) // 2
-        box_y = (HEIGHT - box_height) // 2
+        # --- Shrink font if text still doesn't fit ---
+        if text_height + 2 * padding > box_height or text_width + 2 * padding > box_width:
+            message_font, lines = get_fitting_font(
+                message_text, FONT_PATH,
+                box_width - 2 * padding,
+                box_height - 2 * padding,
+                max_size=font_size,
+                min_size=int(font_size * 0.1)
+            )
+            line_height = message_font.get_height()
+            text_height = line_height * len(lines)
+            text_width = max(message_font.size(line)[0] for line in lines)
+
+        # Position: keep base position if box is original size
+        if box_width == base_box_width and box_height == base_box_height:
+            box_x = (WIDTH - base_box_width) // 2
+            box_y = (HEIGHT - base_box_height) // 2
+        else:
+            # Center vertically between top_limit and bottom_limit
+            box_x = (WIDTH - box_width) // 2
+            box_y = top_limit + (max_box_height - box_height) // 2
 
         # Draw box
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
         border_radius = int(box_height * 0.15)
         pygame.draw.rect(screen, (11, 173, 254), rect, border_radius=border_radius)
 
-        # Text vertical positioning
-        if text_height + 2 * padding >= box_height:
-            y_offset = box_y + padding  # start at top padding if text is too tall
-        else:
-            y_offset = box_y + (box_height - text_height) // 2  # center vertically
-
-        # Draw text lines
+        # Draw text centered
+        y_offset = box_y + (box_height - text_height) // 2
         for line in lines:
             line_surface = message_font.render(line, True, (255, 255, 255))
             x = box_x + (box_width - line_surface.get_width()) // 2
@@ -377,11 +387,9 @@ while running:
         sport_name_lower = sport_name_display.lower()
 
         # --- Layout constants ---
-        top_margin = 120           # Original distance from top
+        top_margin = int(WIDTH * 0.06)          # Original distance from top
         spacing_between_boxes = 40  # Horizontal spacing between team boxes
-        time_margin = 20            # Space between boxes and game time
-        bottom_margin = time_margin # Keep distance from time to bottom same as time_margin
-        sport_margin = 120  # space for the sport title above the boxes
+        sport_margin = int(WIDTH * 0.08)  # space for the sport title above the boxes
         vertical_offset = sport_margin
 
         num_teams = min(2, len(teams))
@@ -393,8 +401,6 @@ while running:
             - top_margin
             - sport_margin
             - game_time_font.get_height()
-            - time_margin
-            - bottom_margin
         )
 
         # Y position of the boxes (fixed top margin)
@@ -403,9 +409,9 @@ while running:
         # --- Display current sport above team boxes ---
         sport_name_display = state.get("sport", "")
         if sport_name_display:
-            sport_font = pygame.font.SysFont(FONT_PATH, 120)
+            sport_font = pygame.font.Font(FONT_PATH, int(WIDTH * 0.06))
             sport_surf = sport_font.render(f"{sport_name_display}", True, (0, 0, 0))
-            sport_y = top_margin - sport_surf.get_height() - 20  + vertical_offset
+            sport_y = top_margin - sport_surf.get_height() + vertical_offset
             screen.blit(
                 sport_surf,
                 ((WIDTH - sport_surf.get_width()) // 2, sport_y)
@@ -423,12 +429,65 @@ while running:
             rect = pygame.Rect(x, y, card_width, card_height)
             pygame.draw.rect(screen, color, rect, border_radius=40)
 
-            # Draw team name at top of box
+            # --- Draw team name at top of box (with scrolling & clipping) ---
             name_surf = team_font.render(name, True, (255, 255, 255))
-            screen.blit(
-                name_surf,
-                (x + (card_width - name_surf.get_width()) // 2, y + 20)
+            name_width = name_surf.get_width()
+            padding = 20
+            box_inner_width = card_width - 2 * padding
+
+            scroll_speed = 120      # pixels per second
+            pause_time = 1.0        # seconds (pause before and after scrolling)
+
+            dt = clock.get_time() / 1000  # delta time in seconds
+
+            if name_width > box_inner_width:
+                # Maximum scroll distance so the text end aligns with left padding
+                max_scroll = name_width - box_inner_width
+
+                # --- pause before scrolling ---
+                if team_scroll_start_pause[i] > 0:
+                    team_scroll_start_pause[i] -= dt
+
+                # --- scrolling phase ---
+                elif team_scroll_offsets[i] < max_scroll:
+                    team_scroll_offsets[i] += scroll_speed * dt
+                    if team_scroll_offsets[i] >= max_scroll:
+                        team_scroll_offsets[i] = max_scroll
+                        team_scroll_end_pause[i] = pause_time
+
+                # --- pause after scrolling ---
+                elif team_scroll_end_pause[i] > 0:
+                    team_scroll_end_pause[i] -= dt
+
+                # --- reset loop ---
+                else:
+                    team_scroll_offsets[i] = 0
+                    team_scroll_start_pause[i] = pause_time
+
+                x_pos = x + padding - team_scroll_offsets[i]
+
+            else:
+                # No scrolling needed → center the text
+                team_scroll_offsets[i] = 0
+                team_scroll_start_pause[i] = pause_time
+                team_scroll_end_pause[i] = 0
+                x_pos = x + (card_width - name_width) // 2
+
+
+            # --- Clip drawing area so text stays inside its box ---
+            clip_rect = pygame.Rect(
+                x + padding,
+                y + 20,
+                box_inner_width,
+                name_surf.get_height()
             )
+            screen.set_clip(clip_rect)
+
+            # Draw the team name
+            screen.blit(name_surf, (x_pos, y + 20))
+
+            # Reset clipping to avoid affecting other elements
+            screen.set_clip(None)
 
             # Draw the score centered in the box
             score_surf = score_font.render(score, True, (255, 255, 255))
@@ -454,7 +513,7 @@ while running:
         time_x = (WIDTH - time_surf.get_width()) // 2
 
         # Position vertically: symmetric spacing
-        time_y = y + card_height + time_margin
+        time_y = y + card_height
         screen.blit(time_surf, (time_x, time_y))
 
     elif mode == "timer":
@@ -487,7 +546,7 @@ while running:
 
         # Adaptive font for timer
         font_size = int(box_height * 0.5)
-        timer_font = pygame.font.SysFont(FONT_PATH, font_size)
+        timer_font = pygame.font.Font(FONT_PATH, font_size)
 
         # Time
         timer_surface = timer_font.render(time_text, True, (255, 255, 255))
@@ -507,7 +566,7 @@ while running:
         start_y = top_margin
 
         font_size = int(box_height * 0.5)
-        buzzer_font = pygame.font.SysFont(FONT_PATH, font_size)
+        buzzer_font = pygame.font.Font(FONT_PATH, font_size)
 
         times = [buzzer1_time_text, buzzer2_time_text]
 
