@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, jsonify, request, render_template, send_from_directory
 import json
 import os
@@ -12,6 +13,8 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static")
 )
+
+app.config["JSON_AS_ASCII"] = False
 
 STATE_FILE = os.path.join(BASE_DIR, "state.json")
 
@@ -41,7 +44,7 @@ def load_state():
 
             "sport": ""  # NEW: default empty sport
         })
-    with open(STATE_FILE, "r") as f:
+    with open(STATE_FILE, "r", encoding="utf-8") as f:
         state = json.load(f)
 
     # Ensure 'sport' key exists in case old JSON doesn't have it
@@ -51,8 +54,8 @@ def load_state():
     return state
 
 def save_state(state):
-    with open(STATE_FILE, "w") as f:
-        json.dump(state, f, indent=4)
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(state, f, indent=4, ensure_ascii=False)
         f.flush()
         os.fsync(f.fileno())
 
@@ -108,7 +111,7 @@ def get_state():
 # -------- API: Scores_and_teams --------
 @app.route("/scoreboard/update", methods=["POST"])
 def scoreboard_update():
-    data = request.get_json()
+    data = request.get_json(force=True)
     if not data:
         return "No data received", 400
 
@@ -200,7 +203,7 @@ def game_clock_reset():
 
 @app.route("/scoreboard/trigger_winner", methods=["POST"])
 def trigger_winner():
-    data = request.get_json()
+    data = request.get_json(force=True)
     team_index = int(data.get("team", 0)) - 1
 
     state = load_state()
@@ -278,7 +281,7 @@ def stopwatch_reset():
 # -------- API: Timer --------
 @app.route("/timer/update", methods=["POST"])
 def timer_update():
-    data = request.json
+    data = request.get_json(force=True)
     state = load_state()
     now = time.time()
 

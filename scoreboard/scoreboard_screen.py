@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygame
 import sys
 import time
@@ -25,15 +26,17 @@ WIDTH, HEIGHT = info.current_w, info.current_h
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 pygame.display.set_caption("Scoreboard Uhr")
 
+FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+
 # --- Fonts ---
-font = pygame.font.SysFont("Arial", 180)
-message_font = pygame.font.SysFont("Arial", 180)
-team_font = pygame.font.SysFont("Arial", 140)
-score_font = pygame.font.SysFont("Arial", 350)
-clock_font_small = pygame.font.SysFont("Arial", 100)
-clock_font_large = pygame.font.SysFont("Arial", 300)
-date_font_small   = pygame.font.SysFont("Arial", 100)
-game_time_font = pygame.font.SysFont("Arial", 140)
+font = pygame.font.Font(FONT_PATH, 180)
+message_font = pygame.font.Font(FONT_PATH, 180)
+team_font = pygame.font.Font(FONT_PATH, 140)
+score_font = pygame.font.Font(FONT_PATH, 350)
+clock_font_small = pygame.font.Font(FONT_PATH, 100)
+clock_font_large = pygame.font.Font(FONT_PATH, 300)
+date_font_small = pygame.font.Font(FONT_PATH, 100)
+game_time_font = pygame.font.Font(FONT_PATH, 140)
 
 clock = pygame.time.Clock()
 
@@ -172,8 +175,8 @@ while running:
             max_height = HEIGHT - 2 * padding
 
             # create bold font with max size
-            win_font, _ = get_fitting_font(text, "Arial", max_width, max_height, max_size=220, min_size=50)
-            win_font = pygame.font.SysFont("Arial", win_font.get_height(), bold=True)
+            win_font, _ = get_fitting_font(text, FONT_PATH, max_width, max_height, max_size=220, min_size=50)
+            win_font = pygame.font.SysFont(FONT_PATH, win_font.get_height(), bold=True)
 
             # Wrap text if necessary
             lines = wrap_text(text, win_font, max_width) if win_font.size(text)[0] > max_width else [text]
@@ -288,7 +291,7 @@ while running:
         box_y = (HEIGHT - box_height) / 2
 
         font_size = int(box_height * 0.5)
-        stopwatch_font = pygame.font.SysFont("Arial", font_size)
+        stopwatch_font = pygame.font.SysFont(FONT_PATH, font_size)
 
         rect = pygame.Rect(box_x, box_y, box_width, box_height)
         border_radius = int(box_height * 0.15)
@@ -323,7 +326,7 @@ while running:
 
         # Get optimal font and wrapped lines for message
         message_font, lines = get_fitting_font(
-            message_text, "Arial",
+            message_text, FONT_PATH,
             max_box_width - 2 * padding,
             max_box_height - 2 * padding,
             MAX_FONT_SIZE,
@@ -400,7 +403,7 @@ while running:
         # --- Display current sport above team boxes ---
         sport_name_display = state.get("sport", "")
         if sport_name_display:
-            sport_font = pygame.font.SysFont("Arial", 120)
+            sport_font = pygame.font.SysFont(FONT_PATH, 120)
             sport_surf = sport_font.render(f"{sport_name_display}", True, (0, 0, 0))
             sport_y = top_margin - sport_surf.get_height() - 20  + vertical_offset
             screen.blit(
@@ -484,7 +487,7 @@ while running:
 
         # Adaptive font for timer
         font_size = int(box_height * 0.5)
-        timer_font = pygame.font.SysFont("Arial", font_size)
+        timer_font = pygame.font.SysFont(FONT_PATH, font_size)
 
         # Time
         timer_surface = timer_font.render(time_text, True, (255, 255, 255))
@@ -504,7 +507,7 @@ while running:
         start_y = top_margin
 
         font_size = int(box_height * 0.5)
-        buzzer_font = pygame.font.SysFont("Arial", font_size)
+        buzzer_font = pygame.font.SysFont(FONT_PATH, font_size)
 
         times = [buzzer1_time_text, buzzer2_time_text]
 
