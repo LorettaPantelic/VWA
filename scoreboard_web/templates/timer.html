@@ -148,8 +148,13 @@
     function formatTime(totalSeconds, ms = 0) {
         const m = Math.floor(totalSeconds / 60);
         const s = totalSeconds % 60;
-        const cs = Math.floor(ms / 10);
-        return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}.${String(cs).padStart(2,"0")}`;
+        const millis = Math.floor(ms);
+
+        return (
+            String(m).padStart(2, "0") + ":" +
+            String(s).padStart(2, "0") + "." +
+            String(millis).padStart(3, "0")
+        );
     }
 
     function updateDisplay() {
@@ -192,7 +197,7 @@
             startBtn.classList.add("stop");
             running = true;
 
-            intervalId = setInterval(updateTimerDisplay, 50);
+            intervalId = setInterval(updateTimerDisplay, 16);
         } else {
             stopTimer();
         }
@@ -200,9 +205,11 @@
 
     function stopTimer() {
         if (!running) return;
+
         clearInterval(intervalId);
         running = false;
-        lastSetSeconds = remainingSeconds; 
+
+        lastSetSeconds = remainingSeconds;
 
         btnText.textContent = "▶ Start";
         startBtn.classList.remove("stop");
@@ -211,7 +218,10 @@
         fetch("/timer/update", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ running: false })
+            body: JSON.stringify({
+                running: false,
+                duration: remainingSeconds
+            })
         });
     }
 

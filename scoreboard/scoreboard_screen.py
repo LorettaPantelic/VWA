@@ -219,12 +219,12 @@ while running:
     current_time = time.time()
 
     # --- Calculate stopwatch time ---
+    elapsed_ms = state.get("elapsed_ms", 0)
+
     if stopwatch_running and state.get("last_start_ts"):
-        # total_elapsed = stored time + time elapsed since last start
-        total_elapsed = state.get("elapsed_ms", 0) / 1000 + (current_time - state["last_start_ts"] / 1000)
+        total_elapsed = (elapsed_ms / 1000) + (time.time() - state["last_start_ts"])
     else:
-        # If stopwatch is stopped or reset, use stored state only
-        total_elapsed = state.get("elapsed_ms", 0) / 1000
+        total_elapsed = elapsed_ms / 1000
 
     minutes = int(total_elapsed // 60)
     seconds = int(total_elapsed % 60)
@@ -536,9 +536,8 @@ while running:
 
         minutes = int(remaining // 60)
         seconds = int(remaining % 60)
-        centiseconds = int((remaining - int(remaining)) * 100)
-
-        time_text = f"{minutes:02}:{seconds:02}.{centiseconds:02}"
+        milliseconds = int((remaining - int(remaining)) * 1000)
+        time_text = f"{minutes:02}:{seconds:02}.{milliseconds:03}"
 
         # Blue Box
         box_width = WIDTH * 0.7

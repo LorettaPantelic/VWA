@@ -7,7 +7,7 @@
         background: white;
         padding: 24px;
         border-radius: 16px;
-        width: 420px;
+        width: 520px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 
@@ -91,92 +91,123 @@
 </div>
 
 <script>
-    let running = false;
-    let startTime = 0;
-    let elapsed = 0;
-    let rafId = null;
-
     const timeEl = document.getElementById("time");
     const toggleBtn = document.getElementById("toggleBtn");
     const btnText = toggleBtn.querySelector(".btn-text");
 
-    function formatTime(ms) {
-        const minutes = Math.floor(ms / 60000);
-        const seconds = Math.floor((ms % 60000) / 1000);
-        const millis  = ms % 1000;
+    let running = false;           // Is the stopwatch running locally
+    let baseSeconds = 0;           // Time confirmed by the server (seconds)
+    let startTimestamp = null;     // performance.now() when started
+    let intervalId = null;
 
+    // --- Format time: seconds → MM:SS.mmm ---
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const sec = Math.floor(seconds % 60);
+        const ms = Math.floor((seconds - Math.floor(seconds)) * 1000);
         return (
             String(minutes).padStart(2, "0") + ":" +
-            String(seconds).padStart(2, "0") + "." +
-            String(millis).padStart(3, "0")
+            String(sec).padStart(2, "0") + "." +
+            String(ms).padStart(3, "0")
         );
     }
 
-    function update() {
-        elapsed = Date.now() - startTime;
+    // --- Update display smoothly using local time ---
+    function updateStopwatchDisplay() {
+        const elapsed = running
+            ? baseSeconds + (performance.now() - startTimestamp) / 1000
+            : baseSeconds;
+
         timeEl.textContent = formatTime(elapsed);
-        rafId = requestAnimationFrame(update);
     }
 
-    function toggleStopwatch() {
-        fetch("/stopwatch/toggle", { method: "POST" }).catch(() => {});
+    // --- Start / Stop stopwatch ---
+    async function toggleStopwatch() {
+        try {
+            // Tell server to toggle stopwatch state
+            await fetch("/stopwatch/toggle", { method: "POST" });
 
-        if (!running) {
-            startTime = Date.now() - elapsed;
-            rafId = requestAnimationFrame(update);
+            if (!running) {
+                // ▶ START (local smooth run)
+                startTimestamp = performance.now();
+                running = true;
 
-            btnText.textContent = "■ Stopp";
-            toggleBtn.classList.remove("start");
-            toggleBtn.classList.add("stop");
-            running = true;
-        } else {
-            cancelAnimationFrame(rafId);
+                btnText.textContent = "■ Stopp";
+                toggleBtn.classList.remove("start");
+                toggleBtn.classList.add("stop");
+
+                intervalId = setInterval(updateStopwatchDisplay, 50);
+            } else {
+                // ■ STOP (jump to server value)
+                clearInterval(intervalId);
+                running = false;
+
+                // Fetch final time from server → one clean jump
+                const res = await fetch("/get_state");
+                const state = await res.json();
+                baseSeconds = (state.elapsed_ms || 0) / 1000;
+
+                btnText.textContent = "▶ Start";
+                toggleBtn.classList.remove("stop");
+                toggleBtn.classList.add("start");
+
+                updateStopwatchDisplay();
+            }
+        } catch (err) {
+            console.error("Error toggling stopwatch:", err);
+        }
+    }
+
+    // --- Reset stopwatch ---
+    async function resetStopwatch() {
+        try {
+            await fetch("/stopwatch/reset", { method: "POST" });
+            clearInterval(intervalId);
+
+            running = false;
+            baseSeconds = 0;
+            startTimestamp = null;
+
+            timeEl.textContent = "00:00.000";
 
             btnText.textContent = "▶ Start";
             toggleBtn.classList.remove("stop");
             toggleBtn.classList.add("start");
-            running = false;
+        } catch (err) {
+            console.error("Error resetting stopwatch:", err);
         }
     }
 
-    function resetStopwatch() {
-        fetch("/stopwatch/reset", { method: "POST" }).catch(() => {});
+    // --- Initial sync from server on page load ---
+    async function syncFromServer() {
+        try {
+            const res = await fetch("/get_state");
+            const state = await res.json();
 
-        cancelAnimationFrame(rafId);
-        elapsed = 0;
-        timeEl.textContent = "00:00.000";
+            baseSeconds = (state.elapsed_ms || 0) / 1000;
 
-        btnText.textContent = "▶ Start";
-        toggleBtn.classList.remove("stop");
-        toggleBtn.classList.add("start");
-        running = false;
+            if (state.stopwatch_running && state.last_start_ts) {
+                const elapsed = Date.now() / 1000 - state.last_start_ts;
+                baseSeconds += elapsed;
+
+                startTimestamp = performance.now();
+                running = true;
+
+                btnText.textContent = "■ Stopp";
+                toggleBtn.classList.remove("start");
+                toggleBtn.classList.add("stop");
+
+                intervalId = setInterval(updateStopwatchDisplay, 50);
+            }
+
+            updateStopwatchDisplay();
+        } catch (err) {
+            console.error("Error syncing stopwatch:", err);
+        }
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
-        fetch("/get_state")
-            .then(res => res.json())
-            .then(state => {
-                // Read if stopwatch is running
-                running = state.stopwatch_running || false;
-                elapsed = state.current_elapsed_ms || 0;
-
-                // Update time display
-                timeEl.textContent = formatTime(elapsed);
-
-                // Update button
-                if (running) {
-                    startTime = Date.now() - elapsed;
-                    rafId = requestAnimationFrame(update);
-                    btnText.textContent = "■ Stopp";
-                    toggleBtn.classList.remove("start");
-                    toggleBtn.classList.add("stop");
-                } else {
-                    btnText.textContent = "▶ Start";
-                    toggleBtn.classList.remove("stop");
-                    toggleBtn.classList.add("start");
-                }
-            });
-    });
+    // --- Run initial sync ---
+    window.addEventListener("DOMContentLoaded", syncFromServer);
 </script>
 
 {% endblock %}

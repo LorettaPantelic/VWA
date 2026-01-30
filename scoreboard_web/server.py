@@ -81,12 +81,10 @@ def get_state():
     # If the clock is running → calculate current time
 
     if state["stopwatch_running"] and state.get("last_start_ts"):
-        now = int(time.time() * 1000)
-        state["current_elapsed_ms"] = (
-            state["elapsed_ms"] + (now - state["last_start_ts"])
-        )
+        now = time.time()
+        state["current_elapsed_ms"] = state["elapsed_ms"] / 1000 + (now - state["last_start_ts"])
     else:
-        state["current_elapsed_ms"] = state["elapsed_ms"]
+        state["current_elapsed_ms"] = state["elapsed_ms"] / 1000
 
     # Timer state for clients
     if state.get("timer_running") and state.get("timer_start_ts"):
@@ -253,17 +251,14 @@ def scoreboard_reset_all():
 @app.route("/stopwatch/toggle", methods=["POST"])
 def stopwatch_toggle():
     state = load_state()
-    now = int(time.time() * 1000)
-
+    now = time.time()
     if not state["stopwatch_running"]:
-        # ▶ Start
         state["stopwatch_running"] = True
         state["last_start_ts"] = now
     else:
-        # ■ Stop
-        state["stopwatch_running"] = False
         if state.get("last_start_ts"):
-            state["elapsed_ms"] += now - state["last_start_ts"]
+            state["elapsed_ms"] += (now - state["last_start_ts"]) * 1000
+        state["stopwatch_running"] = False
         state["last_start_ts"] = None
 
     save_state(state)
@@ -273,7 +268,7 @@ def stopwatch_toggle():
 def stopwatch_reset():
     state = load_state()
     state["stopwatch_running"] = False
-    state["elapsed_ms"] = 0
+    state["elapsed_ms"] = 0.0
     state["last_start_ts"] = None
     save_state(state)
     return jsonify(state)
