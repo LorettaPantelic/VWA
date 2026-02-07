@@ -8,15 +8,21 @@
 </head>
 <body>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <a class="nav-btn" href="/">Start</a>
-        <a class="nav-btn" href="/scores_and_teams">Teams und Punkte</a>
-        <a class="nav-btn" href="/stopwatch">Stoppuhr</a>
-        <a class="nav-btn" href="/timer">Timer</a>
-        <a class="nav-btn" href="/message">Nachrichten</a>
-        <a class="nav-btn" href="/buzzer">Buzzer</a>
-    </nav>
+    <!-- Burgermenu -->
+    <div class="burger-menu">
+        <div class="burger-btn">
+            <img src="{{ url_for('static', filename='menu_icons/bars.png') }}" class="icon-bars" alt="Menu">
+            <img src="{{ url_for('static', filename='menu_icons/cross.png') }}" class="icon-cross" alt="Close">
+        </div>
+        <div class="menu-items">
+            <a href="/" class="menu-item"><img src="{{ url_for('static', filename='menu_icons/index.png') }}" alt="Start"></a>
+            <a href="/scores_and_teams" class="menu-item"><img src="{{ url_for('static', filename='menu_icons/scores_and_teams.png') }}" alt="Teams"></a>
+            <a href="/stopwatch" class="menu-item"><img src="{{ url_for('static', filename='menu_icons/stopwatch.png') }}" alt="Stoppuhr"></a>
+            <a href="/timer" class="menu-item"><img src="{{ url_for('static', filename='menu_icons/timer.png') }}" alt="Timer"></a>
+            <a href="/message" class="menu-item"><img src="{{ url_for('static', filename='menu_icons/message.png') }}" alt="Nachrichten"></a>
+            <a href="/buzzer" class="menu-item"><img src="{{ url_for('static', filename='menu_icons/buzzer.png') }}" alt="Buzzer"></a>
+        </div>
+    </div>
 
     <!-- Page content -->
     <div class="content-wrapper">
@@ -25,5 +31,6 @@
         </div>
     </div>
 
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

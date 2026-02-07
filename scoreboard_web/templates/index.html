@@ -3,19 +3,17 @@
 
 <style>
 .container {
-    width: 300px;
+    background: white;
     padding: 24px;
     border-radius: 16px;
-    background: white;
+    width: 520px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 
     display: flex;
-    flex-direction: column; /* TV above, HDMI below */
+    flex-direction: column;
     gap: 20px;
     align-items: center;
     justify-content: center;
-
-    margin: 50px auto;
 }
 
 button {
@@ -46,19 +44,24 @@ button {
 
 .hdmi-buttons-wrapper {
     display: flex;
-    gap: 20px;
+    gap: 12px;
+    width: 100%; 
 }
 
 .hdmi-button {
-    width: 120px;
-    height: 80px;
+    flex: 1;
+    min-height: 60px;
     font-size: 24px;
-    border-radius: 14px;
+    border-radius: 12px;
+    padding: 14px;
+
     background: rgb(11, 173, 254);
     color: white;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
 }
